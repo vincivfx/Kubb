@@ -1,0 +1,6 @@
+﻿services:
+  kubbadminapi:
+    image: kubbadminapi
+    build:
+      context: .
+      dockerfile: Dockerfile
