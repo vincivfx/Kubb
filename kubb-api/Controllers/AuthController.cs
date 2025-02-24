@@ -10,7 +10,7 @@ using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
 namespace KubbAdminAPI.Controllers;
 
 [ApiController, Route("[controller]/[action]")]
-public class AuthController(DatabaseContext context, Mailer mailer) : BaseController
+public class AuthController(DatabaseContext context, EmailService emailService) : BaseController
 {
     [HttpPost]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
@@ -43,7 +43,7 @@ public class AuthController(DatabaseContext context, Mailer mailer) : BaseContro
     }
 
     [HttpPost]
-    public ActionResult<OkResult> Register([FromBody] RegisterRequest request)
+    public ActionResult Register([FromBody] RegisterRequest request)
     {
         // check if email address is registered yet
         if (context.Users.Any(user => user.EmailAddress == request.EmailAddress))
@@ -66,15 +66,15 @@ public class AuthController(DatabaseContext context, Mailer mailer) : BaseContro
         context.SaveChanges();
         
         var message = @"Hi, in order to complete your registration, please enter the following link: <br><br>https://localhost:8080/auth/verify?token=" + verificationToken + "<br><br>best regards,<br>Kubb Contest Platform";
-         
-        mailer.SendAsync(user.EmailAddress, "Complete registration", message);
+
+        Task.Run(() => emailService.SendEmailAsync(user.EmailAddress, "Complete registration", message));
 
         
         return new OkResult();
     }
 
     [HttpPost]
-    public ActionResult<OkResult> RecoverPassword([FromBody] RecoverPasswordRequest request)
+    public ActionResult RecoverPassword([FromBody] RecoverPasswordRequest request)
     {
         
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
@@ -88,13 +88,13 @@ public class AuthController(DatabaseContext context, Mailer mailer) : BaseContro
 
         var message = @"Hi, in order to reset your password, please use this temporary one: <br><br>" + temporaryPassword + "<br><br>best regards,<br>Kubb Contest Platform";
         
-        mailer.SendAsync(user.EmailAddress, "Password reset", message);
+        Task.Run(() => emailService.SendEmailAsync(user.EmailAddress, "Password reset", message));
         
         return new OkResult();
     }
 
     [HttpPost]
-    public ActionResult<OkResult> Logout()
+    public ActionResult Logout()
     {
 
         context.Logins.Remove(CurrentUserLogin());
@@ -105,7 +105,7 @@ public class AuthController(DatabaseContext context, Mailer mailer) : BaseContro
     }
 
     [HttpPost]
-    public ActionResult<OkResult> CompleteRegistration([FromBody] CompleteRegistrationRequest request)
+    public ActionResult CompleteRegistration([FromBody] CompleteRegistrationRequest request)
     {
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
         

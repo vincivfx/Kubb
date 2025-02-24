@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace KubbAdminAPI.Models;
 
@@ -51,13 +52,24 @@ public class User
 
     public void SetPasswordHash(string password)
     {
-        // TODO
+        PasswordHash = KeyDerivation.Pbkdf2(
+            password,
+            Salt,
+            KeyDerivationPrf.HMACSHA512,
+            100000,
+            80);
+
     }
 
     public bool CheckPassword(string password)
     {
-        // TODO 
-        return true;
+        return KeyDerivation.Pbkdf2(
+            password,
+            Salt,
+            KeyDerivationPrf.HMACSHA512,
+            100000,
+            80).SequenceEqual(PasswordHash);
+        ;
     }
 }
 

@@ -10,7 +10,7 @@ namespace KubbAdminAPI.Controllers;
 public class ChallengeController(DatabaseContext context) : BaseController
 {
     [HttpPost]
-    public ActionResult<OkResult> JoinChallenge([FromBody] JoinChallengeRequest request)
+    public ActionResult JoinChallenge([FromBody] JoinChallengeRequest request)
     {
         var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId);
 
@@ -34,12 +34,12 @@ public class ChallengeController(DatabaseContext context) : BaseController
     [HttpPost]
     public ActionResult<SendAnswerResponse> SendAnswer([FromBody] SendAnswerRequest request)
     {
-        var team = context.Teams.Include(team => team.Challenge).ThenInclude(challenge => challenge.Questions).Include(team => team.Administrator)
+        var team = context.Teams.Include(team => team.Challenge).ThenInclude(challenge => challenge.Questions)
+            .Include(team => team.Administrator)
             .FirstOrDefault(team => team.TeamId == request.TeamId);
-
-        var question = context.Questions.FirstOrDefault(question => question.QuestionId == request.QuestionId);
         
-        if (team == null || question == null || !team.Challenge.Questions.Contains(question) || team.Administrator != CurrentUser())
+        if (team == null || team.Challenge.Questions.Count() <= request.QuestionId ||
+            team.Administrator != CurrentUser())
         {
             return BadRequest();
         }
@@ -52,7 +52,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         var answer = new Answer
         {
             AnswerText = request.AnswerText,
-            Question = question,
+            Question = request.QuestionId,
             Team = team
         };
         context.Answers.Add(answer);
@@ -60,33 +60,91 @@ public class ChallengeController(DatabaseContext context) : BaseController
 
         return new SendAnswerResponse
         {
-            Correctness = question.AnswerText.Equals(request.AnswerText)
+            Correctness = team.Challenge.Questions[request.QuestionId] == request.AnswerText,
         };
     }
 
     [HttpPut]
-    public void EditResponse()
+    public ActionResult EditAnswer([FromBody] EditAnswerRequest request)
     {
+        var answer = context.Answers.Include(answer => answer.Team).ThenInclude(team => team.Challenge)
+            .FirstOrDefault(answer => answer.AnswerId == request.AnswerId);
+
+        if (answer == null || (answer.Team.Challenge.Status & ChallengeStatus.JoinersCanEditAnswer) !=
+            ChallengeStatus.JoinersCanEditAnswer)
+        {
+            return BadRequest();
+        }
+
+        answer.AnswerText = request.AnswerText;
+        context.SaveChanges();
+
+        return Ok();
     }
 
     [HttpDelete]
-    public void DeleteResponse()
+    public ActionResult DeleteAnswer([FromBody] DeleteAnswerRequest request)
     {
+        var answer = context.Answers.Include(answer => answer.Team).ThenInclude(team => team.Challenge)
+            .FirstOrDefault(answer => answer.AnswerId == request.AnswerId);
+
+        if (answer == null || answer.Team.TeamType == TeamType.JoinedTeam &&
+            (answer.Team.Challenge.Status & ChallengeStatus.JoinersCanEditAnswer) !=
+            ChallengeStatus.JoinersCanEditAnswer)
+        {
+            return BadRequest();
+        }
+
+        context.Answers.Remove(answer);
+        context.SaveChanges();
+
+        return Ok();
     }
 
     [HttpPost]
-    public ActionResult<OkResult> CreateTeam()
+    public ActionResult<CreateTeamResponse> CreateTeam([FromBody] CreateTeamRequest request)
     {
-        return new OkResult();
-    }
+        var challenge = context.Challenges.Include(challenge => challenge.Administrator)
+            .FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId);
 
-    [HttpPut]
-    public void UpdateTeam()
-    {
+        var user = CurrentUser();
+        
+        if (challenge == null || challenge.StartTime < DateTime.UtcNow ||
+            challenge.Administrator != user && !context.Participations.Any(participation =>
+                participation.User == user && participation.Challenge == challenge))
+        {
+            return Unauthorized();
+        }
+
+        var team = new Team
+        {
+            Administrator = user,
+            TeamType = TeamType.JoinedTeam,
+            TeamName = request.Name,
+            Challenge = challenge
+        };
+        
+        context.Teams.Add(team);
+        context.SaveChanges();
+
+        return new CreateTeamResponse
+        {
+            TeamId = team.TeamId
+        };
     }
 
     [HttpDelete]
-    public void DeleteTeam()
+    public ActionResult DeleteTeam([FromBody] DeleteTeamRequest request)
     {
+        var team = context.Teams.Include(team => team.Administrator).Include(team => team.Challenge).FirstOrDefault(team => team.TeamId == request.TeamId);
+        if (team == null || team.Administrator != CurrentUser() || team.Challenge.StartTime < DateTime.UtcNow)
+        {
+            return Unauthorized();
+        }
+
+        context.Teams.Remove(team);
+        context.SaveChanges();
+        
+        return Ok();
     }
 }

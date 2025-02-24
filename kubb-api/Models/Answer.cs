@@ -8,7 +8,7 @@ public class Answer : BaseModel
     public Guid AnswerId { get; set; } = Guid.NewGuid();
     
     [Required]
-    public required Question Question { get; set; }
+    public required int Question { get; set; }
     
     [Required]
     public required Team Team { get; set; }

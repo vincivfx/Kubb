@@ -2,13 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KubbAdminAPI.Models.RequestModels.Challenge;
 
-public class SendAnswerRequest
+public class EditAnswerRequest
 {
     [Required]
-    public Guid TeamId { get; set; }
-    
-    [Required]
-    public int QuestionId { get; set; }
+    public Guid AnswerId { get; set; }
     
     [Required, MaxLength(50)]
     public required string AnswerText { get; set; }

@@ -3,12 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KubbAdminAPI;
 
-public class DatabaseContext : DbContext
+public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
     
     public DbSet<User> Users { get; set; }
     public DbSet<Team> Teams { get; set; }
-    public DbSet<Question> Questions { get; set; }
     public DbSet<Answer> Answers { get; set; }
     public DbSet<Login> Logins { get; set; }
     public DbSet<Challenge> Challenges { get; set; }

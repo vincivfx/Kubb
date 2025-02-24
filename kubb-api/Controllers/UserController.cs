@@ -26,7 +26,7 @@ public class UserController : BaseController
     }
 
     [HttpPost]
-    public ActionResult<OkResult> UpdatePassword([FromBody] UpdatePasswordRequest request)
+    public ActionResult UpdatePassword([FromBody] UpdatePasswordRequest request)
     {
 
         var user = CurrentUser()!;
