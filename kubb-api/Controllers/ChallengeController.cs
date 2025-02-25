@@ -1,4 +1,5 @@
 using KubbAdminAPI.Models;
+using KubbAdminAPI.Models.RequestModels;
 using KubbAdminAPI.Models.RequestModels.Challenge;
 using KubbAdminAPI.Models.ResponseModels.Challenge;
 using Microsoft.AspNetCore.Mvc;
@@ -9,15 +10,53 @@ namespace KubbAdminAPI.Controllers;
 [ApiController, Route("[controller]/[action]")]
 public class ChallengeController(DatabaseContext context) : BaseController
 {
+    [HttpGet]
+    public ActionResult GetCurrentParticipations([FromQuery] Pagination pagination)
+    {
+        if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
+        var currentUser = CurrentUser()!;
+        var participations = context.Participations.Where(participation => participation.User == currentUser)
+            .Select(participation => new
+            {
+                participation.Challenge.Name,
+                participation.Challenge.StartTime,
+                participation.Challenge.EndTime,
+                participation.Challenge.Status,
+                participation.Challenge.RunningStatus
+            }).Skip(pagination.Limit * pagination.Offset).Take(pagination.Limit).OrderByDescending(a => a.StartTime)
+            .ToList();
+        return Ok(participations);
+    }
+
+    [HttpGet]
+    public ActionResult GetAvailableChallenges([FromQuery] Pagination pagination)
+    {
+        if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
+        var challenges =
+            context.Challenges.Where(challenge =>
+                    challenge.RunningStatus == RunningChallengeStatus.Submitted &&
+                    (challenge.Status & ChallengeStatus.AllowAnonymousJoin) == ChallengeStatus.AllowAnonymousJoin)
+                .Select(
+                    item => new
+                    {
+                        item.ChallengeId,
+                        item.Name,
+                        item.StartTime,
+                        item.EndTime,
+                        item.Status
+                    }).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
+        return Ok(challenges);
+    }
+
     [HttpPost]
     public ActionResult JoinChallenge([FromBody] JoinChallengeRequest request)
     {
         var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId);
 
-        if (challenge == null || challenge.StartTime < DateTime.UtcNow ||
+        if (challenge == null || challenge.RunningStatus != RunningChallengeStatus.Submitted ||
             (challenge.Status & ChallengeStatus.AllowAnonymousJoin) != ChallengeStatus.AllowAnonymousJoin)
         {
-            return new UnauthorizedObjectResult("Something went wrong with your request");
+            return Unauthorized("Something went wrong with your request");
         }
 
         var participation = new Participation
@@ -37,7 +76,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         var team = context.Teams.Include(team => team.Challenge).ThenInclude(challenge => challenge.Questions)
             .Include(team => team.Administrator)
             .FirstOrDefault(team => team.TeamId == request.TeamId);
-        
+
         if (team == null || team.Challenge.Questions.Count() <= request.QuestionId ||
             team.Administrator != CurrentUser())
         {
@@ -108,7 +147,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
             .FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId);
 
         var user = CurrentUser();
-        
+
         if (challenge == null || challenge.StartTime < DateTime.UtcNow ||
             challenge.Administrator != user && !context.Participations.Any(participation =>
                 participation.User == user && participation.Challenge == challenge))
@@ -123,7 +162,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
             TeamName = request.Name,
             Challenge = challenge
         };
-        
+
         context.Teams.Add(team);
         context.SaveChanges();
 
@@ -136,7 +175,8 @@ public class ChallengeController(DatabaseContext context) : BaseController
     [HttpDelete]
     public ActionResult DeleteTeam([FromBody] DeleteTeamRequest request)
     {
-        var team = context.Teams.Include(team => team.Administrator).Include(team => team.Challenge).FirstOrDefault(team => team.TeamId == request.TeamId);
+        var team = context.Teams.Include(team => team.Administrator).Include(team => team.Challenge)
+            .FirstOrDefault(team => team.TeamId == request.TeamId);
         if (team == null || team.Administrator != CurrentUser() || team.Challenge.StartTime < DateTime.UtcNow)
         {
             return Unauthorized();
@@ -144,7 +184,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
 
         context.Teams.Remove(team);
         context.SaveChanges();
-        
+
         return Ok();
     }
 }

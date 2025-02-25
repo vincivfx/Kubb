@@ -2,6 +2,7 @@ using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.RequestModels.Auth;
 using KubbAdminAPI.Models.ResponseModels.Auth;
 using KubbAdminAPI.Utils;
+using KubbAdminAPI.Workers;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using LoginRequest = KubbAdminAPI.Models.RequestModels.Auth.LoginRequest;
@@ -10,7 +11,7 @@ using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
 namespace KubbAdminAPI.Controllers;
 
 [ApiController, Route("[controller]/[action]")]
-public class AuthController(DatabaseContext context, EmailService emailService) : BaseController
+public class AuthController(DatabaseContext context, EmailSenderWorker emailSenderWorker) : BaseController
 {
     [HttpPost]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
@@ -65,9 +66,11 @@ public class AuthController(DatabaseContext context, EmailService emailService) 
         context.Users.Add(user);
         context.SaveChanges();
         
-        var message = @"Hi, in order to complete your registration, please enter the following link: <br><br>https://localhost:8080/auth/verify?token=" + verificationToken + "<br><br>best regards,<br>Kubb Contest Platform";
+        var messageHtml = @"Hi, in order to complete your registration, please enter the following link: <br><br>https://localhost:8080/auth/verify?token=" + verificationToken + "<br><br>best regards,<br>Kubb Contest Platform";
 
-        Task.Run(() => emailService.SendEmailAsync(user.EmailAddress, "Complete registration", message));
+        var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Complete Registration", messageHtml);
+        
+        Task.Run(() => emailSenderWorker.QueueBackgroundWorkItem(message));
 
         
         return new OkResult();
@@ -86,9 +89,11 @@ public class AuthController(DatabaseContext context, EmailService emailService) 
 
         var temporaryPassword = user.SetTemporaryPassword();
 
-        var message = @"Hi, in order to reset your password, please use this temporary one: <br><br>" + temporaryPassword + "<br><br>best regards,<br>Kubb Contest Platform";
+        var messageHtml = @"Hi, in order to reset your password, please use this temporary one: <br><br>" + temporaryPassword + "<br><br>best regards,<br>Kubb Contest Platform";
         
-        Task.Run(() => emailService.SendEmailAsync(user.EmailAddress, "Password reset", message));
+        var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Reset Password", messageHtml);
+        
+        Task.Run(() => emailSenderWorker.QueueBackgroundWorkItem(message));
         
         return new OkResult();
     }

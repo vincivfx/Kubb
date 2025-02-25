@@ -1,5 +1,6 @@
 using KubbAdminAPI;
 using KubbAdminAPI.Utils;
+using KubbAdminAPI.Workers;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,10 +18,22 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("POSTGRES"));
 });
 
-Console.WriteLine(builder.Configuration.GetConnectionString("POSTGRES"));
-
 // Mail service
 builder.Services.AddTransient<EmailService>();
+// Cache service
+builder.Services.AddMemoryCache();
+
+// Adding worker for scoreboard generation
+// builder.Services.AddHostedService<ScoreboardWorker>();
+// builder.Services.AddHostedService<FreezerWorker>();
+builder.Services.AddHostedService<EmailSenderWorker>();
+
+// Add Redis caching
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6379";
+    options.InstanceName = "MyApp_";
+});
 
 var app = builder.Build();
 
