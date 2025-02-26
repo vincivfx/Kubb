@@ -59,8 +59,11 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
     public ActionResult SetCache([FromQuery] string key)
     {
 	var c = "ciao";
-	for (int i = 0; i < 10000; i += 1) c += "c";
-        _cache.Set(key, c);
+	for (int i = 0; i < 20000; i += 1) c += "c";
+        _cache.Set(key, c, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
+        });
         return Ok();
     }
     #endif

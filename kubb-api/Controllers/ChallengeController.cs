@@ -10,6 +10,9 @@ namespace KubbAdminAPI.Controllers;
 [ApiController, Route("[controller]/[action]")]
 public class ChallengeController(DatabaseContext context) : BaseController
 {
+    /**
+     * 
+     */
     [HttpGet]
     public ActionResult GetCurrentParticipations([FromQuery] Pagination pagination)
     {
