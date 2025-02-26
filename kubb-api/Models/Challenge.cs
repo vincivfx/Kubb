@@ -28,6 +28,13 @@ public class Challenge : BaseModel
 
     public RunningChallengeStatus RunningStatus { get; set; } = RunningChallengeStatus.Draft;
 
+    
+    
+}
+
+public class AlgorithmSettings
+{
+    
 }
 
 [Flags]
