@@ -1,0 +1,76 @@
+@import "Colors.scss";
+
+header {
+
+    background-color: $primaryColor;
+    width: 100%;
+    display: flex;
+
+    .nav-left {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        .header-main-sitename {
+            align-items: center;
+            color: $primaryTextColor;
+            font-weight: bold;
+            font-size: 48px;
+            padding: 24px;
+            vertical-align: middle;
+        }
+
+        .header-nav {
+            align-items: center;
+            clear: left;
+
+            a {
+                color: $primaryTextColor;
+                text-decoration: none;
+                padding: 6px 12px;
+
+                &:hover {
+                    background-color: $primaryTextColor;
+                    color: $primaryColorDark;
+                }
+            }
+        }
+    }
+
+    .nav-rigth {
+        margin-left: auto;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+
+        .right-nav-btn {
+            text-decoration: none;
+            border: 1px solid $secondaryTextColor;
+            background-color: $secondaryColor;
+            color: $secondaryTextColor;
+            padding: 4px 12px;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            
+            span {
+                margin: 4px;
+            }
+
+            &:hover {
+                background-color: $secondaryTextColor;
+                color: $secondaryColor;
+                cursor: pointer;
+            }
+        }
+    }
+
+
+
+    &::after {
+        content: '';
+        display: block;
+        clear: left;
+    }
+
+}

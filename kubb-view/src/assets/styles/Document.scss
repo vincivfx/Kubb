@@ -1,0 +1,23 @@
+@import "Variables.scss";
+html, body {
+    margin: 0;
+    background-color: #eee;
+    font-family: $fontFamily;
+}
+
+button, input {
+    font-family: $fontFamily;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 48px;
+}
