@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import InputBlock from '@/components/InputBlock.vue';
+
+</script>
+
 <template>
     
     <div class="container">
@@ -6,9 +11,12 @@
 
         </p>
 
-        <input type="email" required placeholder="email address" class="text-input">
-        <input type="password" required placeholder="password" class="text-input">
-        <a href="#">recover password</a>
+        <InputBlock>Type your email address</InputBlock>
+        <InputBlock>Type your password</InputBlock>
+        <p>
+            Have you forgotten your password?
+            <a href="#">Recover your password</a>
+        </p>
 
 
         <input type="submit" class="btn primary" value="Login">
@@ -20,7 +28,7 @@
             Have you never tried KCP before? Register right now!
         </p>
         <div class="text-right">
-            <a href="#" class="btn secondary">Register right now!</a>
+            <RouterLink :to="{name: 'register'}" class="btn secondary">Register right now!</RouterLink>
         </div>
     </div>
 

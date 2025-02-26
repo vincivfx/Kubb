@@ -1,0 +1,100 @@
+@import "./styles/Colors.scss";
+
+.scoreboard-table {
+    display: table;
+
+    margin: 0 auto;
+
+    .team {
+        max-width: 100%;
+        display: table-row;
+        height: 36px;
+        vertical-align: middle;
+        font-size: 16px;
+
+
+        &:nth-child(odd) {
+            background-color: transparentize($color: $primaryColor, $amount: 0.9)
+        }
+
+        &:nth-child(even) {
+            
+        }
+
+        .team-name, .team-question, .team-position, .team-points {
+            border: 1px solid $primaryColor;    
+            
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .team-name {
+            padding: 0 8px;
+            width: 260px;
+        }
+
+        .team-position, .team-points {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .team-question {
+            max-width: calc(100% - 320px);
+            width: 50px;
+            text-align: center;
+
+            &.positive {
+                background-color: #ccffcc;
+                color: #004400;
+                font-weight: bold;
+                &.animate {
+                    animation: animation-fun 1s infinite;
+                }
+            }
+            &.negative {
+                background-color: #ffaaaa;
+                color: #440000;
+                font-weight: bold;
+                &.animate {
+                    animation: animation-sad 1s infinite;
+                }
+            }
+            
+        }
+
+        
+    }
+}
+
+
+@keyframes animation-fun {
+    0% {
+        background-color: #ccffcc;
+        color: #004400;
+    }
+    50% {
+        background-color: #f3be00;
+        color: #444400;
+    }
+    100% {
+        background-color: #ccffcc;
+        color: #004400;
+    }
+    
+}
+
+@keyframes animation-sad {
+    0% {
+        background-color: #ffaaaa;
+    }
+    50% {
+        background-color: #ff6868;
+    }
+    100% {
+        background-color: #ffaaaa;
+    }
+    
+}

@@ -12,9 +12,9 @@ import { SlUser } from 'vue-icons-plus/sl'
       </div>
 
       <div class="header-nav">
-        <a href="#">Challenges</a>
+        <RouterLink :to="{name: 'challenges'}">Challenges</RouterLink>
+        <RouterLink :to="{name: 'challenges', query: {'archive': ''}}">Archived Challenges</RouterLink>
         <a href="#">Join</a>
-        <a href="#">Archive</a>
         <a href="#">Management Area</a>
       </div>
     </div>
@@ -33,7 +33,7 @@ import { SlUser } from 'vue-icons-plus/sl'
 
   </header>
 
-  <div :class="{'container': !$route.meta.view}">
+  <div :class="{'container': !$route.meta.view, 'scoreboard': $route.meta.view === 'score'}">
     <RouterView />
   </div>
 
@@ -43,5 +43,8 @@ import { SlUser } from 'vue-icons-plus/sl'
 
 </template>
 
-<style scoped>
+<style scss>
+.scoreboard {
+  text-align: center;
+}
 </style>

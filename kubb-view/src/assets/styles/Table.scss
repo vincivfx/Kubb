@@ -1,0 +1,17 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    th, td {
+        text-align: left;
+        padding: 8px;
+        border: 1px solid #777;
+        &.button-cell{
+            padding: 0;
+            text-align: center;
+        }
+    }
+    thead {
+        background-color: $secondaryColor;
+        color: $secondaryTextColor;
+    }
+}
