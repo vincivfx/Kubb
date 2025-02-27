@@ -14,3 +14,24 @@
         }
     }
 }
+
+.input-select {
+    max-width: calc(100% - 32px);
+    width: 320px;
+    position: relative;
+    .select-box {
+        display: none;
+        margin-top: -6px;
+        button {
+            padding: 4px;
+            border: none;
+            width: 100%;
+            display: block;
+            &:hover {
+                cursor: pointer;
+                background-color: $primaryColor;
+                color: $primaryTextColor;
+            }
+        }
+    }
+}

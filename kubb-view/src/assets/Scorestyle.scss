@@ -2,8 +2,11 @@
 
 .scoreboard-table {
     display: table;
+    border-collapse: collapse;
 
     margin: 0 auto;
+    width: 100%;
+    position: relative;
 
     .team {
         max-width: 100%;
@@ -39,11 +42,13 @@
             font-weight: bold;
             text-align: center;
             padding: 0 10px;
+            width: 50px;
         }
 
         .team-question {
             max-width: calc(100% - 320px);
             width: 50px;
+            position: relative;
             text-align: center;
 
             &.positive {
@@ -62,10 +67,61 @@
                     animation: animation-sad 1s infinite;
                 }
             }
+
+            .jolly {
+                width: 100%;
+                text-align: right;
+                z-index: 100;
+                font-size: 24px;
+                margin: 0;
+                position: absolute;
+                left: 0;
+                opacity: 0.5;
+                font-weight: bold;
+                bottom: 0;
+            }
             
         }
 
         
+    }
+
+
+
+    .scoreboard-header {
+        right: 0;
+        width: 100%;
+        background-color: $primaryColor;
+        color: $primaryTextColor;
+        position: sticky;
+        z-index: 1000;
+        top: 0;
+      
+        display: table-row;
+
+        div {
+            display: table-cell;
+        }
+
+
+        span.number {
+            font-weight: bold;
+            display: block;
+            font-size: 24px;
+        }
+        span.points {
+            width: 50%;
+            display: inline-block;
+        }
+        span.answers {
+            width: 50%;
+            display: inline-block;
+            background-color: $secondaryColor;
+            color: $secondaryTextColor;
+        }
+
+        .question {
+        }
     }
 }
 

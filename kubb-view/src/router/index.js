@@ -22,17 +22,37 @@ const router = createRouter({
       redirect: '/challenges'
     },
     {
-      path: '/challenges',
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/User/ProfileView.vue')
+    },
+    {
+      path: '/challenges/:type?',
       name: 'challenges',
       component: () => import('../views/ChallengesView.vue')
     },
     {
-      path: '/score',
-      name: 'score',
+      path: '/challenge/score',
+      name: 'challenge-score',
       component: () => import('../views/ScoreView.vue'),
       meta: {
         view: 'score'
       }
+    },
+    {
+      path: '/challenge/send',
+      name: 'challenge-sender',
+      component: () => import('../views/Challenge/SenderView.vue')
+    },
+    {
+      path: '/challenge/admin',
+      name: 'challenge-admin',
+      component: () => import('../views/Challenge/AdminView.vue')
+    },
+    {
+      path: '/error',
+      name: 'error',
+      component: () => import('../views/ErrorView.vue')
     }
   ],
 })

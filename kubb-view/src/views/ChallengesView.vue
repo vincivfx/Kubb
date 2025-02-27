@@ -1,16 +1,36 @@
 <script>
+import Modal from '@/components/Modal.vue';
+
 export default {
   data: () => ({
     challenges: [
       {name: 'Gara di Aprile', organizer: 'Rossi'}
     ]
-  })
+  }),
+  mounted() {
+    let validTypes = [undefined, 'archive', 'joinable', 'my'];
+
+    if (validTypes.indexOf(this.$route.params.type) === -1) {
+      this.$router.push({name: 'error'});
+    }
+
+    switch(this.$route.params.type) {
+      case(undefined):
+        this.$http.get('/Home/Challenges').then(response => {
+          console.log(response);
+        })
+        break;
+    }
+  }
 }
 </script>
 
 <template>
   <div class="p-5 bg-primary text-white">
-    <h2>{{ $route.query.archive !== undefined ? 'Archived Challenges' : 'Running Challenges' }}</h2>
+    <h2 v-if="$route.params.type === undefined">Running Challenges</h2>
+    <h2 v-if="$route.params.type === 'archive'">Archived Challenges</h2>
+    <h2 v-if="$route.params.type === 'joinable'">Joinable Challenges</h2>
+    <h2 v-if="$route.params.type === 'my'">My Challenges</h2>
     <table class="table">
       <thead>
         <tr>

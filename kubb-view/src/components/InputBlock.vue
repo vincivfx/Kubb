@@ -2,7 +2,15 @@
     <div class="input-block">
         <label>
             <slot />
-            <input class="text-input">
+            <input
+                :type="type"
+                :disabled="disabled"
+                :placeholder="placeholder"
+                :readonly="readonly"
+                class="text-input"
+                :value="modelValue"
+                @input="$emit('update:modelValue', $event.target.value)"
+            />
         </label>
         <span class="input-under-text">{{ underText }}</span>
 
@@ -12,6 +20,6 @@
 
 <script>
 export default {
-    props: ["underText"]
+    props: ['underText', 'placeholder', 'disabled', 'type', 'readonly', 'modelValue'],
 }
 </script>

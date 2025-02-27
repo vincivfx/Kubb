@@ -14,9 +14,13 @@ header {
             align-items: center;
             color: $primaryTextColor;
             font-weight: bold;
-            font-size: 48px;
+            font-size: 36px;
             padding: 24px;
             vertical-align: middle;
+            .small {
+                font-size: 14px;
+                display: block;
+            }
         }
 
         .header-nav {
@@ -26,6 +30,7 @@ header {
             a {
                 color: $primaryTextColor;
                 text-decoration: none;
+                display: inline-block;
                 padding: 6px 12px;
 
                 &:hover {

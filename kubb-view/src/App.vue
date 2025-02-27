@@ -8,14 +8,15 @@ import { SlUser } from 'vue-icons-plus/sl'
 
     <div class="nav-left">
       <div class="header-main-sitename">
-        Kubb
+        KCP <span class="small">Kubb Contest Platform</span>
       </div>
 
       <div class="header-nav">
         <RouterLink :to="{name: 'challenges'}">Challenges</RouterLink>
-        <RouterLink :to="{name: 'challenges', query: {'archive': ''}}">Archived Challenges</RouterLink>
-        <a href="#">Join</a>
-        <a href="#">Management Area</a>
+        <RouterLink :to="{name: 'challenges', params: {'type': 'archive'}}">Archived Challenges</RouterLink>
+        <RouterLink :to="{name: 'challenges', params: {'type': 'joinable'}}">Join Challenge</RouterLink>
+        <RouterLink :to="{name: 'challenges', params: {'type': 'my'}}">My Challenges</RouterLink>
+        <a href="#">Administration</a>
       </div>
     </div>
 

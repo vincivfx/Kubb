@@ -17,6 +17,10 @@
         color: $secondaryTextColor;
     }
 
+    &.danger {
+        background-color: $dangerColor;
+    }
+
     &:hover {
         background-color: #000;
         color: #fff;
@@ -24,5 +28,22 @@
 
     &:hover {
         cursor: pointer;
+    }
+
+    &.link {
+        color: $primaryColor;
+        text-decoration: underline;
+        padding: 0;
+        background-color: transparent;
+        border: none;
+    }
+
+    &.icon {
+    }
+
+    &.small {
+        font-size: 14px;
+        vertical-align: middle;
+        padding: 4px 8px;
     }
 }
