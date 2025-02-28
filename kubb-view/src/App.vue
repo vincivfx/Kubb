@@ -12,20 +12,22 @@ import { SlUser } from 'vue-icons-plus/sl'
       </div>
 
       <div class="header-nav">
-        <RouterLink :to="{name: 'challenges'}">Challenges</RouterLink>
-        <RouterLink :to="{name: 'challenges', params: {'type': 'archive'}}">Archived Challenges</RouterLink>
-        <RouterLink :to="{name: 'challenges', params: {'type': 'joinable'}}">Join Challenge</RouterLink>
-        <RouterLink :to="{name: 'challenges', params: {'type': 'my'}}">My Challenges</RouterLink>
-        <a href="#">Administration</a>
+        <RouterLink :to="{name: 'discover'}">Discover more</RouterLink>        
+        <RouterLink :to="{name: 'challenges'}">Challenges</RouterLink>        
       </div>
     </div>
 
     <div class="nav-rigth">
 
       <div class="nav-right-icons">
-        <RouterLink :to="{name: 'login'}" class="right-nav-btn">
+        <RouterLink v-if="!$authSession.getStored()" :to="{name: 'login'}" class="right-nav-btn">
           <SlUser />
           <span>Login</span>
+        </RouterLink>
+
+        <RouterLink v-if="$authSession.getStored()" :to="{name: 'profile'}" class="right-nav-btn">
+          <SlUser />
+          <span>{{ $authSession.getName() }}</span>
         </RouterLink>
       </div>
       
@@ -34,7 +36,7 @@ import { SlUser } from 'vue-icons-plus/sl'
 
   </header>
 
-  <div :class="{'container': !$route.meta.view, 'scoreboard': $route.meta.view === 'score'}">
+  <div :class="{'container': !$route.meta.view, 'scoreboard': $route.meta.view === 'score', 'container no-padding': $route.meta.view === 'tabs'}">
     <RouterView />
   </div>
 

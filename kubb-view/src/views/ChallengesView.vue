@@ -1,18 +1,24 @@
 <script>
 import Modal from '@/components/Modal.vue';
+import Tabs from '@/components/Tabs.vue';
+import { SlPlus } from 'vue-icons-plus/sl';
 
 export default {
   data: () => ({
     challenges: [
       {name: 'Gara di Aprile', organizer: 'Rossi'}
-    ]
+    ],
+    page: ''
   }),
+  components: {Tabs, SlPlus},
   mounted() {
-    let validTypes = [undefined, 'archive', 'joinable', 'my'];
+    let validTypes = [undefined, '', 'archive', 'joinable', 'my'];
 
     if (validTypes.indexOf(this.$route.params.type) === -1) {
       this.$router.push({name: 'error'});
     }
+
+    this.page = this.$route.params.type === undefined ? '' : this.$route.params.type;
 
     switch(this.$route.params.type) {
       case(undefined):
@@ -26,11 +32,13 @@ export default {
 </script>
 
 <template>
-  <div class="p-5 bg-primary text-white">
-    <h2 v-if="$route.params.type === undefined">Running Challenges</h2>
-    <h2 v-if="$route.params.type === 'archive'">Archived Challenges</h2>
-    <h2 v-if="$route.params.type === 'joinable'">Joinable Challenges</h2>
-    <h2 v-if="$route.params.type === 'my'">My Challenges</h2>
+  <Tabs v-model="page" :tabs="[{text: 'Running Challenges', id: ''}, {text: 'Archived Challenges', id: 'archived'}, {text: 'My Challenges', id: 'my', runIf: () => $authSession.getStored()}]">
+    <div v-if="page === ''">
+      <h2>Running Challenges</h2>
+    </div>
+    <div v-if="page === 'my'">
+      <h2>My Challenges<button class="btn small"><SlPlus /> </button></h2>
+    </div>
     <table class="table">
       <thead>
         <tr>
@@ -51,5 +59,5 @@ export default {
         </tr>
       </tbody>
     </table>
-  </div>
+  </Tabs>
 </template>

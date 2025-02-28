@@ -1,14 +1,24 @@
+import DiscoverView from '@/views/DiscoverView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/discover',
+      name: 'discover',
+      component: DiscoverView,
+      meta: {
+        title: 'Discover'
+      }
+    },
+    {
       path: '/auth',
       name: 'login',
       component: () => import('../views/Auth/LoginView.vue'),
       meta: {
-        view: 'empty'
+        view: 'empty',
+        title: 'Login'
       }
     },
     {
@@ -16,6 +26,11 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/Auth/RegisterView.vue')
     },
+    {
+      path: '/auth/update-password',
+      name: 'update-password',
+      component: () => import('../views/Auth/MandatoryUpdatePasswordView.vue')
+    },    
     {
       path: '/',
       name: 'root',
@@ -29,7 +44,10 @@ const router = createRouter({
     {
       path: '/challenges/:type?',
       name: 'challenges',
-      component: () => import('../views/ChallengesView.vue')
+      component: () => import('../views/ChallengesView.vue'),
+      meta: {
+        view: 'tabs'
+      }
     },
     {
       path: '/challenge/score',
@@ -55,6 +73,11 @@ const router = createRouter({
       component: () => import('../views/ErrorView.vue')
     }
   ],
+})
+
+router.afterEach((from, to, next) => {
+  document.title = from.meta.title + " :: Kubb";
+  next();
 })
 
 export default router

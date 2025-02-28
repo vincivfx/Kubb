@@ -17,7 +17,7 @@ export default {
                 return;
             }
 
-            this.$http.get('/Home/GetCache?key=ciao').then(response => {
+            this.$http.get('/Home/GetCache?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
 
             }).catch(error => {
                 if (error.response.status === 404) {

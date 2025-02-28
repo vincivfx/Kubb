@@ -2,7 +2,7 @@ export default {
     testScoreboard() {
 
         const problems = 24;
-        const teams = 128;
+        const teams = 100;
 
         let output = '';
 

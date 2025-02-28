@@ -26,9 +26,16 @@ export default {
         },
         async login(e) {
             e.preventDefault();
+            this.$refs.wrongLoginAlert.hide();
             this.$http.post('/Auth/Login', this.loginForm).then((response) => {
+                if (response.status === 200) {
+                    this.$authSession.setStored(response.data);
+                    this.$router.push({name: 'profile'});
+                } else {
+                    this.$refs.wrongLoginAlert.show();
+                }
             }).catch((error) => {
-                if (error.response.status !== 500) {
+                if (error.response && error.response.status !== 500) {
                     this.$refs.wrongLoginAlert.show();
                 }
             });
