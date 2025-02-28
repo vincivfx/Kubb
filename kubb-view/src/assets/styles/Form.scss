@@ -17,13 +17,17 @@
 
 .input-select {
     max-width: calc(100% - 32px);
-    width: 320px;
     position: relative;
     .select-box {
-        display: none;
+        width: 100%;
+        z-index: 200;
+        max-height: 320px;
+        overflow: auto;
         margin-top: -6px;
+        position: absolute;
         button {
-            padding: 4px;
+            text-align: left;
+            padding: 8px;
             border: none;
             width: 100%;
             display: block;

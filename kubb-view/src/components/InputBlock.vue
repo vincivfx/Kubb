@@ -9,6 +9,8 @@
                 :readonly="readonly"
                 class="text-input"
                 :value="modelValue"
+                @focus="$emit('focus')"
+                @focusout="$emit('focusout')"
                 @input="$emit('update:modelValue', $event.target.value)"
             />
         </label>

@@ -7,11 +7,11 @@ import Select from '@/components/Select.vue';
 <template>
 
     <h3>Send answers</h3>
-    <Select :options="['ciao', 'come', 'stai']">
+    <Select :options="[{text: 'Hello', key: 'h'}, {text: 'Ciao', key: 'c'}]">
         Select team
     </Select>
 
-    <Select :options="[1,2,3,4]">
+    <Select :options="[{text: '#1 Problema', key: 0}]">
         Question
     </Select>
 

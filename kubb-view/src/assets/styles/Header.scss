@@ -5,6 +5,7 @@ header {
     background-color: $primaryColor;
     width: 100%;
     display: flex;
+    user-select: none;
 
     .nav-left {
         height: 100%;
