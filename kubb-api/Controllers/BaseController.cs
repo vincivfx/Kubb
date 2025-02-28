@@ -6,6 +6,11 @@ namespace KubbAdminAPI.Controllers;
 public class BaseController : Controller
 {
 
+    protected Login? CurrentUserLoginNullable()
+    {
+        return RouteData.Values["login"] as Login;
+    }
+    
     protected User CurrentUser()
     {
         return (RouteData.Values["login"] as Login)!.User;

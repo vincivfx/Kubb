@@ -24,22 +24,6 @@ public class UserController : BaseController
         };
 
     }
-
-    [HttpPost]
-    public ActionResult UpdatePassword([FromBody] UpdatePasswordRequest request)
-    {
-
-        var user = CurrentUser()!;
-        
-        if (!user.CheckPassword(request.CurrentPassword))
-        {
-            return new UnauthorizedResult();
-        }
-        
-        user.SetPasswordHash(request.NewPassword);
-
-        return new OkResult();
-
-    }
+    
     
 }

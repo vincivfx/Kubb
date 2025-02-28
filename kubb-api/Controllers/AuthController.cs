@@ -1,5 +1,7 @@
+using KubbAdminAPI.Filters;
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.RequestModels.Auth;
+using KubbAdminAPI.Models.RequestModels.User;
 using KubbAdminAPI.Models.ResponseModels.Auth;
 using KubbAdminAPI.Utils;
 using KubbAdminAPI.Workers;
@@ -13,6 +15,9 @@ namespace KubbAdminAPI.Controllers;
 [ApiController, Route("[controller]/[action]")]
 public class AuthController(DatabaseContext context, EmailService emailService) : BaseController
 {
+    /**
+     * 
+     */
     [HttpPost]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
     {
@@ -40,7 +45,8 @@ public class AuthController(DatabaseContext context, EmailService emailService) 
             LoginId = login.LoginId,
             Token = loginToken,
             Name = user.Name + " " + user.Surname,
-            TokenExpiry = login.Expiration
+            TokenExpiry = login.Expiration,
+            MustChangePassword = (user.Status & UserStatus.MustChangePassword) == UserStatus.MustChangePassword,
         };
 
     }
@@ -103,10 +109,10 @@ public class AuthController(DatabaseContext context, EmailService emailService) 
         return new OkResult();
     }
 
-    [HttpPost]
+    [HttpHead]
     public ActionResult Logout()
     {
-
+        
         context.Logins.Remove(CurrentUserLogin());
         context.SaveChanges();
 
@@ -133,5 +139,28 @@ public class AuthController(DatabaseContext context, EmailService emailService) 
         return new OkResult();
 
 
+    }
+    
+    /**
+     *
+     */
+    [HttpPost, AuthenticationFilter(false)]
+    public ActionResult UpdatePassword([FromBody] UpdatePasswordRequest request)
+    {
+
+        var login = CurrentUserLoginNullable();
+        
+        if (login == null) return Unauthorized();
+
+        var user = login.User;
+        if (!user.CheckPassword(request.CurrentPassword))
+        {
+            return Unauthorized();
+        }
+        user.SetPasswordHash(request.NewPassword);
+        user.Status &= ~UserStatus.MustChangePassword;
+        context.SaveChanges();
+        
+        return Ok();
     }
 }
