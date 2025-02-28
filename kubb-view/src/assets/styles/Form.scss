@@ -7,7 +7,7 @@
         display: block;
         margin: 6px 0;
         max-width: calc(100% - 32px);
-        width: 320px;
+        width: 100%;
         &:focus {
             background-color: transparentize($color: $primaryColor, $amount: 0.9);
             

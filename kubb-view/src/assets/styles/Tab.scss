@@ -1,0 +1,30 @@
+.tabs {
+    border: 1px solid #333;
+
+    .tabs-container {
+        padding: 24px;
+    }
+
+    .tabs-header {
+        background-color: $primaryColor;
+
+        button {
+            background-color: $primaryColor;
+            color: $primaryTextColor;
+            border: none;
+            outline: none;
+            padding: 8px 12px;
+            font-size: 14px;
+
+
+            &.selected, &:hover {
+                cursor: pointer;
+                background-color: $primaryTextColor;
+                color: $primaryColor;
+            }
+        }
+    }
+    
+
+    
+}

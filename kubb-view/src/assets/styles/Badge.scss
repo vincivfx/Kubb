@@ -1,0 +1,15 @@
+
+.badge {
+    font-weight: bold;
+    padding: 2px 6px;
+    display: inline-block;
+        font-size: 12px; 
+    &.success {
+        background-color: $successColor;
+        color: white;
+    }
+    &.danger {
+        background-color: $dangerColor;
+        color: white;
+    }
+}

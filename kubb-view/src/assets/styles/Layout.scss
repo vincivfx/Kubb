@@ -3,6 +3,12 @@
     display: flex;
     .col {
         padding: 8px;
+        width: calc(100% - 16px);
     }
 
+
+}
+
+.no-padding {
+    padding: 0;
 }

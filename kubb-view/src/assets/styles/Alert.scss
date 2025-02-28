@@ -9,13 +9,13 @@
     }
 
     &.warning {
-        background-color: $warningColor;
+        background-color: $warningColorTrasparentized;
     }
     &.danger {
-        background-color: $dangerColor;
+        background-color: $dangerColorTrasparentized;
     }
     &.success {
-        background-color: $successColor;
+        background-color: $successColorTrasparentized;
     }
 
     .alert-content {
