@@ -4,20 +4,20 @@ namespace KubbAdminAPI.Utils;
 
 public class ScoreboardGenerator
 {
-    
+/*    
     public static string GenerateScoreboard(Challenge challenge, List<Team> teams, List<Answer> answers)
     {
         string output = "";
         var basePoints = 30;
 
         
-        var teamPoints = new Dictionary<Team, List<int?>>();
+        var teamPoints = new Dictionary<Team, List<ScoreboardCell>>();
+        
         var rightAnswersGroups = new List<List<Answer>>(challenge.Questions.Count);
         
         foreach (var team in teams)
         {
-            var singleTeamPoints = new List<int?>(challenge.Questions.Count);
-            for (var i = 0; i < challenge.Questions.Count; i++) singleTeamPoints[i] = null;
+            var singleTeamPoints = new List<ScoreboardCell>(challenge.Questions.Count);
             teamPoints.Add(team, singleTeamPoints);
         }
         
@@ -31,12 +31,12 @@ public class ScoreboardGenerator
         {
             // security check on question index
             if (answer.Question >= challenge.Questions.Count) continue;
-            
+            if (DateTime.UtcNow.AddSeconds(-45) < answer.Created) teamPoints[answer.Team][answer.Question].hightlight();
+
             if (!answer.AnswerText.Equals(challenge.Questions[answer.Question]))
             {
                 points[answer.Question] += 1;
-                teamPoints[answer.Team][answer.Question] ??= 0;
-                teamPoints[answer.Team][answer.Question] -= 10;
+                teamPoints[answer.Team][answer.Question].error();
             }
             else
             {
@@ -56,10 +56,9 @@ public class ScoreboardGenerator
             for (var i = 0; i < rightAnswersGroup.Count; i++)
             {
                 var team = rightAnswersGroup[i].Team;
-                teamPoints[team][rightAnswersGroup[i].Question] ??= 0;
-                if (i < bonuses.Count) teamPoints[team][rightAnswersGroup[i].Question] += bonuses[i];
-                teamPoints[team][rightAnswersGroup[i].Question] += basePoints;
-                teamPoints[team][rightAnswersGroup[i].Question] += Convert.ToInt32(diffTime);
+                var bonus = 0;
+                if (i < bonuses.Count) bonus = bonuses[i];
+                teamPoints[team][rightAnswersGroup[i].Question].correct(basePoints + Convert.ToInt32(diffTime) + bonus);
             }
         }
 
@@ -76,8 +75,8 @@ public class ScoreboardGenerator
 
             foreach (var t in teamPoint.Value)
             {
-                if (t != null)
-                    teamLine += t + ",";
+                if (t.getPoints() != null)
+                    teamLine += t.getPoints() + (t.hightlight ? 'H' : '') + (t.isJolly ? 'J' : '') + (t.direction ? '+' : '-') + ",";
                 else
                     teamLine += ",";
             }
@@ -89,4 +88,44 @@ public class ScoreboardGenerator
         
         return output;
     }
+}
+
+public record ScoreboardCell {
+    public int? points {get;set;}
+    public bool highlight {get;set;}
+    public bool? direction {get;set;}
+    public bool isJolly {get;set;}
+
+    public ScoreboardCell() {
+        this.points = null;
+        this.hightlight = false;
+        this.direction = null;
+        this.isJolly = false;
+    }
+
+    public void errorPoint(bool) {
+        this.points ??= 0;
+        this.points -= 10;
+        if (this.direction == null) this.direction = false;
+    }
+
+    public void correct(int points) {
+        this.points ??= 0;
+        this.points += points;
+        this.direction = true;
+    }
+
+    public void hightlight() {
+        this.highlight = true;
+    }
+
+    public void setJolly() {
+        this.isJolly = true;
+    }
+
+    public int? getPoints() {
+        if (this.point == null) return null;
+        if (this.isJolly) return this.point * 2;
+        return this.points;
+    }*/
 }

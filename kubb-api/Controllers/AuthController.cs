@@ -11,7 +11,7 @@ using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
 namespace KubbAdminAPI.Controllers;
 
 [ApiController, Route("[controller]/[action]")]
-public class AuthController(DatabaseContext context, EmailSenderWorker emailSenderWorker) : BaseController
+public class AuthController(DatabaseContext context, EmailService emailService) : BaseController
 {
     [HttpPost]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
@@ -37,8 +37,10 @@ public class AuthController(DatabaseContext context, EmailSenderWorker emailSend
 
         return new LoginResponse
         {
-            Success = true,
+            LoginId = login.LoginId,
             Token = loginToken,
+            Name = user.Name + " " + user.Surname,
+            TokenExpiry = login.Expiration
         };
 
     }
@@ -68,9 +70,11 @@ public class AuthController(DatabaseContext context, EmailSenderWorker emailSend
         
         var messageHtml = @"Hi, in order to complete your registration, please enter the following link: <br><br>https://localhost:8080/auth/verify?token=" + verificationToken + "<br><br>best regards,<br>Kubb Contest Platform";
 
+        Console.WriteLine(messageHtml);
+        
         var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Complete Registration", messageHtml);
         
-        Task.Run(() => emailSenderWorker.QueueBackgroundWorkItem(message));
+        Task.Run(() => emailService.AddMessage(message));
 
         
         return new OkResult();
@@ -82,18 +86,19 @@ public class AuthController(DatabaseContext context, EmailSenderWorker emailSend
         
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
 
-        if (user == null || (user.Status & UserStatus.Active) != UserStatus.Active)
+        if (user == null || (user.Status & UserStatus.Active) != UserStatus.Active || user.LastRecoverRequiredTime.AddHours(2) > DateTime.UtcNow)
         {
             return new UnauthorizedResult();
         }
-
+        
         var temporaryPassword = user.SetTemporaryPassword();
+        user.LastRecoverRequiredTime = DateTime.UtcNow;
 
         var messageHtml = @"Hi, in order to reset your password, please use this temporary one: <br><br>" + temporaryPassword + "<br><br>best regards,<br>Kubb Contest Platform";
         
         var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Reset Password", messageHtml);
         
-        Task.Run(() => emailSenderWorker.QueueBackgroundWorkItem(message));
+        Task.Run(() => emailService.AddMessage(message));
         
         return new OkResult();
     }
@@ -112,6 +117,7 @@ public class AuthController(DatabaseContext context, EmailSenderWorker emailSend
     [HttpPost]
     public ActionResult CompleteRegistration([FromBody] CompleteRegistrationRequest request)
     {
+        // TODO: Check token
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
         
         if (user == null || (user.Status & UserStatus.NeedsVerification) != UserStatus.NeedsVerification)

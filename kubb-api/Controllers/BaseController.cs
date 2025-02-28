@@ -15,5 +15,5 @@ public class BaseController : Controller
     {
         return (RouteData.Values["login"] as Login)!;
     }
-    
+
 }

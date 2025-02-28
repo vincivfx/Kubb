@@ -26,6 +26,8 @@ public class User
     
     [MaxLength(80)]
     public byte[] VerificationToken { get; set; }
+    
+    public DateTime LastRecoverRequiredTime { get; set; }
 
     [Required] public required UserStatus Status { get; set; } = 0;
     
