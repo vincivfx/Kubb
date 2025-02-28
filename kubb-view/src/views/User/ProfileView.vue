@@ -1,49 +1,97 @@
 <script lang="ts">
 import InputBlock from '@/components/InputBlock.vue';
 import PasswordSecurityCheck from '@/components/PasswordSecurityCheck.vue';
-export default {
-    data: () => ({
-        profile: {}
-    }),
-    components: {InputBlock, PasswordSecurityCheck},
-    methods: {
-        async logout() {
+import Tabs from "@/components/Tabs.vue";
+import MandatoryUpdatePasswordView from "@/views/Auth/MandatoryUpdatePasswordView.vue";
+import Alert from "@/components/Alert.vue";
 
-        },
-        async updatePassword(e) {
-            e.preventDefault()
-        }
+export default {
+  data: () => ({
+    profile: {},
+    page: 'home',
+    updatePasswordForm: {
+      currentPassword: '',
+      newPassword: '',
+    },
+    confirmPassword: '',
+    updatePasswordStatus: 'none'
+  }),
+  components: {Alert, MandatoryUpdatePasswordView, Tabs, InputBlock, PasswordSecurityCheck},
+  methods: {
+    logout: function () {
+      this.$http.head('/logout').then(() => {
+        this.$authSession.removeStored();
+        this.$router.push({name: 'login'});
+      })
+    },
+    updatePassword(e) {
+      e.preventDefault();
+
+      this.$http.post('/Auth/UpdatePassword', this.updatePasswordForm).then(() => {
+        this.updatePasswordStatus = 'success';
+        this.updatePasswordForm = {
+          currentPassword: '',
+              newPassword: '',
+        };
+        this.confirmPassword = '';
+        setTimeout(() => this.updatePasswordStatus = '', 10000);
+      }).then(() => {
+        this.updatePasswordStatus = 'error';
+        setTimeout(() => this.updatePasswordStatus = '', 5000);
+      })
+
     }
+  }
 }
 </script>
 
 <template>
 
-    <h2>
-        Manage your account, {{ $authSession.getName() }},
-        <button @click="logout()" class="btn small">
-            Logout
-        </button>
-    </h2>
-    
-    <div class="rows">
-        <div class="col">
-            <h3>Update your Password</h3>
+  <h2>
+    Manage your account, {{ $authSession.getName() }},
+    <button @click="logout()" class="btn small">
+      Logout
+    </button>
+  </h2>
 
-            <form @submit="updatePassword">
-                <InputBlock>Current password</InputBlock>
-                <InputBlock>Type your new password</InputBlock>
+  <Tabs
+      v-model="page"
+      :tabs="[{'text': 'Account overview', id: 'home'}, {'text': 'Update password', id: 'passwd'}, {text: 'Last logins', id: 'logins'}]">
 
-                <PasswordSecurityCheck />
+    <div v-if="page === 'passwd'">
+      <h3>Update your password</h3>
+      <Alert v-if="updatePasswordStatus === 'error'" type="danger">
+        We encountered an error while updating your password, please check again
+        your current password.
+      </Alert>
+      
+      <Alert v-if="updatePasswordStatus === 'success'" type="success">
+        Your password has been updated successfully.
+      </Alert>
 
-                <InputBlock>Confirm your password</InputBlock>
+      <form @submit="updatePassword">
+        <InputBlock v-model="updatePasswordForm.currentPassword" placeholder="current password" type="password">
+          Please enter again your current password:
+        </InputBlock>
 
-                <input type="submit" class="btn primary" value="Update password">
-            </form>
-        </div>
-
-        <div class="col">
-            <h3>Logins</h3>
-        </div>
+        <InputBlock v-model="updatePasswordForm.newPassword" type="password" placeholder="new password...">
+          Type your new password
+        </InputBlock>
+        <PasswordSecurityCheck :passwd="updatePasswordForm.newPassword"/>
+        <InputBlock v-model="confirmPassword" type="password" placeholder="new password...">Type again your new
+          password
+        </InputBlock>
+        <Alert :type="updatePasswordForm.newPassword === confirmPassword ? 'success' : 'danger'">
+          Password and its confirmation should be the same.
+        </Alert>
+        <input type="submit" class="btn primary" value="Update my password">
+      </form>
     </div>
+
+    <div v-if="page === 'logins'">
+      <h3>Last logins on my account</h3>
+    </div>
+
+  </Tabs>
+
 </template>

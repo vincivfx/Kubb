@@ -7,6 +7,7 @@
     max-height: 600px;
     z-index: 20000;
     overflow: auto;
+    border: 1px solid #333;
 
     left: calc(50% - 300px);
     box-shadow: 0 0 24px 4px #00000070;
@@ -38,6 +39,15 @@
             background-color: #cc0000;
             cursor: pointer;
         }
+    }
+    
+    @media (max-width: 600px) {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        top: 0;
+        left: 0;
     }
 }
 

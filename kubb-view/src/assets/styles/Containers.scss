@@ -5,6 +5,10 @@
     margin: 16px auto;
     box-shadow: 0 0 24px 3px #00000055;
     background-color: #fff;
-
+    border: 1px solid #333;
     
+    @media(max-width: 600px) {
+        margin: 24px 0;
+        width: 100%;
+    }
 }

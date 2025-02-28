@@ -28,7 +28,7 @@ const router = createRouter({
     },
     {
       path: '/auth/update-password',
-      name: 'update-password',
+      name: 'mandatory-update-password',
       component: () => import('../views/Auth/MandatoryUpdatePasswordView.vue')
     },    
     {

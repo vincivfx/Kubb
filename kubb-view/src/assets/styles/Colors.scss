@@ -10,3 +10,13 @@ $successColor: #00aa00;
 $warningColorTrasparentized: #ffea0050;
 $dangerColorTrasparentized: #ef600050;
 $successColorTrasparentized: #00aa0050;
+
+.bg-primary {
+  background-color: $primaryColor;
+  color: $primaryTextColor;
+}
+
+.bg-secondary {
+  background-color: $secondaryColor;
+  color: $secondaryTextColor;
+}

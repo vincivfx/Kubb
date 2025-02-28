@@ -30,7 +30,11 @@ export default {
             this.$http.post('/Auth/Login', this.loginForm).then((response) => {
                 if (response.status === 200) {
                     this.$authSession.setStored(response.data);
-                    this.$router.push({name: 'profile'});
+                    if (response.data.mustChangePassword) {
+                      this.$router.push({name: 'mandatory-update-password'});
+                    } else {
+                      this.$router.push({name: 'profile'});
+                    }
                 } else {
                     this.$refs.wrongLoginAlert.show();
                 }
@@ -57,8 +61,8 @@ export default {
         </Alert>
 
         <form @submit="login">
-            <InputBlock v-model="loginForm.emailAddress">Type your email address</InputBlock>
-            <InputBlock v-model="loginForm.password">Type your password</InputBlock>
+            <InputBlock placeholder="email address..." type="email" required v-model="loginForm.emailAddress">Type your email address</InputBlock>
+            <InputBlock placeholder="password..." type="password" required v-model="loginForm.password">Type your password</InputBlock>
             <p>
                 Have you forgotten your password?
                 <button type="button" class="btn link" @click="$refs.recoverPassword.show(); recoveryStatus = 'none';">Recover your password</button>
@@ -92,7 +96,7 @@ export default {
         
         <form @submit="recoverPassword" v-if="recoveryStatus === 'none'">
             
-            <InputBlock v-model="recoverPasswordForm.emailAddress">Type your email address</InputBlock>
+            <InputBlock placeholder="email address..." type="email" required v-model="recoverPasswordForm.emailAddress">Type your email address</InputBlock>
             <input type="submit" class="btn primary" value="Recover password">
         </form>
     </Modal>

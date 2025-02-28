@@ -12,3 +12,13 @@
 .no-padding {
     padding: 0;
 }
+
+.p-1 {
+    padding: 4px;
+}
+.p-2 {
+    padding: 2px 12px;
+}
+.b-1 {
+    border: 1px solid $primaryColor;
+}

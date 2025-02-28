@@ -1,5 +1,4 @@
 .tabs {
-    border: 1px solid #333;
 
     .tabs-container {
         padding: 24px;
@@ -24,7 +23,7 @@
             }
         }
     }
-    
-
-    
+}
+.container .tabs ~.no-padding {
+    border: 1px solid #333;
 }

@@ -6,10 +6,10 @@
     font-weight: bold;
     text-decoration: none;
     margin: 4px 0;
-
+    
     &.primary {
-        background-color: $secondaryColor;
-        color: $secondaryTextColor;
+        background-color: $primaryColor;
+        color: $primaryTextColor;
     }
 
     &.secondary {
@@ -24,6 +24,11 @@
     &:hover {
         background-color: #000;
         color: #fff;
+    }
+    &:focus {
+        background-color: #000;
+        color: #fff;
+        outline: none;
     }
 
     &:hover {

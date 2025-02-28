@@ -4,7 +4,7 @@
 
         <div class="tabs-header">
             <span v-for="(item, key) in tabs">
-                <button v-if="!item.runIf || item.runIf()" @click="goto(item.id)" :class="[{'selected': page === item.id}]">{{ item.text }}</button>
+                <button v-if="!item.runIf || item.runIf()" @click="goto(item.id)" :class="[{'selected': modelValue === item.id}]">{{ item.text }}</button>
             </span>
         </div>
 
@@ -18,18 +18,13 @@
 
 <script>
 export default {
-    props: ['tabs'],
+    props: ['tabs', 'modelValue'],
     data: () => ({
-        page: ''
     }),
     methods: {
         goto(key) {
-            this.page = key;
             this.$emit('update:modelValue', key)
         }
     },
-    mounted() {
-        this.page = this.modelValue;
-    }
 }
 </script>
