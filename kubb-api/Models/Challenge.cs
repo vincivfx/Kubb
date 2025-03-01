@@ -12,12 +12,10 @@ public class Challenge : BaseModel
     
     [Required]
     public required User Administrator { get; set; }
-    
-    [Required]
-    public required DateTime StartTime { get; set; }
-    
-    [Required]
-    public required DateTime EndTime { get; set; }
+
+    public DateTime? StartTime { get; set; } = null;
+
+    public DateTime? EndTime { get; set; } = null;
     
     [Required]
     public required List<string> Questions { get; set; } = [];

@@ -10,18 +10,18 @@ public class UserController : BaseController
 {
 
     [HttpGet]
-    public GetProfileResponse GetProfile()
+    public ActionResult GetProfile()
     {
 
         var user = CurrentUser()!;
 
-        return new GetProfileResponse
+        return Ok(new GetProfileResponse
         {
             Name = user.Name,
             Surname = user.Surname,
             EmailAddress = user.EmailAddress,
             Status = user.Status
-        };
+        });
 
     }
     
