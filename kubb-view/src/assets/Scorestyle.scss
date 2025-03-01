@@ -1,129 +1,130 @@
 @import "./styles/Colors.scss";
 
-.scoreboard-table {
-    display: table;
-    border-collapse: collapse;
+.scoreboard-container {
 
-    margin: 0 auto;
-    width: 100%;
-    position: relative;
-
-    .team {
-        max-width: 100%;
-        display: table-row;
-        height: 36px;
-        vertical-align: middle;
-        font-size: 16px;
-
-
-        &:nth-child(odd) {
-            background-color: transparentize($color: $primaryColor, $amount: 0.9)
-        }
-
-        &:nth-child(even) {
-            
-        }
-
-        .team-name, .team-question, .team-position, .team-points {
-            border: 1px solid $primaryColor;    
-            
-            display: table-cell;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .team-name {
-            padding: 0 8px;
-            width: 260px;
-        }
-
-        .team-position, .team-points {
-            font-size: 26px;
-            font-weight: bold;
-            text-align: center;
-            padding: 0 10px;
-            width: 50px;
-        }
-
-        .team-question {
-            max-width: calc(100% - 320px);
-            width: 50px;
-            position: relative;
-            text-align: center;
-
-            &.positive {
-                background-color: #ccffcc;
-                color: #004400;
-                font-weight: bold;
-                &.animate {
-                    animation: animation-fun 1s infinite;
-                }
-            }
-            &.negative {
-                background-color: #ffaaaa;
-                color: #440000;
-                font-weight: bold;
-                &.animate {
-                    animation: animation-sad 1s infinite;
-                }
-            }
-
-            .jolly {
-                width: 100%;
-                text-align: right;
-                z-index: 100;
-                font-size: 24px;
-                margin: 0;
-                position: absolute;
-                left: 0;
-                opacity: 0.5;
-                font-weight: bold;
-                bottom: 0;
-            }
-            
-        }
-
-        
-    }
-
-
-
-    .scoreboard-header {
-        right: 0;
+    .scoreboard-table {
+        display: table;
+        border-collapse: collapse;
         width: 100%;
-        background-color: $primaryColor;
-        color: $primaryTextColor;
-        position: sticky;
-        z-index: 1000;
-        top: 0;
-      
-        display: table-row;
-
-        div {
-            display: table-cell;
+    
+        .team {
+            max-width: 100%;
+            display: table-row;
+            height: 36px;
+            vertical-align: middle;
+            font-size: 16px;
+    
+    
+            &:nth-child(odd) {
+                background-color: transparentize($color: $primaryColor, $amount: 0.9)
+            }
+    
+            &:nth-child(even) {
+                
+            }
+    
+            .team-name, .team-question, .team-position, .team-points {
+                border: 1px solid $primaryColor;    
+                
+                display: table-cell;
+                text-align: center;
+                vertical-align: middle;
+            }
+    
+            .team-name {
+                padding: 0 8px;
+                width: 260px;
+            }
+    
+            .team-position, .team-points {
+                font-size: 26px;
+                font-weight: bold;
+                text-align: center;
+                padding: 0 10px;
+                width: 50px;
+            }
+    
+            .team-question {
+                max-width: calc(100% - 320px);
+                min-width: 40px;
+                position: relative;
+                text-align: center;
+    
+                &.positive {
+                    background-color: #ccffcc;
+                    color: #004400;
+                    font-weight: bold;
+                    &.animate {
+                        animation: animation-fun 1s infinite;
+                    }
+                }
+                &.negative {
+                    background-color: #ffaaaa;
+                    color: #440000;
+                    font-weight: bold;
+                    &.animate {
+                        animation: animation-sad 1s infinite;
+                    }
+                }
+    
+                .jolly {
+                    width: 100%;
+                    text-align: right;
+                    z-index: 100;
+                    font-size: 24px;
+                    margin: 0;
+                    position: absolute;
+                    left: 0;
+                    opacity: 0.5;
+                    font-weight: bold;
+                    bottom: 0;
+                }
+                
+            }
+    
+            
         }
-
-
-        span.number {
-            font-weight: bold;
-            display: block;
-            font-size: 24px;
-        }
-        span.points {
-            width: 50%;
-            display: inline-block;
-        }
-        span.answers {
-            width: 50%;
-            display: inline-block;
-            background-color: $secondaryColor;
-            color: $secondaryTextColor;
-        }
-
-        .question {
+    
+    
+    
+        .scoreboard-header {
+            right: 0;
+            width: 100%;
+            background-color: $primaryColor;
+            color: $primaryTextColor;
+            position: sticky;
+            z-index: 1000;
+            top: 0;
+          
+            display: table-row;
+    
+            div {
+                display: table-cell;
+            }
+    
+    
+            span.number {
+                font-weight: bold;
+                display: block;
+                font-size: 24px;
+            }
+            span.points {
+                width: 50%;
+                display: inline-block;
+            }
+            span.answers {
+                width: 50%;
+                display: inline-block;
+                background-color: $secondaryColor;
+                color: $secondaryTextColor;
+            }
+    
+            .question {
+            }
         }
     }
 }
+
 
 
 @keyframes animation-fun {

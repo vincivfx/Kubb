@@ -63,35 +63,37 @@ export default {
       <SlSettings/>
     </button>
   </h1>
-  <div class="scoreboard-table" v-if="scoreboard">
-    <div class="scoreboard-header">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div class="question" v-for="(question, key) in scoreboard.questions" :key="key">
-        <span class="number">{{ key + 1 }}</span>
-        <span class="points">{{ question.points }}</span>
-        <span class="answers">{{ question.answers }}</span>
+  <div class="scoreboard-container">
+    <div class="scoreboard-table" v-if="scoreboard">
+      <div class="scoreboard-header">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div class="question" v-for="(question, key) in scoreboard.questions" :key="key">
+          <span class="number">{{ key + 1 }}</span>
+          <span class="points">{{ question.points }}</span>
+          <span class="answers">{{ question.answers }}</span>
+        </div>
       </div>
-    </div>
-    <div class="team" v-for="(team, key) in scoreboard.teams" :key="key">
+      <div class="team" v-for="(team, key) in scoreboard.teams" :key="key">
 
-      <div class="team-position">
-        {{ key + 1 }}
-      </div>
-      <div class="team-name">
-        {{ team.name }}
-      </div>
-      <div class="team-points">
-        {{ team.points }}
-      </div>
-      <div class="team-question" v-for="(question, key_question) in team.questions"
-           :class="[{ 'positive': question.arrow === 'up' }, { 'negative': question.arrow === 'down' }, { 'animate': question.highlight }]"
-           :key="key_question">
-                <span v-if="question != null">
-                    {{ question.points }}
-                    <span v-if="question.jolly" class="jolly">J</span>
-                </span>
+        <div class="team-position">
+          {{ key + 1 }}
+        </div>
+        <div class="team-name">
+          {{ team.name }}
+        </div>
+        <div class="team-points">
+          {{ team.points }}
+        </div>
+        <div class="team-question" v-for="(question, key_question) in team.questions"
+            :class="[{ 'positive': question.arrow === 'up' }, { 'negative': question.arrow === 'down' }, { 'animate': question.highlight }]"
+            :key="key_question">
+                  <span v-if="question != null">
+                      {{ question.points }}
+                      <span v-if="question.jolly" class="jolly">J</span>
+                  </span>
+        </div>
       </div>
     </div>
   </div>
