@@ -1,7 +1,10 @@
 <script>
+import {RouterLink} from "vue-router";
+
 export default {
   name: "ChallengeInfo",
-  props: ['challenge'],
+  props: ['challenge', 'admin'],
+  components: {RouterLink}
 }
 </script>
 
@@ -21,8 +24,10 @@ export default {
       <p>
         50 teams
       </p>
-      <div class="text-right">
-        <button class="btn primary">Follow</button>
+      <div class="text-right btn-group-right">
+        <RouterLink :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
+        <RouterLink :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary" v-if="admin !== undefined && admin !== false">Administrator</RouterLink>
+        <RouterLink :to="{name: 'challenge-score', query: {id: challenge.challengeId}}" class="btn primary">Follow</RouterLink>
       </div>
     </div>
   </div>

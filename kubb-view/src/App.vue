@@ -1,10 +1,22 @@
-<script setup>
+<script>
 import { RouterLink, RouterView } from 'vue-router'
 import { SlUser } from 'vue-icons-plus/sl'
+
+export default {
+  components: {SlUser, RouterLink, RouterView},
+  data: () => ({
+    headerScoreView: true
+  }),
+  methods: {
+    disableHeaderScoreView(v) {
+      this.headerScoreView = !v;
+    }
+  }
+}
 </script>
 
 <template>
-  <header>
+  <header v-if="headerScoreView || $route.name !== 'challenge-score'">
 
     <div class="nav-left">
       <div class="header-main-sitename">
@@ -37,7 +49,7 @@ import { SlUser } from 'vue-icons-plus/sl'
   </header>
 
   <div :class="{'container': !$route.meta.view, 'scoreboard': $route.meta.view === 'score', 'container no-padding': $route.meta.view === 'tabs'}">
-    <RouterView />
+    <RouterView v-on:disableHeaderScoreView="disableHeaderScoreView" />
   </div>
 
   <div class="footer">

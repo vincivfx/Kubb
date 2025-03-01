@@ -24,14 +24,6 @@
     &:hover {
         background-color: #000;
         color: #fff;
-    }
-    &:focus {
-        background-color: #000;
-        color: #fff;
-        outline: none;
-    }
-
-    &:hover {
         cursor: pointer;
     }
 
@@ -43,12 +35,19 @@
         border: none;
     }
 
-    &.icon {
-    }
-
     &.small {
         font-size: 14px;
         vertical-align: middle;
         padding: 4px 8px;
+    }
+}
+.btn-group-left {
+    .btn {
+        margin-right: 8px;
+    }
+}
+.btn-group-right {
+    .btn {
+        margin-left: 8px;
     }
 }

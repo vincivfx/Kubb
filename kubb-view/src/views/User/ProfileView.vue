@@ -4,6 +4,7 @@ import PasswordSecurityCheck from '@/components/PasswordSecurityCheck.vue';
 import Tabs from "@/components/Tabs.vue";
 import MandatoryUpdatePasswordView from "@/views/Auth/MandatoryUpdatePasswordView.vue";
 import Alert from "@/components/Alert.vue";
+import Badge from "@/components/Badge.vue";
 
 export default {
   data: () => ({
@@ -16,7 +17,7 @@ export default {
     confirmPassword: '',
     updatePasswordStatus: 'none'
   }),
-  components: {Alert, MandatoryUpdatePasswordView, Tabs, InputBlock, PasswordSecurityCheck},
+  components: {Badge, Alert, MandatoryUpdatePasswordView, Tabs, InputBlock, PasswordSecurityCheck},
   methods: {
     logout: function () {
       this.$http.head('/logout').then(() => {
@@ -41,6 +42,11 @@ export default {
       })
 
     }
+  },
+  mounted() {
+    this.$http.get('/User/GetProfile').then((response) => {
+      this.profile = response.data;
+    })
   }
 }
 </script>
@@ -58,6 +64,15 @@ export default {
       v-model="page"
       :tabs="[{'text': 'Account overview', id: 'home'}, {'text': 'Update password', id: 'passwd'}, {text: 'Last logins', id: 'logins'}]">
 
+    <div v-if="page === 'home'">
+      <h3>Account Overview</h3>
+      <p>
+        <b>Name</b>: {{profile.name}} <br>
+        <b>Surname</b>: {{profile.surname}} <br>
+        <b>Email Address</b>: {{profile.emailAddress}} <br>
+      </p>
+    </div>
+    
     <div v-if="page === 'passwd'">
       <h3>Update your password</h3>
       <Alert v-if="updatePasswordStatus === 'error'" type="danger">

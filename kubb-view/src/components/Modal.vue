@@ -5,7 +5,7 @@
             <div class="modal-header">
                 {{ title }}
 
-                <button class="modal-button-close" @click="hide();"><SlClose /> </button>
+                <button class="modal-button-close" @click="hide();">&times; </button>
             </div>
             <div class="modal-content">
                 <slot />

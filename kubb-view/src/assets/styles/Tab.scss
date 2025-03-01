@@ -24,6 +24,6 @@
         }
     }
 }
-.container .tabs ~.no-padding {
+.container:not(.no-padding) .tabs {
     border: 1px solid #333;
 }

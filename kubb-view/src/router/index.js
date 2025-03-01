@@ -77,7 +77,6 @@ const router = createRouter({
 
 router.afterEach((from, to, next) => {
   document.title = from.meta.title + " :: Kubb";
-  next();
 })
 
 export default router
