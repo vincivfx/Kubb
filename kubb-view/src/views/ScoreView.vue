@@ -9,7 +9,9 @@ export default {
     scrollTimeout: null,
     scroll: false,
     name: '',
-    hiddenBar: false
+    hiddenBar: false,
+    fetcherInterval: null,
+    scrollerInterval: null,
   }),
   components: {SlSettings, Modal},
   methods: {
@@ -30,10 +32,15 @@ export default {
       })
     }
   },
+  // clear intervals when you leave the page
+  unmounted() {
+    clearInterval(this.fetcherInterval);
+    clearInterval(this.scrollTimeout);
+  },
   mounted() {
     this.loadScoreboard();
-    setInterval(() => this.loadScoreboard(), 15000);
-    setInterval(() => {
+    this.fetcherInterval = setInterval(() => this.loadScoreboard(), 15000);
+    this.scrollerInterval = setInterval(() => {
       if (this.scroll) {
         if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight) {
           if (!this.scrollTimeout)
@@ -60,7 +67,7 @@ export default {
 
   <h1>{{ name }}
     <button @click="$refs.settingsModal.show();" class="btn small">
-      <SlSettings/>
+      <SlSettings/> 
     </button>
   </h1>
   <div class="scoreboard-container">

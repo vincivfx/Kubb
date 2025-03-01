@@ -1,3 +1,4 @@
+using KubbAdminAPI.Filters;
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.RequestModels;
 using KubbAdminAPI.Models.RequestModels.Challenge;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KubbAdminAPI.Controllers;
 
-[ApiController, Route("[controller]/[action]")]
+[ApiController, Route("[controller]/[action]"), AuthenticationFilter]
 public class ChallengeController(DatabaseContext context) : BaseController
 {
     /**
@@ -151,7 +152,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
 
         var user = CurrentUser();
 
-        if (challenge == null || challenge.StartTime < DateTime.UtcNow ||
+        if (challenge == null || challenge.StartTime != null && challenge.StartTime < DateTime.UtcNow ||
             challenge.Administrator != user && !context.Participations.Any(participation =>
                 participation.User == user && participation.Challenge == challenge))
         {

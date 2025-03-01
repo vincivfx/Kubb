@@ -20,7 +20,9 @@ if (window.location.hostname === 'localhost' || window.location.hostname === "12
 const axiosInstance = axios.create({
     baseURL: hostname,
     timeout: 1000,
-    headers: {},
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
 axiosInstance.interceptors.request.use((config) => {
     const authStored = authSession.getStored();

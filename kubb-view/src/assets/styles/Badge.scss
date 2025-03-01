@@ -12,4 +12,8 @@
         background-color: $dangerColor;
         color: white;
     }
+    &.warning {
+        background-color: $warningColor;
+        color: black;
+    }
 }

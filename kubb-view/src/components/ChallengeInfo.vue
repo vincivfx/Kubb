@@ -1,17 +1,18 @@
 <script>
 import {RouterLink} from "vue-router";
+import Badge from "@/components/Badge.vue";
 
 export default {
   name: "ChallengeInfo",
   props: ['challenge', 'admin'],
-  components: {RouterLink}
+  components: {Badge, RouterLink}
 }
 </script>
 
 <template>
   <div class="b-1">
-    <div class="bg-primary p-2">
-      <h3>{{challenge.name}}</h3>
+    <div :class="['p-2', {'bg-primary': challenge.runningStatus <= 1}, {'bg-gray': challenge.runningStatus > 1}]">
+      <h3>{{challenge.name}} <Badge type="warning" v-if="challenge.runningStatus === 0">(DRAFT)</Badge></h3>
     </div>
     <div class="p-2">
       <p>
@@ -25,9 +26,9 @@ export default {
         50 teams
       </p>
       <div class="text-right btn-group-right">
-        <RouterLink :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
-        <RouterLink :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary" v-if="admin !== undefined && admin !== false">Administrator</RouterLink>
-        <RouterLink :to="{name: 'challenge-score', query: {id: challenge.challengeId}}" class="btn primary">Follow</RouterLink>
+        <RouterLink v-if="challenge.runningStatus === 1" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
+        <RouterLink v-if="challenge.runningStatus < 3 && admin !== undefined && admin !== false" :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
+        <RouterLink v-if="challenge.runningStatus > 0" :to="{name: 'challenge-score', query: {id: challenge.challengeId}}" class="btn primary">Follow</RouterLink>
       </div>
     </div>
   </div>

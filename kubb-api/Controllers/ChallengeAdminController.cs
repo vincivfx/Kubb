@@ -4,6 +4,7 @@ using KubbAdminAPI.Models.RequestModels;
 using KubbAdminAPI.Models.RequestModels.ChallengeAdmin;
 using KubbAdminAPI.Models.ResponseModels.ChallengeAdmin;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Challenge = KubbAdminAPI.Models.Challenge;
 
 namespace KubbAdminAPI.Controllers;
@@ -31,7 +32,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
     }
 
     [HttpGet]
-    public IActionResult ChallengeInfo([FromBody] Guid challengeId)
+    public ActionResult<ChallengeInfoResponse> ChallengeInfo([FromQuery] Guid challengeId)
     {
         var current = CurrentUser()!;
         var challenge = context.Challenges.FirstOrDefault(challenge =>
@@ -43,20 +44,12 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         }
 
         var participations = context.Participations.Where(participation => participation.Challenge == challenge).Select(
-            participation => new
-            {
-                participation.User.Name,
-                participation.User.Surname,
-                participation.User.EmailAddress,
-                participation.Created
-            }).ToList();
+            participation => new ChallengeInfoResponse.Participation(participation)).ToList();
 
-        var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
+        var teams = context.Teams.Where(team => team.Challenge == challenge)
+            .Select(team => new ChallengeInfoResponse.Team(team)).ToList();
 
-        return Ok(new
-        {
-            // TODO: response
-        });
+        return Ok(ChallengeInfoResponse.Create(challenge, participations, teams));
     }
 
 
@@ -83,9 +76,24 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
     }
 
     [HttpPut]
-    public void UpdateChallenge()
+    public IActionResult UpdateChallenge([FromBody] UpdateChallengeRequest request)
     {
+        var user = CurrentUser();
+        // Challenge should be set in "DRAFT" status to be modified
+        var challenge = context.Challenges.Include(challenge => challenge.Administrator).FirstOrDefault(challenge =>
+            challenge.ChallengeId == request.ChallengeId && challenge.Administrator == user &&
+            challenge.RunningStatus == RunningChallengeStatus.Draft);
+
+        if (challenge == null) return Unauthorized();
+
+        challenge.Name = request.Name;
+        challenge.StartTime = request.StartTime;
+        challenge.EndTime = request.EndTime;
+        context.SaveChanges();
+
+        return Ok();
     }
+
 
     [HttpDelete]
     public void DeleteChallenge()

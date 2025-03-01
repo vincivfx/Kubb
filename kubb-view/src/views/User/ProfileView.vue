@@ -23,6 +23,11 @@ export default {
       this.$http.head('/logout').then(() => {
         this.$authSession.removeStored();
         this.$router.push({name: 'login'});
+      }).catch((error) => {
+        if (error.response.status === 404) {
+          this.$authSession.removeStored();
+          this.$router.push({name: 'login'});
+        }
       })
     },
     updatePassword(e) {
