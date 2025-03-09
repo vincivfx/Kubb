@@ -7,6 +7,11 @@
     text-decoration: none;
     margin: 4px 0;
     
+    &:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+    
     &.primary {
         background-color: $primaryColor;
         color: $primaryTextColor;
@@ -21,7 +26,7 @@
         background-color: $dangerColor;
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
         background-color: #000;
         color: #fff;
         cursor: pointer;
@@ -39,6 +44,30 @@
         font-size: 14px;
         vertical-align: middle;
         padding: 4px 8px;
+    }
+    
+    &.checkbox {
+        height: 20px;
+        width: 20px;
+        padding: 0;
+        position: relative;
+        margin-right: 8px;
+        
+        &:hover {
+            color: $primaryTextColor;
+        }
+        
+        &.checkbox-active {
+            background-color: $secondaryColor;
+        }
+        
+        svg {
+            width: 20px;
+            height: 20px;
+            left: 0;
+            right: 0;
+            position: absolute;
+        }
     }
 }
 .btn-group-left {
