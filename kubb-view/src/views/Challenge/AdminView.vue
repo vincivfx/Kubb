@@ -5,9 +5,11 @@ import Tabs from "@/components/Tabs.vue";
 import InputBlock from "@/components/InputBlock.vue";
 import Alert from "@/components/Alert.vue";
 import DateTimeInput from "@/components/DateTimeInput.vue";
+import CheckBox from "@/components/CheckBox.vue";
+import Badge from "@/components/Badge.vue";
 
 export default {
-  components: {DateTimeInput, Alert, InputBlock, Tabs, SlPencil, SlPlus, SlTrash, Modal},
+  components: {Badge, CheckBox, DateTimeInput, Alert, InputBlock, Tabs, SlPencil, SlPlus, SlTrash, Modal},
   data: () => ({
     status: 'loading',
     teams: [],
@@ -22,11 +24,12 @@ export default {
     createTeamLastName: '',
     updateChallengeForm: {},
     updateChallengeStatus: '',
+    submitChallengeError: false
   }),
   methods: {
     saveChallenge(e) {
       e.preventDefault();
-      this.$http.put("/ChallengeAdmin/UpdateChallenge", this.updateChallengeForm).then((response) => {
+      this.$http.put("/ChallengeAdmin/UpdateChallenge", this.updateChallengeForm).then(() => {
         this.updateChallengeStatus = 'success';
         this.challenge = JSON.parse(JSON.stringify(this.updateChallengeForm));
         setTimeout(() => this.updateChallengeStatus = '', 20000);
@@ -34,6 +37,18 @@ export default {
         this.updateChallengeStatus = 'error';
         setTimeout(() => this.updateChallengeStatus = '', 20000);
       })
+    },
+    submitChallenge() {
+      let payload = JSON.parse(JSON.stringify(this.challenge));
+      payload.runningStatus = 1; // status = SUBMITTED
+      this.$http.put("/ChallengeAdmin/UpdateChallenge", payload).then(() => {
+        this.challenge = payload;
+        this.$refs.submitChallengeModal.hide();
+      }).catch(() => {
+        this.submitChallengeError = true;
+        setTimeout(() => this.submitChallengeError = false, 20000);
+      })
+
     },
     createTeam(e) {
       e.preventDefault();
@@ -79,7 +94,7 @@ export default {
   <div v-if="status === 'ok'">
 
     <h2>{{ challenge.name }}
-      <button @click="$refs.editChallengeModal.show()" class="btn btn-primary small">
+      <button v-if="challenge.runningStatus === 0" @click="$refs.editChallengeModal.show()" class="btn btn-primary small">
         <SlPencil/>
       </button>
     </h2>
@@ -88,6 +103,15 @@ export default {
           :tabs="[{text: 'Challenge Overview', id: 'overview'}, {text: 'Teams', id: 'teams'}, {text: 'Participations', id: 'participations'}, {text: 'Challenge Options', id: 'options'}]">
       <div v-if="page === 'overview'">
         <table class="text-left">
+          <tr>
+            <th>Running status</th>
+            <td>
+              <Badge v-if="challenge.runningStatus === 0" type="info">DRAFT</Badge>
+              <Badge v-if="challenge.runningStatus === 1" type="info">SUBMITTED</Badge>
+              <Badge v-if="challenge.runningStatus === 2" type="info">FROZEN</Badge>
+              <Badge v-if="challenge.runningStatus === 3" type="info">TERMINATED</Badge>
+            </td>
+          </tr>
           <tr>
             <th>Starting Time:</th>
             <td>{{ challenge.startTime.toLocaleString() }}</td>
@@ -132,6 +156,37 @@ export default {
       </div>
       <div v-if="page === 'options'">
 
+        <div v-if="challenge.runningStatus === 0">
+          <h4>
+            Challenge flags
+            <Badge type="warning">not saved</Badge>
+          </h4>
+          
+          <CheckBox>Challenge will be visibile on active challenges page</CheckBox>
+          <CheckBox>Allow anonymous joins</CheckBox>
+          <CheckBox>Allow joiners to remove answers</CheckBox>
+          <CheckBox>Start challenge automatically at <i>starting time</i></CheckBox>
+          
+          <button class="btn primary">Save flags</button>
+          
+          <hr />
+
+          <h4>Submit challenge</h4>
+
+          <Alert type="warning">
+            To make your challenge visible to the other people or just
+            to start it, you need to set its status to submitted.<br>
+            <b>NOTE</b> Once you set it to submitted status you won't be able to
+            edit the details anymore.
+          </Alert>
+
+          <button @click="$refs.submitChallengeModal.show()" class="btn primary">Submit Challenge</button>
+
+          <hr />
+        </div>
+
+        
+        
         <h4>Delete this challenge</h4>
         <p>
           If you request the challenge deletion, you will be not able to recover it.
@@ -141,14 +196,29 @@ export default {
     </Tabs>
 
     <Modal title="Delete this challenge" ref="deleteChallengeModal">
-      Are you sure to delete <b>challenge name</b> challenge?
+      Are you sure to delete <b>{{ challenge.name }}</b> challenge?
       <InputBlock>
         Type the challenge name
       </InputBlock>
-      <input type="submit" class="btn danger" value="Delete this challenge">
+      <input :disabled="false" type="submit" class="btn danger" value="Delete this challenge">
     </Modal>
 
     <Modal title="Delete a team" ref="deleteTeamModal">
+
+    </Modal>
+
+    <Modal title="Submit challenge" ref="submitChallengeModal">
+      <Alert type="danger" v-if="submitChallengeError">
+        Sorry, we encountered an error.
+      </Alert>
+      <Alert type="warning">
+        To make your challenge visible to the other people or just
+        to start it, you need to set its status to submitted.<br>
+        <b>NOTE</b> Once you set it to submitted status you won't be able to
+        edit the details anymore.
+      </Alert>
+
+      <button class="btn warning" @click="submitChallenge()">Submit challenge</button>
 
     </Modal>
 

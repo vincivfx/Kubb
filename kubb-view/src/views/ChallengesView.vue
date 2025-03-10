@@ -4,6 +4,8 @@ import Tabs from '@/components/Tabs.vue';
 import { SlPlus } from 'vue-icons-plus/sl';
 import ChallengeInfo from "@/components/ChallengeInfo.vue";
 import MyChallengesPartialView from "@/partials/MyChallengesPartialView.vue";
+import Pagination from '@/components/Pagination.vue';
+import ChallengesPartialView from "@/partials/Challenges/ChallengesPartialView.vue";
 
 export default {
   data: () => ({
@@ -12,7 +14,7 @@ export default {
     ],
     page: ''
   }),
-  components: {MyChallengesPartialView, ChallengeInfo, Tabs, SlPlus},
+  components: {ChallengesPartialView, MyChallengesPartialView, ChallengeInfo, Tabs, SlPlus, Pagination},
   mounted() {
     let validTypes = [undefined, '', 'archive', 'joinable', 'my'];
 
@@ -35,10 +37,7 @@ export default {
 
 <template>
   <Tabs v-model="page" :tabs="[{text: 'Running Challenges', id: ''}, {text: 'Archived Challenges', id: 'archived'}, {text: 'My Challenges', id: 'my', runIf: () => $authSession.getStored()}]">
-    <div v-if="page === ''">
-      <h2>Running Challenges</h2>
-      <ChallengeInfo :challenge="{name: 'Gara di Aprile', description: '', teams: 50, startTime: 'now', endTime: 'now'}" />
-    </div>
+    <ChallengesPartialView v-if="page === ''" title="Running Challenges" repo="" />
     <MyChallengesPartialView v-if="page === 'my'" />
     
     

@@ -10,7 +10,7 @@ export default {
 </script>
 
 <template>
-  <div class="b-1">
+  <div class="b-1 mv-2">
     <div :class="['p-2', {'bg-primary': challenge.runningStatus <= 1}, {'bg-gray': challenge.runningStatus > 1}]">
       <h3>{{challenge.name}} <Badge type="warning" v-if="challenge.runningStatus === 0">(DRAFT)</Badge></h3>
     </div>
@@ -19,8 +19,8 @@ export default {
         {{challenge.description}}
       </p>
       <p>
-        from {{challenge.startTime}}
-        to {{challenge.endTime}}
+        from {{new Date(challenge.startTime).toLocaleString()}}
+        to {{new Date(challenge.endTime).toLocaleString()}}
       </p>
       <p>
         50 teams

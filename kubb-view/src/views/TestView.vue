@@ -1,11 +1,14 @@
 <script>
+import CheckBox from "@/components/CheckBox.vue";
+
 export default {
-name: "TestView"
+  name: "TestView",
+  components: {CheckBox}
 }
 </script>
 
 <template>
-  $END$
+  <CheckBox>Ciao</CheckBox>
 </template>
 
 <style scoped>

@@ -24,7 +24,7 @@ export default {
     <div class="input-select">
         <InputBlock v-model="filter" @focusout="hideSelect" @focus="visibleSelect = true"><slot /></InputBlock>
         <div v-if="visibleSelect" class="select-box">
-            <button @click="select(item)" v-for="(item, key) in options.filter(t => t.text.indexOf(filter) >= 0)">
+            <button @click="select(item)" v-for="(item, key) in options.filter(t => t.text.indexOf(filter) >= 0)" :key="key">
                 {{ item.text }}
             </button>
         </div>

@@ -1,4 +1,5 @@
 <script>
+import CheckBox from '@/components/CheckBox.vue';
 import Modal from '@/components/Modal.vue';
 import Scoreboard from '@/util/score';
 import {SlSettings} from 'vue-icons-plus/sl';
@@ -13,7 +14,7 @@ export default {
     fetcherInterval: null,
     scrollerInterval: null,
   }),
-  components: {SlSettings, Modal},
+  components: {SlSettings, Modal, CheckBox},
   methods: {
     loadScoreboard() {
       if (this.$route.query.id === 'test') {
@@ -22,7 +23,7 @@ export default {
       }
 
       this.$http.get('/Home/GetCache?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
-
+        this.scoreboard = Scoreboard.parseScoreboard(response.data);
       }).catch(error => {
         if (error.response.status === 404) {
           this.$router.push({
@@ -61,6 +62,9 @@ export default {
 
 <template>
   <Modal title="Settings" ref="settingsModal">
+    <CheckBox>
+      Enable automatic scroll
+    </CheckBox>
     <input type="checkbox" v-model="scroll"> enable automatic scroll<br>
     <input type="checkbox" v-model="hiddenBar" @change="$emit('disableHeaderScoreView', $event.target.checked)"> disable header bar
   </Modal>

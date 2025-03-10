@@ -5,9 +5,10 @@
     .scoreboard-table {
         display: table;
         border-collapse: collapse;
-        width: 100%;
+        margin: 0 auto;
     
         .team {
+            
             max-width: 100%;
             display: table-row;
             height: 36px;
@@ -45,8 +46,8 @@
             }
     
             .team-question {
-                max-width: calc(100% - 320px);
                 min-width: 40px;
+                width: 50px;
                 position: relative;
                 text-align: center;
     

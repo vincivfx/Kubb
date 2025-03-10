@@ -16,4 +16,8 @@
         background-color: $warningColor;
         color: black;
     }
+    &.info {
+        background-color: $infoColor;
+        color: #000;
+    }
 }

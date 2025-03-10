@@ -10,10 +10,6 @@ export default {
             output += (20 + Math.ceil(Math.random() * 60)) + (i === 23 ? '\n' : ",");
         }
 
-        for (let i = 0; i < problems; i += 1) {
-            output += (20 + Math.ceil(Math.random() * 60)) + (i === 23 ? '\n' : ",");
-        }
-
         for (let i = 0; i < teams; i += 1) {
             output += "Team #" + i;
             const jolly = Math.ceil(Math.random() * problems);
@@ -53,7 +49,7 @@ export default {
             })
         })
 
-        for (let i = 2; i <= lines.length; i += 1) {
+        for (let i = 1; i <= lines.length; i += 1) {
             
             if (!lines[i]) continue;
             const parts = lines[i].split(',');
@@ -63,10 +59,10 @@ export default {
             for (let j = 1; j < parts.length; j += 1) {
                 let arrow = null;
 
-                let points = parts[j].replace(/H|J/g, '');
+                let points = parts[j].replace(/H|J|-$|\+$/g, '');
 
-                if (points != '' && points < 0) arrow = 'down';
-                if (points != '' && points > 0) arrow = 'up';
+                if (points !== '' && points < 0) arrow = 'down';
+                if (points !== '' && points > 0) arrow = 'up';
 
                 teamQuestions.push({
                     points,

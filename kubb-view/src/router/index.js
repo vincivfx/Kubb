@@ -42,7 +42,7 @@ const router = createRouter({
       component: () => import('../views/User/ProfileView.vue')
     },
     {
-      path: '/challenges/:type?',
+      path: '/challenges',
       name: 'challenges',
       component: () => import('../views/ChallengesView.vue'),
       meta: {
@@ -50,7 +50,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/challenge/score',
+      path: '/live',
       name: 'challenge-score',
       component: () => import('../views/ScoreView.vue'),
       meta: {
@@ -71,6 +71,11 @@ const router = createRouter({
       path: '/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue')
+    },
+    { // TODO: remove this
+      path: '/test',
+      name: 'test',
+      component: () => import('../views/TestView.vue')
     }
   ],
 })

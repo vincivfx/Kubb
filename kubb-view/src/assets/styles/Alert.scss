@@ -17,6 +17,9 @@
     &.success {
         background-color: $successColorTrasparentized;
     }
+    &.info {
+        background-color: $infoColorTrasparentized;
+    }
 
     .alert-content {
         padding: 12px;
