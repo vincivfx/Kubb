@@ -40,7 +40,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddMemoryCache();
 
 // Adding worker for scoreboard generation
-// builder.Services.AddHostedService<ScoreboardWorker>();
+builder.Services.AddHostedService<ScoreboardWorker>();
 // builder.Services.AddHostedService<FreezerWorker>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddHostedService<EmailSenderWorker>();

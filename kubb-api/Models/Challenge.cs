@@ -42,7 +42,7 @@ public enum ChallengeStatus
     Visible = 1 << 0,
     AllowAnonymousJoin = 1 << 1,
     JoinersCanEditAnswer = 1 << 2,
-    AutomaticStart = 1 << 3,
+    StartEnabled = 1 << 3,
 }
 
 public enum RunningChallengeStatus

@@ -57,7 +57,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
     {
         var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId);
 
-        if (challenge == null || challenge.RunningStatus != RunningChallengeStatus.Submitted ||
+        if (challenge is not { RunningStatus: RunningChallengeStatus.Submitted } ||
             (challenge.Status & ChallengeStatus.AllowAnonymousJoin) != ChallengeStatus.AllowAnonymousJoin)
         {
             return Unauthorized("Something went wrong with your request");

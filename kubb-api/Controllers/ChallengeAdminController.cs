@@ -86,9 +86,18 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
 
         if (challenge == null) return Unauthorized();
 
+        // allow only setting status to submitted
+        if (request.RunningStatus != RunningChallengeStatus.Submitted && request.RunningStatus != RunningChallengeStatus.Draft) {
+            return Unauthorized();
+        }
+
+        // TODO: Check statuses
+        
         challenge.Name = request.Name;
         challenge.StartTime = request.StartTime;
         challenge.EndTime = request.EndTime;
+        challenge.Status = request.Status;
+        challenge.RunningStatus = request.RunningStatus;
         context.SaveChanges();
 
         return Ok();
@@ -99,4 +108,5 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
     public void DeleteChallenge()
     {
     }
+    
 }

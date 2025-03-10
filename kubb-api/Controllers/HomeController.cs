@@ -22,7 +22,8 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
                         item.Name,
                         item.StartTime,
                         item.EndTime,
-                        item.Status
+                        item.Status,
+                        item.RunningStatus
                     }).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
         return Json(challenges);
     }
@@ -41,7 +42,9 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
                         item.ChallengeId,
                         item.Name,
                         item.StartTime,
-                        item.EndTime
+                        item.EndTime,
+                        item.Status,
+                        item.RunningStatus
                     }).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
         return Json(challenges);
     }
