@@ -27,7 +27,7 @@
     .modal-button-close {
         font-size: 28px;
         position: absolute;
-        width: 50px;
+        width: 40px;
         text-align: center;
         height: 100%;
         right: 0;
@@ -54,7 +54,7 @@
 
 .modal-background {
     position: fixed;
-    z-index: 1;
+    z-index: 1000;
     background-color: #00000040;
     top: 0;
     left: 0;

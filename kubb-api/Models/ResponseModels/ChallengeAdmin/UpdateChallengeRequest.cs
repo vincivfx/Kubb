@@ -18,4 +18,7 @@ public class UpdateChallengeRequest
 
     public RunningChallengeStatus RunningStatus { get; set; }
 
+    [Required]
+    public required List<string> Questions { get; set; }
+
 }

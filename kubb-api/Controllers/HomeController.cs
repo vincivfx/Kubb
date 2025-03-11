@@ -1,6 +1,7 @@
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.Cache;
 using KubbAdminAPI.Models.RequestModels;
+using KubbAdminAPI.Models.ResponseModels.Home;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -15,17 +16,9 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
             _context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted)
-                .Select(
-                    item => new
-                    {
-                        item.ChallengeId,
-                        item.Name,
-                        item.StartTime,
-                        item.EndTime,
-                        item.Status,
-                        item.RunningStatus
-                    }).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
-        return Json(challenges);
+                .Select(challenge => new ChallengesResponse.Challenge(challenge)).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
+        var totalCount = _context.Challenges.Count(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted);
+        return Ok(new ChallengesResponse(challenges, totalCount));
     }
 
     [HttpGet]
@@ -33,20 +26,10 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
     {
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
-            _context.Challenges.Where(challenge =>
-                    challenge.RunningStatus == RunningChallengeStatus.Terminated ||
-                    challenge.RunningStatus == RunningChallengeStatus.Frozen)
-                .Select(
-                    item => new
-                    {
-                        item.ChallengeId,
-                        item.Name,
-                        item.StartTime,
-                        item.EndTime,
-                        item.Status,
-                        item.RunningStatus
-                    }).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
-        return Json(challenges);
+            _context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated)
+                .Select(challenge => new ChallengesResponse.Challenge(challenge)).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
+        var totalCount = _context.Challenges.Count(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted);
+        return Ok(new ChallengesResponse(challenges, totalCount));
     }
 
     [HttpGet]
@@ -56,18 +39,13 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
         if (value == null) return NotFound();
         return Ok(value);
     }
-    
-    #if DEBUG
+
     [HttpGet]
-    public ActionResult SetCache([FromQuery] string key)
+    public ActionResult<ChallengeSetupResponse> ChallengeSetup([FromQuery] Guid challengeId)
     {
-	var c = "ciao";
-	for (int i = 0; i < 20000; i += 1) c += "c";
-        _cache.Set(key, c, new MemoryCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
-        });
-        return Ok();
+        var challenge = _context.Challenges.Where(challenge => challenge.ChallengeId == challengeId)
+            .Select(ch => new ChallengeSetupResponse(ch)).FirstOrDefault();
+        if (challenge == null) return NotFound();
+        return Ok(challenge);
     }
-    #endif
 }

@@ -20,7 +20,7 @@ public class ScoreboardGenerator
 
         foreach (var team in teams)
         {
-            var element = new SimpleTeam(challenge.Questions.Count, team.TeamName);
+            var element = new SimpleTeam(challenge.Questions.Count, team);
             teamPoints.Add(team.TeamId, element);
         }
 
@@ -45,7 +45,17 @@ public class ScoreboardGenerator
             }
             else
             {
-                rightAnswersGroups[answer.Question].Add(answer);
+                // if a right question was given before, ignore the current one (problems with bonuses) 
+                var validateAnswer = true;
+                foreach (var rightAnswer in rightAnswersGroups[answer.Question])
+                {
+                    if (rightAnswer.Team == answer.Team)
+                    {
+                        validateAnswer = false;
+                        break;
+                    }
+                }
+                if (validateAnswer) rightAnswersGroups[answer.Question].Add(answer);
             }
         }
 
@@ -54,11 +64,25 @@ public class ScoreboardGenerator
             rightAnswersGroup.Sort((a, b) => a.Created < b.Created ? -1 : 1);
         }
 
-        foreach (var rightAnswersGroup in rightAnswersGroups)
+        for (var groupId = 0; groupId < points.Count; groupId += 1)
         {
-            var diffTime = rightAnswersGroup.Count < deriva
-                ? challenge.EndTime!.Value.AddMinutes(-20).Subtract(challenge.StartTime!.Value).TotalMinutes
-                : rightAnswersGroup[deriva - 1].Created.Subtract(challenge.StartTime!.Value).TotalMinutes;
+            var rightAnswersGroup = rightAnswersGroups[groupId];
+
+            double diffTime = 0;
+            if (rightAnswersGroup.Count >= deriva)
+            {
+                diffTime = rightAnswersGroup[deriva - 1].Created.Subtract(challenge.StartTime!.Value).TotalMinutes;
+            }
+            else if (DateTime.UtcNow < challenge.EndTime)
+            {
+                diffTime = DateTime.UtcNow.Subtract(challenge.StartTime!.Value).TotalMinutes;
+            }
+            else
+            {
+                diffTime = challenge.EndTime!.Value.AddMinutes(-20).Subtract(challenge.StartTime!.Value).TotalMinutes;
+            }
+
+            points[groupId] += Convert.ToInt32(diffTime);
 
             for (var i = 0; i < rightAnswersGroup.Count; i++)
             {
@@ -66,7 +90,7 @@ public class ScoreboardGenerator
                 var bonus = 0;
                 if (i < bonuses.Count) bonus = bonuses[i];
                 teamPoints[team].Cells[rightAnswersGroup[i].Question]
-                    .AddRight(basePoints + Convert.ToInt32(diffTime) + bonus);
+                    .AddRight(points[groupId] + bonus);
             }
         }
 
@@ -83,7 +107,7 @@ public class ScoreboardGenerator
         {
             var teamLine = teamPoint.Value.TeamName + ",";
 
-            for(var cell = 0; cell < teamPoint.Value.Cells.Count; cell += 1)
+            for (var cell = 0; cell < teamPoint.Value.Cells.Count; cell += 1)
             {
                 var t = teamPoint.Value.Cells[cell];
                 if (cell > 0) teamLine += ",";
@@ -115,6 +139,7 @@ public record ScoreboardCell
 
     public void AddRight(int rightAnswerPoints)
     {
+        if (Direction) return;
         Points += rightAnswerPoints;
         Direction = true;
         HasBeenSet = true;
@@ -129,12 +154,14 @@ public record ScoreboardCell
 
 public class SimpleTeam
 {
-    public SimpleTeam(int size, string teamName)
+    public SimpleTeam(int size, Team team)
     {
-        TeamName = teamName;
+        TeamName = team.TeamName;
+        TeamId = team.TeamId;
         for (var i = 0; i < size; i += 1) Cells.Add(new ScoreboardCell());
     }
 
     public List<ScoreboardCell> Cells { get; set; } = [];
     public string TeamName { get; set; }
+    public Guid TeamId { get; set; }
 }

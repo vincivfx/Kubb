@@ -15,29 +15,13 @@ export default {
     page: ''
   }),
   components: {ChallengesPartialView, MyChallengesPartialView, ChallengeInfo, Tabs, SlPlus, Pagination},
-  mounted() {
-    let validTypes = [undefined, '', 'archive', 'joinable', 'my'];
-
-    if (validTypes.indexOf(this.$route.params.type) === -1) {
-      this.$router.push({name: 'error'});
-    }
-
-    this.page = this.$route.params.type === undefined ? '' : this.$route.params.type;
-
-    switch(this.$route.params.type) {
-      case(undefined):
-        this.$http.get('/Home/Challenges').then(response => {
-          console.log(response);
-        })
-        break;
-    }
-  }
 }
 </script>
 
 <template>
-  <Tabs v-model="page" :tabs="[{text: 'Running Challenges', id: ''}, {text: 'Archived Challenges', id: 'archived'}, {text: 'My Challenges', id: 'my', runIf: () => $authSession.getStored()}]">
+  <Tabs v-model="page" :tabs="[{text: 'Running Challenges', id: ''}, {text: 'Archived Challenges', id: 'archived'}, {text: 'My Challenges', id: 'my', runIf: () => $authSession.getStored()}, {text: 'Joinable Challenges', id: 'join', runIf: () => $authSession.getStored()}]">
     <ChallengesPartialView v-if="page === ''" title="Running Challenges" repo="" />
+    <ChallengesPartialView v-if="page === 'archived'" title="Archived Challenges" repo="Archived"></ChallengesPartialView>
     <MyChallengesPartialView v-if="page === 'my'" />
     
     

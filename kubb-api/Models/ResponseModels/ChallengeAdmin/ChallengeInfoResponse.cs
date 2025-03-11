@@ -28,6 +28,7 @@ public class ChallengeInfoResponse
         public DateTime? StartTime { get; set; } = challenge.StartTime;
         public DateTime? EndTime { get; set; } = challenge.EndTime;
         public DateTime Created { get; set; } = challenge.Created;
+        public List<string> Questions { get; set; } = challenge.Questions;
         public Models.ChallengeStatus Status { get; set; } = challenge.Status;
         public Models.RunningChallengeStatus RunningStatus { get; set; } = challenge.RunningStatus;
     }

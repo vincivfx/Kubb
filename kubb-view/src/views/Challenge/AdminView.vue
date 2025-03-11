@@ -15,14 +15,18 @@ export default {
     teams: [],
     participations: [],
     page: 'overview',
-    challenge: {},
+    challenge: {
+      questions: []
+    },
     createTeamForm: {
       name: '',
       challengeId: '',
     },
     createTeamStatus: '',
     createTeamLastName: '',
-    updateChallengeForm: {},
+    updateChallengeForm: {
+      questions: []
+    },
     updateChallengeStatus: '',
     submitChallengeError: false
   }),
@@ -82,7 +86,7 @@ export default {
       this.challenge.endTime = new Date(this.challenge.endTime);
 
       this.status = 'ok';
-    }).catch(() => {
+    }).catch((err) => {
       this.$router.push({name: 'challenges'});
     })
   }
@@ -100,7 +104,7 @@ export default {
     </h2>
 
     <Tabs v-model="page"
-          :tabs="[{text: 'Challenge Overview', id: 'overview'}, {text: 'Teams', id: 'teams'}, {text: 'Participations', id: 'participations'}, {text: 'Challenge Options', id: 'options'}]">
+          :tabs="[{text: 'Challenge Overview', id: 'overview'}, {text: 'Teams', id: 'teams'}, {text: 'Participations', id: 'participations'}, {text: 'Questions', id: 'questions'}, {text: 'Challenge Options', id: 'options'}]">
       <div v-if="page === 'overview'">
         <table class="text-left">
           <tr>
@@ -192,6 +196,34 @@ export default {
           If you request the challenge deletion, you will be not able to recover it.
         </p>
         <button class="btn danger" @click="$refs.deleteChallengeModal.show()">Delete Challenge</button>
+      </div>
+      <div v-if="page === 'questions'">
+        <h3>
+          Questions
+
+          <Badge type="warning">NOT SAVED</Badge>
+        </h3>
+
+        <form @submit="saveChallenge">
+          <div v-for="(_, qid) in updateChallengeForm.questions" :key="qid">
+            <InputBlock v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)">
+              Question #{{ qid + 1 }}
+            </InputBlock>
+            <button @click="updateChallengeForm.questions.splice(qid, 1)" class="btn danger small">
+              Delete
+            </button>
+          </div>
+
+          <div class="text-center">
+
+            <button type="button" class="btn secondary small" @click="updateChallengeForm.questions.push('')">
+              <SlPlus />
+            </button>
+          </div>
+
+          <input type="submit" class="btn primary" value="Save Questions" />
+        </form>
+
       </div>
     </Tabs>
 

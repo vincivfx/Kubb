@@ -1,15 +1,18 @@
 <script>
 export default {
   name: "CheckBox",
+  props: ['modelValue'],
   data: () => ({
     currentValue: false
   }),
   methods: {
     switchValue() {
       this.currentValue = !this.currentValue;
+      this.$emit('update:modelValue', this.currentValue);
     }
   },
   mounted() {
+    this.currentValue = this.modelValue;
   }
 }
 </script>

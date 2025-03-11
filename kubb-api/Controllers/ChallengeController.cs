@@ -11,6 +11,21 @@ namespace KubbAdminAPI.Controllers;
 [ApiController, Route("[controller]/[action]"), AuthenticationFilter]
 public class ChallengeController(DatabaseContext context) : BaseController
 {
+
+    [HttpGet]
+    public ActionResult<GetInfoResponse> GetInfo([FromQuery] Guid ChallengeId) {
+        var challenge = context.Challenges.Include(challenge => challenge.Administrator).FirstOrDefault(challenge => challenge.ChallengeId == ChallengeId);
+        if (challenge == null) return NotFound();
+
+        var currentUser = CurrentUser();
+        
+        var teams = context.Teams.Where(team => team.Challenge == challenge && team.Administrator == currentUser).ToList();
+
+        if (teams.Count == 0) return Unauthorized();
+        
+        return Ok(new GetInfoResponse(teams, challenge));
+    }
+
     /**
      * 
      */
@@ -77,7 +92,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
     [HttpPost]
     public ActionResult<SendAnswerResponse> SendAnswer([FromBody] SendAnswerRequest request)
     {
-        var team = context.Teams.Include(team => team.Challenge).ThenInclude(challenge => challenge.Questions)
+        var team = context.Teams.Include(team => team.Challenge)
             .Include(team => team.Administrator)
             .FirstOrDefault(team => team.TeamId == request.TeamId);
 

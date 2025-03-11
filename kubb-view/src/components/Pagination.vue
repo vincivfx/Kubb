@@ -1,12 +1,12 @@
 <template>
-    <div class="text-center">
-        <button class="btn">
+    <div class="text-center" v-if="page !== 0 || (page + 1) * perPage <= count">
+        <button @click="move(-1)" class="btn" :disabled="page === 0">
             &lt;
         </button>
         <span style="font-size: 24px; padding: 12px;">
-            1
+            {{ page + 1 }}
         </span>
-        <button class="btn">
+        <button @click="move(1)" class="btn" :disabled="(page + 1) * perPage > count">
             &gt;
         </button>
     </div>
@@ -14,6 +14,11 @@
 
 <script>
 export default {
-    
+    props: ['count', 'page', 'perPage'],
+    methods: {
+        move(direction) {
+            this.$emit('move', direction);
+        }
+    }
 }
 </script>

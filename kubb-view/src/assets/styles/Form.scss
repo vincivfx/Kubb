@@ -9,8 +9,8 @@
         max-width: calc(100% - 32px);
         width: 100%;
         &:focus {
+            outline: 1px solid #333;
             background-color: transparentize($color: $primaryColor, $amount: 0.9);
-            
         }
     }
 }

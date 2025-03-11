@@ -56,7 +56,7 @@
                     color: #004400;
                     font-weight: bold;
                     &.animate {
-                        animation: animation-fun 1s infinite;
+                        animation: animation-fun 2s infinite;
                     }
                 }
                 &.negative {
@@ -64,7 +64,7 @@
                     color: #440000;
                     font-weight: bold;
                     &.animate {
-                        animation: animation-sad 1s infinite;
+                        animation: animation-sad 2s infinite;
                     }
                 }
     
@@ -89,12 +89,13 @@
     
     
         .scoreboard-header {
+            border: 1px solid $primaryColor;
             right: 0;
             width: 100%;
             background-color: $primaryColor;
             color: $primaryTextColor;
             position: sticky;
-            z-index: 1000;
+            z-index: 100;
             top: 0;
           
             display: table-row;
@@ -118,6 +119,9 @@
                 display: inline-block;
                 background-color: $secondaryColor;
                 color: $secondaryTextColor;
+                &.blocked {
+                    background-color: #ec4141;
+                }
             }
     
             .question {
@@ -149,7 +153,7 @@
         background-color: #ffaaaa;
     }
     50% {
-        background-color: #ff6868;
+        background-color: #ec4141;
     }
     100% {
         background-color: #ffaaaa;

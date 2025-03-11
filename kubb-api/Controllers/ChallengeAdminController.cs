@@ -98,6 +98,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         challenge.EndTime = request.EndTime;
         challenge.Status = request.Status;
         challenge.RunningStatus = request.RunningStatus;
+        challenge.Questions = request.Questions;
         context.SaveChanges();
 
         return Ok();

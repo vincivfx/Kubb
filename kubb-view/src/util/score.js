@@ -45,11 +45,14 @@ export default {
         lines[0].split(',').forEach(item => {
             questions.push({
                 points: item,
-                answers: 3
+                answers: 0,
+                blocked: false
             })
         })
 
         for (let i = 1; i <= lines.length; i += 1) {
+            
+            let totalPoints = 200;
             
             if (!lines[i]) continue;
             const parts = lines[i].split(',');
@@ -64,6 +67,14 @@ export default {
                 if (points !== '' && points < 0) arrow = 'down';
                 if (points !== '' && points > 0) arrow = 'up';
 
+                totalPoints += 1 * points;
+
+                if (arrow === 'up') {
+                    questions[j - 1]['answers'] += 1;
+                    if (questions[j - 1]['answers'] > 1) 
+                        questions[j - 1]['blocked'] = true; // TODO: make this working
+                }
+
                 teamQuestions.push({
                     points,
                     arrow,
@@ -74,11 +85,13 @@ export default {
 
             teams.push({
                 name: parts[0],
-                points: 200,
+                points: totalPoints,
                 questions: teamQuestions
             })
 
         }
+        
+        teams = teams.sort((a, b) => b.points - a.points);
 
         return {
             teams,
