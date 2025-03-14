@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using KubbAdminAPI;
+using KubbAdminAPI.Services;
 using KubbAdminAPI.Utils;
 using KubbAdminAPI.Workers;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,10 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHostedService<ScoreboardWorker>();
 // builder.Services.AddHostedService<FreezerWorker>();
 builder.Services.AddScoped<EmailService>();
+
+// Cloudflare Turnstile
+builder.Services.AddScoped<TurnstileService>();
+
 builder.Services.AddHostedService<EmailSenderWorker>();
 
 // cleaner for DB

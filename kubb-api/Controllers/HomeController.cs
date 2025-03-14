@@ -15,7 +15,7 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
     {
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
-            _context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted)
+            _context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted && (challenge.Status & ChallengeStatus.Visible) != 0)
                 .Select(challenge => new ChallengesResponse.Challenge(challenge)).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
         var totalCount = _context.Challenges.Count(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted);
         return Ok(new ChallengesResponse(challenges, totalCount));
@@ -26,7 +26,7 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
     {
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
-            _context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated)
+            _context.Challenges.Where(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0)
                 .Select(challenge => new ChallengesResponse.Challenge(challenge)).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
         var totalCount = _context.Challenges.Count(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted);
         return Ok(new ChallengesResponse(challenges, totalCount));
@@ -47,5 +47,10 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
             .Select(ch => new ChallengeSetupResponse(ch)).FirstOrDefault();
         if (challenge == null) return NotFound();
         return Ok(challenge);
+    }
+
+    [HttpGet]
+    public ActionResult SystemConfiguration() {
+        return Ok();
     }
 }

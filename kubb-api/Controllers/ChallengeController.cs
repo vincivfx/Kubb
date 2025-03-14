@@ -107,11 +107,11 @@ public class ChallengeController(DatabaseContext context) : BaseController
                              from answer in context.Answers
                              where team.Challenge == challenge && answer.Team == team
                              group answer by answer.Team into answerList
-                             select new GetAnswersResponse.TeamAnswer(answerList.Key, answerList.ToList());
+                             select new GetAnswersResponse.TeamAnswer(answerList.Key, answerList.ToList(), challenge);
 
-            var adminAnswers = adminQuery.ToDictionary(pair => pair.TeamId, pair => pair);
+            var adminAnswers = adminQuery.ToList();
 
-            return new GetAnswersResponse(adminAnswers);
+            return Ok(new GetAnswersResponse(adminAnswers));
         }
 
         // user has a participation
@@ -120,11 +120,11 @@ public class ChallengeController(DatabaseContext context) : BaseController
                     from answer in context.Answers
                     where participation.Challenge == challenge && participation.User == currentUser && team.Challenge == challenge && answer.Team == team
                     group answer by answer.Team into answerList
-                    select new GetAnswersResponse.TeamAnswer(answerList.Key, answerList.ToList());
+                    select new GetAnswersResponse.TeamAnswer(answerList.Key, answerList.ToList(), challenge);
         
-        var answers = query.ToDictionary(pair => pair.TeamId, pair => pair);
+        var answers = query.ToList();
 
-        return new GetAnswersResponse(answers);
+        return Ok(new GetAnswersResponse(answers));
 
     }
 

@@ -3,9 +3,8 @@ using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.RequestModels.Auth;
 using KubbAdminAPI.Models.RequestModels.User;
 using KubbAdminAPI.Models.ResponseModels.Auth;
+using KubbAdminAPI.Services;
 using KubbAdminAPI.Utils;
-using KubbAdminAPI.Workers;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using LoginRequest = KubbAdminAPI.Models.RequestModels.Auth.LoginRequest;
 using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
@@ -13,7 +12,7 @@ using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
 namespace KubbAdminAPI.Controllers;
 
 [ApiController, Route("[controller]/[action]")]
-public class AuthController(DatabaseContext context, EmailService emailService) : BaseController
+public class AuthController(DatabaseContext context, EmailService emailService, TurnstileService turnstileService) : BaseController
 {
     /**
      * 
@@ -22,6 +21,10 @@ public class AuthController(DatabaseContext context, EmailService emailService) 
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
     {
         
+        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress())) {
+            return BadRequest();
+        }
+
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
 
         // if user not found or user not active return error 401 

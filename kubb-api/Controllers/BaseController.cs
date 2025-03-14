@@ -21,4 +21,8 @@ public class BaseController : Controller
         return (RouteData.Values["login"] as Login)!;
     }
 
+    protected string GetIpAddress() {
+        return HttpContext.Connection.RemoteIpAddress!.ToString();
+    }
+
 }

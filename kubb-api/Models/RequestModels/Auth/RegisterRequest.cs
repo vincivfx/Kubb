@@ -16,6 +16,6 @@ public class RegisterRequest
     [Required, MaxLength(63)]
     public required string Password { get; set; }
     
-    [Required, MaxLength(8)]
+    [Required, MaxLength(8), RegularExpression("^I accept$")]
     public required string TermsAccept { get; set; } // need to be 'I Accept'
 }

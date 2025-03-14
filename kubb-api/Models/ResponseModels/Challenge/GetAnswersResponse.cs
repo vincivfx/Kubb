@@ -1,15 +1,17 @@
 namespace KubbAdminAPI.Models.ResponseModels.Challenge;
 
-public class GetAnswersResponse(Dictionary<Guid, GetAnswersResponse.TeamAnswer> teamAnswer)
+public class GetAnswersResponse(List<GetAnswersResponse.TeamAnswer> teamAnswer)
 {
 
-    public Dictionary<Guid, TeamAnswer> TeamAnswers { get; set; } = teamAnswer;
+    public List<TeamAnswer> Answers { get; set; } = teamAnswer;
 
-    public class Answer(Models.Answer answer)
+    public class Answer(Models.Answer answer, Models.Challenge challenge)
     {
         public Guid AnswerId { get; set; } = answer.AnswerId;
         public int Question { get; set; } = answer.Question;
         public string AnswerText { get; set; } = answer.AnswerText;
+
+        public bool Correctness { get; set; } = answer.AnswerText == challenge.Questions[answer.Question];
     }
 
     public class TeamAnswer
@@ -18,11 +20,11 @@ public class GetAnswersResponse(Dictionary<Guid, GetAnswersResponse.TeamAnswer> 
         public List<Answer> Answers { get; set; } = [];
         public string TeamName { get; set; }
 
-        public TeamAnswer(Team team, List<Models.Answer> answers)
+        public TeamAnswer(Team team, List<Models.Answer> answers, Models.Challenge challenge)
         {
             TeamId = team.TeamId;
             TeamName = team.TeamName;
-            foreach (var answer in answers) Answers.Add(new Answer(answer));
+            foreach (var answer in answers) Answers.Add(new Answer(answer, challenge));
         }
     }
 
