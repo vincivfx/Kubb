@@ -19,7 +19,9 @@ export default {
       answerText: ''
     },
     sendAnswerAlert: '',
-    questions: []
+    questions: [],
+    answers: [],
+    answerFilter: ''
   }),
   methods: {
     sendAnswer(e) {
@@ -29,7 +31,7 @@ export default {
         this.sendAnswerAlert = 'success';
         this.sendAnswerForm = {
           teamId: '',
-          questionId: 0,
+          questionId: '',
           answerText: ''
         }
         this.correctness = res.data.correctness;
@@ -37,6 +39,11 @@ export default {
       }).catch((err) => {
         this.sendAnswerAlert = 'error';
         setTimeout(() => {this.sendAnswerAlert = ''}, 10000)
+      })
+    },
+    getAnswers() {
+      this.$http.get("Challenge/GetAnswers?challengeId=" + encodeURIComponent(this.$route.query.id)).then(res => {
+        this.answers = res.data.answers;
       })
     }
   },
@@ -105,6 +112,40 @@ export default {
         <input type="submit" value="Send Answer" class="btn primary">
       </form>
     </div>
+    
+
+    <div v-if="page === 'answer-list'">
+      <button class="btn primary" @click="getAnswers()">Refresh</button>
+
+      <Select v-model="answerFilter" :options="answers.map(item => ({text: item.teamName, key: item.teamName}))" placeholder="" label="Search by Team Name" />
+      
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Team Name</th>
+              <td v-for="(_, qid) in questions" :key="qid">
+                {{ qid + 1 }}
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(team, teamKey) in answers.filter(a => a.teamName.toLowerCase().indexOf(answerFilter.toLowerCase()) >= 0)" :key="teamKey">
+              <td>
+                {{ team.teamName }}
+              </td>
+              <td v-for="(_, qid) in questions" :key="qid">
+                
+                <Badge :type="answer.correctness ? 'success' : 'danger'" v-for="(answer, answerKey) in team.answers.filter(answer => answer.question === qid)" :key="answerKey">{{ answer.answerText }}</Badge>
+              </td>
+            
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+
   </Tabs>
 
 </template>

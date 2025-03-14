@@ -13,6 +13,8 @@
                 :value="modelValue"
                 @focus="$emit('focus')"
                 @focusout="$emit('focusout')"
+                @change="$emit('change')"
+                @keyup="$emit('keyup')"
                 @input="$emit('update:modelValue', $event.target.value)"
             />
             <span class="input-under-text">{{ underText }}</span>

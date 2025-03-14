@@ -55,7 +55,7 @@ export default {
     </button>
   </h2>
   
-  <ChallengeInfo admin="" v-for="(item, key) in challenges" :challenge="item" :key="key" />
+  <ChallengeInfo send="" admin="" v-for="(item, key) in challenges" :challenge="item" :key="key" />
   
   <Pagination />
 </template>

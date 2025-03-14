@@ -9,6 +9,7 @@ export default {
     switchValue() {
       this.currentValue = !this.currentValue;
       this.$emit('update:modelValue', this.currentValue);
+      this.$emit('change', this.currentValue);
     }
   },
   mounted() {

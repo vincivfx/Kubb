@@ -10,8 +10,10 @@ import vClickOutside from 'v-click-outside'
 const app = createApp(App)
 
 app.config.globalProperties.$settings = {
-    registration: false
+    registration: true,
 }
+
+app.config.globalProperties.$turnstileSiteKey = TURNSTILE_CLIENT_TOKEN;
 
 let hostname = '/';
 
@@ -39,25 +41,5 @@ app.config.globalProperties.$authSession = authSession;
 
 app.use(router)
 
-app.directive('click-outside', {
-    beforeMount: function (element, binding) {
-        console.log({
-            element,
-            binding
-        });
-
-        //  check that click was outside the el and his children
-        element.clickOutsideEvent = function (event) {
-            // and if it did, call method provided in attribute value
-            if (!(element === event.target || element.contains(event.target))) {
-                binding.value(event);
-            }
-        };
-        document.body.addEventListener('click', element.clickOutsideEvent)
-    },
-    unmounted: function (element) {
-        document.body.removeEventListener('click', element.clickOutsideEvent)
-    }
-});
 
 app.mount('#app')

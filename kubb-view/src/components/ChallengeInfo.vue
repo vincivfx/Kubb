@@ -4,7 +4,7 @@ import Badge from "@/components/Badge.vue";
 
 export default {
   name: "ChallengeInfo",
-  props: ['challenge', 'admin'],
+  props: ['challenge', 'admin', 'send'],
   components: {Badge, RouterLink}
 }
 </script>
@@ -26,7 +26,7 @@ export default {
         50 teams
       </p>
       <div class="text-right btn-group-right">
-        <RouterLink v-if="challenge.runningStatus === 1" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
+        <RouterLink v-if="send !== false && send !== undefined && challenge.runningStatus === 1" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
         <RouterLink v-if="challenge.runningStatus < 3 && admin !== undefined && admin !== false" :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
         <RouterLink v-if="challenge.runningStatus > 0" :to="{name: 'challenge-score', query: {id: challenge.challengeId}}" class="btn primary">Follow</RouterLink>
       </div>

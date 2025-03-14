@@ -14,5 +14,11 @@
 }
 
 .container.no-padding {
-    width: 848px;
+    max-width: 848px;
+    width: 100%;
+}
+
+.table-responsive {
+    overflow: auto;
+    width: 100%;
 }

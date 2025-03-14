@@ -18,6 +18,16 @@ export default {
     dateLabel: ''
   }),
   methods: {
+    today() {
+      const todayDate = new Date();
+      this.date = {
+        year: todayDate.getFullYear(),
+        month: todayDate.getMonth(),
+        day: todayDate.getDate()
+      }
+      this.year = todayDate.getFullYear();
+      this.month = todayDate.getMonth();
+    },
     save() {
       const finalDate = new Date(this.date.year, this.date.month, this.date.day, this.hours, this.minutes);
       this.$emit('update:modelValue', finalDate);
@@ -123,6 +133,8 @@ export default {
             </div>
 
           </div>
+
+          <button @click="today()" class="btn" type="button">Set date to today</button>
         </div>
         <div class="col">
           <div class="datetime-time">

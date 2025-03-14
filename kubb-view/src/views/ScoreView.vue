@@ -2,7 +2,7 @@
 import CheckBox from '@/components/CheckBox.vue';
 import Modal from '@/components/Modal.vue';
 import Scoreboard from '@/util/score';
-import {SlSettings} from 'vue-icons-plus/sl';
+import {SlMinus, SlPlus, SlSettings} from 'vue-icons-plus/sl';
 
 export default {
   data: () => ({
@@ -15,15 +15,18 @@ export default {
     fetcherInterval: null,
     scrollerInterval: null,
     timer: setInterval(() => {}, 1000000),
-    timer_text: ''
+    timer_text: '',
+    zoomRatio: 1
   }),
-  components: {SlSettings, Modal, CheckBox},
+  components: {SlSettings, Modal, CheckBox, SlPlus, SlMinus},
   methods: {
     loadScoreboard() {
       if (this.$route.query.id === 'test') {
         this.scoreboard = Scoreboard.parseScoreboard(Scoreboard.testScoreboard());
         return;
       }
+
+      if (new Date().getTime() < new Date(this.challenge.startTime).getTime()) return;
 
       this.$http.get('/Home/GetCache?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
         this.scoreboard = Scoreboard.parseScoreboard(response.data);
@@ -34,6 +37,10 @@ export default {
           })
         }
       })
+    },
+    zoom(direction) {
+      if (direction > 0) this.zoomRatio += 0.1;
+      else this.zoomRatio -= 0.1;
     }
   },
   // clear intervals when you leave the page
@@ -84,9 +91,20 @@ export default {
     <CheckBox v-model="scroll">
       enable automatic scroll
     </CheckBox>
-    <CheckBox @change="$emit('disableHeaderScoreView', $event.target.checked)">
+    <CheckBox @change="(e) => $emit('disableHeaderScoreView', e)">
       disable header bar
     </CheckBox>
+
+    <p>
+      zoom settings:
+    </p>
+    <button @click="zoom(1)" class="btn small">
+      <SlPlus />
+    </button>
+    &nbsp;
+    <button @click="zoom(-1)" class="btn small">
+      <SlMinus />
+    </button>
   </Modal>
 
   <h1>{{ challenge.name }} {{ name }}
@@ -94,7 +112,7 @@ export default {
       <SlSettings/>
     </button>
   </h1>
-  <div class="scoreboard-container">
+  <div :style="{'zoom': zoomRatio}" class="scoreboard-container" v-if="new Date().getTime() > new Date(this.challenge.startTime).getTime()">
     <div class="scoreboard-table" v-if="scoreboard">
       <div class="scoreboard-header">
         <div></div>
@@ -129,5 +147,9 @@ export default {
         </div>
       </div>
     </div>
+  </div>
+  <div v-else>
+    This challenge is not started yet!<br>
+    Starting at: {{ new Date(this.challenge.startTime).toLocaleString() }}
   </div>
 </template>

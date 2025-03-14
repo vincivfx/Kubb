@@ -1,5 +1,12 @@
 @import "./styles/Colors.scss";
 
+
+@font-face {
+    font-style: normal;
+    font-family: "Work Sans";
+    src: url("./WorkSans.ttf");
+}
+
 @import "./styles/Document.scss";
 @import "./styles/Header.scss";
 @import "./styles/Containers.scss";

@@ -28,14 +28,39 @@ export default {
       questions: []
     },
     updateChallengeStatus: '',
-    submitChallengeError: false
+    submitChallengeError: false,
+    updatedQuestions: false,
+    updatedFlags: false,
+    flags: {},
+    editFlags: {}
   }),
   methods: {
+    clearFlags() {
+      this.flags = [
+        (this.challenge.status & 1) != 0,
+        (this.challenge.status & 2) != 0,
+        (this.challenge.status & 4) != 0,
+        (this.challenge.status & 8) != 0
+      ]
+      this.updatedFlags = false;
+      this.editFlags = JSON.parse(JSON.stringify(this.flags));
+    },
+    clearUpdatedQuestions(){
+      this.updatedQuestions = false;
+      this.updateChallengeForm.questions = JSON.parse(JSON.stringify(this.challenge.questions)); // JS SUCKS
+    },
     saveChallenge(e) {
       e.preventDefault();
+      this.updateChallengeForm.status = 0;
+      this.editFlags.forEach((flag, flagIndex) => {
+        this.updateChallengeForm.status += (flag << flagIndex);
+      })
       this.$http.put("/ChallengeAdmin/UpdateChallenge", this.updateChallengeForm).then(() => {
         this.updateChallengeStatus = 'success';
         this.challenge = JSON.parse(JSON.stringify(this.updateChallengeForm));
+        this.updatedQuestions = false;
+        this.updatedFlags = false;
+        this.flags = JSON.parse(JSON.stringify(this.editFlags));
         setTimeout(() => this.updateChallengeStatus = '', 20000);
       }).catch(() => {
         this.updateChallengeStatus = 'error';
@@ -85,8 +110,10 @@ export default {
       this.challenge.startTime = new Date(this.challenge.startTime);
       this.challenge.endTime = new Date(this.challenge.endTime);
 
+      this.clearFlags();
+
       this.status = 'ok';
-    }).catch((err) => {
+    }).catch(() => {
       this.$router.push({name: 'challenges'});
     })
   }
@@ -104,7 +131,7 @@ export default {
     </h2>
 
     <Tabs v-model="page"
-          :tabs="[{text: 'Challenge Overview', id: 'overview'}, {text: 'Teams', id: 'teams'}, {text: 'Participations', id: 'participations'}, {text: 'Questions', id: 'questions'}, {text: 'Challenge Options', id: 'options'}]">
+          :tabs="[{text: 'Challenge Overview', id: 'overview'}, {text: 'Teams', id: 'teams'}, {text: 'Participations', id: 'participations'}, {text: 'Questions', id: 'questions', onExit: clearUpdatedQuestions}, {text: 'Challenge Options', id: 'options'}]">
       <div v-if="page === 'overview'">
         <table class="text-left">
           <tr>
@@ -163,15 +190,15 @@ export default {
         <div v-if="challenge.runningStatus === 0">
           <h4>
             Challenge flags
-            <Badge type="warning">not saved</Badge>
+            <Badge type="warning" v-if="updatedFlags">NOT SAVED</Badge>
           </h4>
           
-          <CheckBox>Challenge will be visibile on active challenges page</CheckBox>
-          <CheckBox>Allow anonymous joins</CheckBox>
-          <CheckBox>Allow joiners to remove answers</CheckBox>
-          <CheckBox>Start challenge automatically at <i>starting time</i></CheckBox>
+          <CheckBox v-model="editFlags[0]" @change="updatedFlags = true">Challenge will be visibile on active challenges page</CheckBox>
+          <CheckBox v-model="editFlags[1]" @change="updatedFlags = true">Allow anonymous joins</CheckBox>
+          <CheckBox v-model="editFlags[2]" @change="updatedFlags = true">Allow joiners to remove answers</CheckBox>
+          <CheckBox v-model="editFlags[3]" @change="updatedFlags = true">Start challenge automatically at <i>starting time</i></CheckBox>
           
-          <button class="btn primary">Save flags</button>
+          <button class="btn primary" @click="saveChallenge">Save flags</button>
           
           <hr />
 
@@ -201,12 +228,12 @@ export default {
         <h3>
           Questions
 
-          <Badge type="warning">NOT SAVED</Badge>
+          <Badge type="warning" v-if="updatedQuestions">NOT SAVED</Badge>
         </h3>
 
         <form @submit="saveChallenge">
           <div v-for="(_, qid) in updateChallengeForm.questions" :key="qid" class="">
-            <InputBlock v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)" :label="'Question #' + (qid + 1)">
+            <InputBlock @change="updatedQuestions = true" @keyup="updatedQuestions = true" v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)" :label="'Question #' + (qid + 1)">
               <button @click="updateChallengeForm.questions.splice(qid, 1)" class="btn danger small">
                 <SlTrash />
               </button>
