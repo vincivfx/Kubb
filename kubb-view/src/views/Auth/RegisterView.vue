@@ -1,7 +1,16 @@
-<script setup lang="ts">
+<script lang="ts">
 import Alert from '@/components/Alert.vue';
 import InputBlock from '@/components/InputBlock.vue';
+import VueTurnstile from "vue-turnstile";
 
+export default {
+    components: {Alert, InputBlock, VueTurnstile},
+    data: () => ({
+        registerForm: {
+            turnstileToken: ''
+        }
+    })
+}
 </script>
 
 <template>
@@ -25,6 +34,7 @@ import InputBlock from '@/components/InputBlock.vue';
         </div>
 
 
+        <VueTurnstile v-model="registerForm.turnstileToken" :site-key="$turnstileSiteKey"  />
 
         <input type="submit" class="btn primary" value="Register">
     </div>

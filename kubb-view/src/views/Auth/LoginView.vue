@@ -2,13 +2,15 @@
 import Alert from '@/components/Alert.vue';
 import InputBlock from '@/components/InputBlock.vue';
 import Modal from '@/components/Modal.vue';
+import VueTurnstile from 'vue-turnstile';
 
 export default {
-    components: {InputBlock, Modal, Alert},
+    components: {InputBlock, Modal, Alert, VueTurnstile},
     data: () => ({
         loginForm: {
             emailAddress: '',
-            password: ''
+            password: '',
+            turnstileToken: ''
         },
         recoverPasswordForm: {
             emailAddress: ''
@@ -37,10 +39,12 @@ export default {
                     }
                 } else {
                     this.$refs.wrongLoginAlert.show();
+                    this.$refs.loginTurnstile.reset();
                 }
             }).catch((error) => {
                 if (error.response && error.response.status !== 500) {
                     this.$refs.wrongLoginAlert.show();
+                    this.$refs.loginTurnstile.reset();
                 }
             });
         },
@@ -68,6 +72,7 @@ export default {
                 <button type="button" class="btn link" @click="$refs.recoverPassword.show(); recoveryStatus = 'none';">Recover your password</button>
             </p>
 
+            <VueTurnstile ref="loginTurnstile" v-model="loginForm.turnstileToken" :site-key="$turnstileSiteKey"  />
 
             <input type="submit" class="btn primary" value="Login">
         </form>
@@ -97,6 +102,9 @@ export default {
         <form @submit="recoverPassword" v-if="recoveryStatus === 'none'">
             
             <InputBlock placeholder="email address..." type="email" required v-model="recoverPasswordForm.emailAddress" label="Type your email address"></InputBlock>
+            
+            <VueTurnstile v-model="recoverPasswordForm.turnstileToken" :site-key="$turnstileSiteKey"  />
+
             <input type="submit" class="btn primary" value="Recover password">
         </form>
     </Modal>

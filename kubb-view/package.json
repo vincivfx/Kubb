@@ -12,9 +12,11 @@
     "axios": "^1.8.1",
     "bootstrap": "^5.3.3",
     "sass-embedded": "^1.85.1",
+    "v-click-outside": "^3.2.0",
     "vue": "^3.5.13",
     "vue-icons-plus": "^0.1.8",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vue-turnstile": "^1.0.11"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
