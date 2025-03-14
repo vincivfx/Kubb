@@ -1,5 +1,4 @@
 .datetime-calendar {
-  position: absolute;
   background-color: #fff;
   width: 210px;
   border: 1px solid #000;
@@ -10,7 +9,9 @@
   }
 
   
-  .btn {
+  .btn, .day-of-week-span {
+    display: inline-block;
+    text-align: center;
     margin: 0;
     width: 30px;
   }
@@ -18,4 +19,27 @@
 
 .datetime-block {
   margin-top: -6px;
+}
+
+.datetime-time {
+  width: 64px;
+  display: inline-block;
+  margin-right: 4px;
+  border: 1px solid #333;
+  padding: 4px;
+
+  .btn {
+    width: 100%;
+  }
+
+  .text-input {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .datetime-time-label {
+    text-align: center;
+    width: 100%;
+    display: block;
+  }
 }

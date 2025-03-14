@@ -14,13 +14,13 @@ import InputBlock from '@/components/InputBlock.vue';
     <div v-if="$settings.registration">
         <div class="rows">
             <div class="col">
-                <InputBlock>Type your email address</InputBlock>
-                <InputBlock>Type your first name</InputBlock>
-                <InputBlock>Type your last name</InputBlock>
+                <InputBlock label="Type your email address" />
+                <InputBlock label="Type your first name" />
+                <InputBlock label="Type your last name" />
             </div>
             <div class="col">
-                <InputBlock>Choose a secure password</InputBlock>
-                <InputBlock>Type again your password</InputBlock>
+                <InputBlock label="Choose a secure password" />
+                <InputBlock label="Type again your password" />
             </div>
         </div>
 

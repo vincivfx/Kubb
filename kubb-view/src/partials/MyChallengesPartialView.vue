@@ -41,7 +41,7 @@ export default {
       if you are allowed to create challenges.
     </Alert>
     <form @submit="createChallenge">
-      <InputBlock placeholder="challenge name" v-model="createChallengeForm.challengeName">Type the challenge name</InputBlock>
+      <InputBlock placeholder="challenge name" v-model="createChallengeForm.challengeName" label="Type the challenge name"></InputBlock>
       <div class="text-right">
         <input type="submit" value="Create new challenge" class="btn primary">
       </div>

@@ -1,5 +1,14 @@
+
 .input-block {
+    display: table;
+    width: 100%;
+    .input-block-group {
+        display: table-cell;
+        vertical-align: bottom;
+        text-align: right;
+    }
     .text-input {
+        display: table-cell;
         border: none;
         border-bottom: 2px solid $primaryColor;
         outline: none;
@@ -11,6 +20,11 @@
         &:focus {
             outline: 1px solid #333;
             background-color: transparentize($color: $primaryColor, $amount: 0.9);
+        }
+
+        &:invalid {
+            border-bottom: 2px solid $dangerColor;
+            background-color: transparentize($color: $dangerColor, $amount: 0.9);
         }
     }
 }

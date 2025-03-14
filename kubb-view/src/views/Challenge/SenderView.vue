@@ -96,17 +96,11 @@ export default {
       
       
       <form @submit="sendAnswer">
-        <Select :options="teams" v-model="sendAnswerForm.teamId">
-          Select team
-        </Select>
+        <Select :options="teams" v-model="sendAnswerForm.teamId" label="Select team"></Select>
 
-        <Select :options="questions" v-model="sendAnswerForm.questionId">
-          Question
-        </Select>
+        <Select :options="questions" v-model="sendAnswerForm.questionId" label="Question"></Select>
 
-        <InputBlock v-model="sendAnswerForm.answerText">
-          Answer to question
-        </InputBlock>
+        <InputBlock v-model="sendAnswerForm.answerText" label="Answer to question"></InputBlock>
 
         <input type="submit" value="Send Answer" class="btn primary">
       </form>

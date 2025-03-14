@@ -118,11 +118,11 @@ export default {
           </tr>
           <tr>
             <th>Starting Time:</th>
-            <td>{{ challenge.startTime.toLocaleString() }}</td>
+            <td>{{ new Date(challenge.startTime).toLocaleString() }}</td>
           </tr>
           <tr>
             <th>Ending Time:</th>
-            <td>{{ challenge.endTime.toLocaleString() }}</td>
+            <td>{{ new Date(challenge.endTime).toLocaleString() }}</td>
           </tr>
         </table>
       </div>
@@ -205,13 +205,12 @@ export default {
         </h3>
 
         <form @submit="saveChallenge">
-          <div v-for="(_, qid) in updateChallengeForm.questions" :key="qid">
-            <InputBlock v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)">
-              Question #{{ qid + 1 }}
+          <div v-for="(_, qid) in updateChallengeForm.questions" :key="qid" class="">
+            <InputBlock v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)" :label="'Question #' + (qid + 1)">
+              <button @click="updateChallengeForm.questions.splice(qid, 1)" class="btn danger small">
+                <SlTrash />
+              </button>
             </InputBlock>
-            <button @click="updateChallengeForm.questions.splice(qid, 1)" class="btn danger small">
-              Delete
-            </button>
           </div>
 
           <div class="text-center">
@@ -229,9 +228,7 @@ export default {
 
     <Modal title="Delete this challenge" ref="deleteChallengeModal">
       Are you sure to delete <b>{{ challenge.name }}</b> challenge?
-      <InputBlock>
-        Type the challenge name
-      </InputBlock>
+      <InputBlock label="Type the challenge name"></InputBlock>
       <input :disabled="false" type="submit" class="btn danger" value="Delete this challenge">
     </Modal>
 
@@ -263,7 +260,7 @@ export default {
         Team {{ createTeamLastName }} created successfully!
       </Alert>
       <form @submit="createTeam">
-        <InputBlock placeholder="team name..." v-model="createTeamForm.name">Type a name for the new team</InputBlock>
+        <InputBlock placeholder="team name..." v-model="createTeamForm.name" label="Type a name for the new team"></InputBlock>
         <input type="submit" class="btn primary" value="Create Team">
       </form>
     </Modal>
@@ -276,15 +273,9 @@ export default {
         Challenge details saved successfully
       </Alert>
       <form @submit="saveChallenge">
-        <InputBlock v-model="updateChallengeForm.name" placeholder="name">
-          Challenge name
-        </InputBlock>
-        <DateTimeInput v-model="updateChallengeForm.startTime">
-          Starting Time
-        </DateTimeInput>
-        <DateTimeInput v-model="updateChallengeForm.endTime">
-          Ending Time
-        </DateTimeInput>
+        <InputBlock v-model="updateChallengeForm.name" placeholder="name" label="Challenge name" />
+        <DateTimeInput v-model="updateChallengeForm.startTime" label="Starting Time"></DateTimeInput>
+        <DateTimeInput v-model="updateChallengeForm.endTime" label="Ending Time"></DateTimeInput>
         <input type="submit" class="btn primary" value="Save">
       </form>
     </Modal>

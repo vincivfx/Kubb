@@ -2,7 +2,7 @@
 import InputBlock from './InputBlock.vue';
 export default {
     components: {InputBlock},
-    props: ['options'],
+    props: ['options', 'label'],
     data: () => ({
         visibleSelect: false,
         filter: ''
@@ -23,7 +23,7 @@ export default {
 <template>
 
     <div class="input-select">
-        <InputBlock v-model="filter" @focusout="hideSelect" @focus="visibleSelect = true"><slot /></InputBlock>
+        <InputBlock v-model="filter" @focusout="hideSelect" @focus="visibleSelect = true" :label="label" />
         <div v-if="visibleSelect" class="select-box">
             <button type="button" @click="select(item)" v-for="(item, key) in options.filter(t => t.text.indexOf(filter) >= 0)" :key="key">
                 {{ item.text }}

@@ -43,15 +43,11 @@ export default {
     </Alert>
 
     <form @submit="updatePassword">
-        <InputBlock v-model="updatePasswordForm.currentPassword" placeholder="current password" type="password">
-          Please enter again your current password:
-        </InputBlock>
+        <InputBlock v-model="updatePasswordForm.currentPassword" placeholder="current password" type="password" label="Please enter again your current password:" />
       
-        <InputBlock v-model="updatePasswordForm.newPassword" type="password" placeholder="new password...">
-            Type your new password
-        </InputBlock>
+        <InputBlock v-model="updatePasswordForm.newPassword" type="password" placeholder="new password..." label="Type your new password" />
         <PasswordSecurityCheck :passwd="updatePasswordForm.newPassword" />
-        <InputBlock v-model="confirmPassword" type="password" placeholder="new password...">Type again your new password</InputBlock>
+        <InputBlock v-model="confirmPassword" type="password" placeholder="new password..." label="Type again your new password" />
         <Alert :type="updatePasswordForm.newPassword === confirmPassword ? 'success' : 'danger'">
             Password and its confirmation should be the same.
         </Alert>

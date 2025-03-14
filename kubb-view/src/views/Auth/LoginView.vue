@@ -61,8 +61,8 @@ export default {
         </Alert>
 
         <form @submit="login">
-            <InputBlock placeholder="email address..." type="email" required v-model="loginForm.emailAddress">Type your email address</InputBlock>
-            <InputBlock placeholder="password..." type="password" required v-model="loginForm.password">Type your password</InputBlock>
+            <InputBlock placeholder="email address..." type="email" required v-model="loginForm.emailAddress" label="Type your email address"></InputBlock>
+            <InputBlock placeholder="password..." type="password" required v-model="loginForm.password" label="Type your password"></InputBlock>
             <p>
                 Have you forgotten your password?
                 <button type="button" class="btn link" @click="$refs.recoverPassword.show(); recoveryStatus = 'none';">Recover your password</button>
@@ -96,7 +96,7 @@ export default {
         
         <form @submit="recoverPassword" v-if="recoveryStatus === 'none'">
             
-            <InputBlock placeholder="email address..." type="email" required v-model="recoverPasswordForm.emailAddress">Type your email address</InputBlock>
+            <InputBlock placeholder="email address..." type="email" required v-model="recoverPasswordForm.emailAddress" label="Type your email address"></InputBlock>
             <input type="submit" class="btn primary" value="Recover password">
         </form>
     </Modal>

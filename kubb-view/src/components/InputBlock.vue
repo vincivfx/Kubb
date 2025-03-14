@@ -1,8 +1,10 @@
 <template>
     <div class="input-block">
         <label>
-            <slot />
+            {{ label }}
             <input
+                :pattern="pattern"
+                :required="required"
                 :type="type"
                 :disabled="disabled"
                 :placeholder="placeholder"
@@ -13,15 +15,17 @@
                 @focusout="$emit('focusout')"
                 @input="$emit('update:modelValue', $event.target.value)"
             />
+            <span class="input-under-text">{{ underText }}</span>
         </label>
-        <span class="input-under-text">{{ underText }}</span>
-
+        <div class="input-block-group">
+            <slot />
+        </div>
 
     </div>
 </template>
 
 <script>
 export default {
-    props: ['underText', 'placeholder', 'disabled', 'type', 'readonly', 'modelValue'],
+    props: ['underText', 'placeholder', 'disabled', 'type', 'readonly', 'modelValue', 'label', 'pattern', 'required'],
 }
 </script>
