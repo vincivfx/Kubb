@@ -13,16 +13,17 @@ public class ChallengeController(DatabaseContext context) : BaseController
 {
 
     [HttpGet]
-    public ActionResult<GetInfoResponse> GetInfo([FromQuery] Guid ChallengeId) {
+    public ActionResult<GetInfoResponse> GetInfo([FromQuery] Guid ChallengeId)
+    {
         var challenge = context.Challenges.Include(challenge => challenge.Administrator).FirstOrDefault(challenge => challenge.ChallengeId == ChallengeId);
         if (challenge == null) return NotFound();
 
         var currentUser = CurrentUser();
-        
+
         var teams = context.Teams.Where(team => team.Challenge == challenge && team.Administrator == currentUser).ToList();
 
         if (teams.Count == 0) return Unauthorized();
-        
+
         return Ok(new GetInfoResponse(teams, challenge));
     }
 
@@ -88,6 +89,45 @@ public class ChallengeController(DatabaseContext context) : BaseController
 
         return new OkResult();
     }
+
+    [HttpGet]
+    public ActionResult<GetAnswersResponse> GetAnswers([FromQuery] Guid ChallengeId)
+    {
+        var challenge = context.Challenges.Include(challenge => challenge.Administrator)
+                                        .FirstOrDefault(challenge => challenge.ChallengeId == ChallengeId);
+
+        if (challenge == null) return NotFound();
+
+        var currentUser = CurrentUser();
+
+        // if user is administrator return all answers
+        if (challenge.Administrator == currentUser)
+        {
+            var adminQuery = from team in context.Teams
+                             from answer in context.Answers
+                             where team.Challenge == challenge && answer.Team == team
+                             group answer by answer.Team into answerList
+                             select new GetAnswersResponse.TeamAnswer(answerList.Key, answerList.ToList());
+
+            var adminAnswers = adminQuery.ToDictionary(pair => pair.TeamId, pair => pair);
+
+            return new GetAnswersResponse(adminAnswers);
+        }
+
+        // user has a participation
+        var query = from team in context.Teams
+                    from participation in context.Participations
+                    from answer in context.Answers
+                    where participation.Challenge == challenge && participation.User == currentUser && team.Challenge == challenge && answer.Team == team
+                    group answer by answer.Team into answerList
+                    select new GetAnswersResponse.TeamAnswer(answerList.Key, answerList.ToList());
+        
+        var answers = query.ToDictionary(pair => pair.TeamId, pair => pair);
+
+        return new GetAnswersResponse(answers);
+
+    }
+
 
     [HttpPost]
     public ActionResult<SendAnswerResponse> SendAnswer([FromBody] SendAnswerRequest request)

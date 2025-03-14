@@ -9,6 +9,8 @@ public class ScoreboardGenerator
         string output = "";
         const int basePoints = 30;
 
+        if (challenge.StartTime == null || challenge.EndTime == null) return "";
+
 
         var teamPoints = new Dictionary<Guid, SimpleTeam>();
 
