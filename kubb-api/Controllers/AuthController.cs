@@ -1,9 +1,11 @@
+using System.Net.Mail;
 using KubbAdminAPI.Filters;
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.RequestModels.Auth;
 using KubbAdminAPI.Models.RequestModels.User;
 using KubbAdminAPI.Models.ResponseModels.Auth;
 using KubbAdminAPI.Services;
+using KubbAdminAPI.Singletons;
 using KubbAdminAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
 using LoginRequest = KubbAdminAPI.Models.RequestModels.Auth.LoginRequest;
@@ -12,8 +14,9 @@ using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
 namespace KubbAdminAPI.Controllers;
 
 [ApiController, Route("[controller]/[action]")]
-public class AuthController(DatabaseContext context, EmailService emailService, TurnstileService turnstileService) : BaseController
+public class AuthController(DatabaseContext context, TurnstileService turnstileService, EmailTask emailTask) : BaseController
 {
+    
     /**
      * 
      */
@@ -57,6 +60,10 @@ public class AuthController(DatabaseContext context, EmailService emailService, 
     [HttpPost]
     public ActionResult Register([FromBody] RegisterRequest request)
     {
+        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress())) {
+            return BadRequest();
+        }
+        
         // check if email address is registered yet
         if (context.Users.Any(user => user.EmailAddress == request.EmailAddress))
         {
@@ -83,8 +90,8 @@ public class AuthController(DatabaseContext context, EmailService emailService, 
         
         var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Complete Registration", messageHtml);
         
-        Task.Run(() => emailService.AddMessage(message));
-
+        // Enqueue mailMessage to be sent early
+        emailTask.EnqueueEmail(message);
         
         return new OkResult();
     }
@@ -92,6 +99,10 @@ public class AuthController(DatabaseContext context, EmailService emailService, 
     [HttpPost]
     public ActionResult RecoverPassword([FromBody] RecoverPasswordRequest request)
     {
+        
+        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress())) {
+            return BadRequest();
+        }
         
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
 
@@ -107,7 +118,7 @@ public class AuthController(DatabaseContext context, EmailService emailService, 
         
         var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Reset Password", messageHtml);
         
-        Task.Run(() => emailService.AddMessage(message));
+        emailTask.EnqueueEmail(message);
         
         return new OkResult();
     }
@@ -126,10 +137,9 @@ public class AuthController(DatabaseContext context, EmailService emailService, 
     [HttpPost]
     public ActionResult CompleteRegistration([FromBody] CompleteRegistrationRequest request)
     {
-        // TODO: Check token
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
         
-        if (user == null || (user.Status & UserStatus.NeedsVerification) != UserStatus.NeedsVerification)
+        if (user == null || (user.Status & UserStatus.NeedsVerification) != UserStatus.NeedsVerification || !user.VerifyVerificationToken(request.RegistrationToken))
         {
             return BadRequest();
         }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace KubbAdminAPI.Models;
 
-public class User
+public class User : BaseModel
 {
     [Key]
     public Guid UserId { get; set; } = Guid.NewGuid();
@@ -39,9 +39,16 @@ public class User
     public string SetVerificationToken()
     {
         byte[] tempPassword;
-        RandomNumberGenerator.Create().GetBytes(tempPassword = new byte[16]);
+        RandomNumberGenerator.Create().GetBytes(tempPassword = new byte[32]);
         VerificationToken = SHA3_256.Create().ComputeHash(tempPassword);
         return Convert.ToHexString(tempPassword);
+    }
+
+    public bool VerifyVerificationToken(string token)
+    {
+        var userVerificationToken = Convert.FromHexString(token);
+        var encUserVerificationToken = SHA3_256.Create().ComputeHash(userVerificationToken);
+        return VerificationToken.SequenceEqual(encUserVerificationToken);
     }
 
     public string SetTemporaryPassword()

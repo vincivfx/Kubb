@@ -1,5 +1,6 @@
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.Cache;
+using KubbAdminAPI.Models.Configuration;
 using KubbAdminAPI.Models.RequestModels;
 using KubbAdminAPI.Models.ResponseModels.Home;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace KubbAdminAPI.Controllers;
 
 [ApiController, Route("[controller]/[action]")]
-public class HomeController(DatabaseContext _context, IMemoryCache _cache) : BaseController
+public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConfiguration _configuration) : BaseController
 {
     [HttpGet]
     public ActionResult Challenges([FromQuery] Pagination pagination)
@@ -51,6 +52,8 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache) : Bas
 
     [HttpGet]
     public ActionResult SystemConfiguration() {
-        return Ok();
+        var configSection = _configuration.GetSection("GlobalPreferences");
+        var config = configSection.Get<SystemConfiguration>();
+        return Ok(config);
     }
 }

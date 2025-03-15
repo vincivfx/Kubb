@@ -9,10 +9,6 @@ import vClickOutside from 'v-click-outside'
 
 const app = createApp(App)
 
-app.config.globalProperties.$settings = {
-    registration: true,
-}
-
 app.config.globalProperties.$turnstileSiteKey = TURNSTILE_CLIENT_TOKEN;
 
 let hostname = '/';
@@ -41,5 +37,11 @@ app.config.globalProperties.$authSession = authSession;
 
 app.use(router)
 
+axiosInstance.get("Home/SystemConfiguration").then(response => {
+    app.config.globalProperties.$settings = response.data;
+    app.mount('#app')
+})
 
-app.mount('#app')
+
+
+

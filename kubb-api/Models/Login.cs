@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace KubbAdminAPI.Models;
 
-public class Login
+public class Login : BaseModel
 {
     [Key]
     public Guid LoginId { get; set; }

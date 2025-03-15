@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography.X509Certificates;
 using KubbAdminAPI;
 using KubbAdminAPI.Services;
+using KubbAdminAPI.Singletons;
 using KubbAdminAPI.Utils;
 using KubbAdminAPI.Workers;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +53,9 @@ builder.Services.AddHostedService<EmailSenderWorker>();
 
 // cleaner for DB
 builder.Services.AddHostedService<CleanerWorker>();
+
+// Email Queue Singleton
+builder.Services.AddSingleton<EmailTask>();
 
 // Adding CORS for Debug
 builder.Services.AddCors(options =>

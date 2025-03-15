@@ -78,7 +78,7 @@ export default {
         </form>
     </div>
 
-    <div class="container" v-if="$settings.registration">
+    <div class="container" v-if="$settings.enableRegistration">
         <h3>Register into Kubb Contest Platform</h3>
         <p>
             Have you never tried KCP before? Register right now!

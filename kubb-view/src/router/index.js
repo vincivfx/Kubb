@@ -27,6 +27,11 @@ const router = createRouter({
       component: () => import('../views/Auth/RegisterView.vue')
     },
     {
+      path: '/auth/verify',
+      name: 'verify',
+      component: () => import('../views/Auth/VerifyView.vue'),
+    },
+    {
       path: '/auth/update-password',
       name: 'mandatory-update-password',
       component: () => import('../views/Auth/MandatoryUpdatePasswordView.vue')

@@ -1,27 +1,31 @@
 using System.Collections.Concurrent;
 using System.Net.Mail;
+using KubbAdminAPI.Models.Configuration;
+using KubbAdminAPI.Services;
+using KubbAdminAPI.Singletons;
 using KubbAdminAPI.Utils;
 
 namespace KubbAdminAPI.Workers;
 
-public class EmailSenderWorker(ILogger<EmailSenderWorker> logger, IServiceScopeFactory _serviceScopeFactory) : BackgroundService
+public class EmailSenderWorker(ILogger<EmailSenderWorker> logger, EmailTask emailTask, IConfiguration configuration) : BackgroundService
 {
-    private ConcurrentQueue<MailMessage> _workItems;
+    
+    
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        
-        using var scope = _serviceScopeFactory.CreateScope();
-        var emailService = scope.ServiceProvider.GetService<EmailService>();
+        var configSection = configuration.GetSection("EmailSettings");
+        var config = configSection.Get<SmtpConfiguration>();
 
-        this._workItems = emailService!.GetQueue();
+        var smtpClient = config!.GetSmtpClient();
         
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_workItems.TryDequeue(out var workItem))
+            var mailMessage = emailTask.DequeueEmail();
+            if (mailMessage != null)
             {
-                logger.LogInformation($"Processing work item: {workItem.To}");
-                await Task.Run(() => emailService.SendEmail(workItem), stoppingToken);
+                logger.LogInformation($"Processing work item: {mailMessage.To}");
+                smtpClient.Send(mailMessage);
             }
             else
             {

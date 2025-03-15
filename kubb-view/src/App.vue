@@ -5,12 +5,16 @@ import { SlUser } from 'vue-icons-plus/sl'
 export default {
   components: {SlUser, RouterLink, RouterView},
   data: () => ({
-    headerScoreView: true
+    headerScoreView: true,
+    mainColor: '#0000ff'
   }),
   methods: {
     disableHeaderScoreView(v) {
       this.headerScoreView = !v;
     }
+  },
+  mounted() {
+    this.mainColor = this.$settings.color;
   }
 }
 </script>
@@ -61,5 +65,8 @@ export default {
 <style scss>
 .scoreboard {
   text-align: center;
+}
+:root {
+  --mainColor: v-bind(mainColor);
 }
 </style>

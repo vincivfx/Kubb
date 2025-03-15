@@ -18,4 +18,6 @@ public class RegisterRequest
     
     [Required, MaxLength(8), RegularExpression("^I accept$")]
     public required string TermsAccept { get; set; } // need to be 'I Accept'
+    
+    public string? TurnstileToken { get; set; }
 }
