@@ -130,7 +130,14 @@ export default {
       <SlSettings/>
     </button>
   </h1>
-  <div :style="{'zoom': zoomRatio}" class="scoreboard-container" v-if="new Date().getTime() > new Date(this.challenge.startTime).getTime()">
+  <div v-if="scoreboard === 'freezed'">
+    <p style="font-size: 48px;">
+      Challenge has been freezed in the last minutes.
+      <br>
+      {{ timer_text }}
+    </p>
+  </div>
+  <div :style="{'zoom': zoomRatio}" class="scoreboard-container" v-if="scoreboard !== 'freezed' && new Date().getTime() > new Date(this.challenge.startTime).getTime()">
     <div class="scoreboard-table" v-if="scoreboard">
       <div class="scoreboard-header">
         <div style="font-size: 24px; vertical-align: middle;">
@@ -167,7 +174,7 @@ export default {
       </div>
     </div>
   </div>
-  <div v-else>
+  <div v-else-if="scoreboard !== 'freezed'">
     This challenge is not started yet!<br>
     Starting at: {{ new Date(this.challenge.startTime).toLocaleString() }}
   </div>

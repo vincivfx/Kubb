@@ -33,7 +33,9 @@ export default {
     updatedFlags: false,
     flags: {},
     editFlags: {},
-    deleteChallengeName: '' // check to delete challenge the name typed
+    deleteChallengeName: '', // check to delete challenge the name typed
+    algorithmSettings: {},
+    updatedAlgorithmSettings: false
   }),
   methods: {
     clearFlags() {
@@ -50,35 +52,42 @@ export default {
       this.updatedQuestions = false;
       this.updateChallengeForm.questions = JSON.parse(JSON.stringify(this.challenge.questions)); // JS SUCKS
     },
-    saveChallenge(e) {
-      e.preventDefault();
+    clearUpdatedAlgorithmSettings() {
+      this.updatedAlgorithmSettings = false;
+      this.algorithmSettings = JSON.parse(JSON.stringify(this.challenge.algorithmSettings));
+    },
+    saveChallenge(e = null, s = null) {
+      if (e !== null)
+        e.preventDefault();
       this.updateChallengeForm.status = 0;
       this.editFlags.forEach((flag, flagIndex) => {
         this.updateChallengeForm.status += (flag << flagIndex);
       })
+
+      // format bonus string
+      this.algorithmSettings.bn = this.algorithmSettings.bn.split(',').map(item => Number.parseInt(item))
+
+      this.updateChallengeForm.algorithmSettings = JSON.stringify(this.algorithmSettings);
+
+      if (s === 'submit') this.updateChallengeForm.runningStatus = 1;
+      
       this.$http.put("/ChallengeAdmin/UpdateChallenge", this.updateChallengeForm).then(() => {
         this.updateChallengeStatus = 'success';
         this.challenge = JSON.parse(JSON.stringify(this.updateChallengeForm));
         this.updatedQuestions = false;
+        this.updatedAlgorithmSettings = false;
         this.updatedFlags = false;
         this.flags = JSON.parse(JSON.stringify(this.editFlags));
+        this.$refs.submitChallengeModal.hide();
         setTimeout(() => this.updateChallengeStatus = '', 20000);
       }).catch(() => {
         this.updateChallengeStatus = 'error';
         setTimeout(() => this.updateChallengeStatus = '', 20000);
+        if (s === 'submit') {
+          this.submitChallengeError = true;
+          setTimeout(() => this.submitChallengeError = false, 20000);
+        }
       })
-    },
-    submitChallenge() {
-      let payload = JSON.parse(JSON.stringify(this.challenge));
-      payload.runningStatus = 1; // status = SUBMITTED
-      this.$http.put("/ChallengeAdmin/UpdateChallenge", payload).then(() => {
-        this.challenge = payload;
-        this.$refs.submitChallengeModal.hide();
-      }).catch(() => {
-        this.submitChallengeError = true;
-        setTimeout(() => this.submitChallengeError = false, 20000);
-      })
-
     },
     createTeam(e) {
       e.preventDefault();
@@ -123,14 +132,28 @@ export default {
       this.updateChallengeForm = JSON.parse(JSON.stringify(response.data.challenge)); // js sucks!
       this.teams = response.data.teams;
       this.participations = response.data.participations;
+      
+      const algorithmSettingsRaw = JSON.parse(response.data.challenge.algorithmSettings);
+    
+      const algorithmSettings = {
+        dt: algorithmSettingsRaw.dt ?? 3,
+        bp: algorithmSettingsRaw.bp ?? 30,
+        si: algorithmSettingsRaw.si ?? 20,
+        fz: algorithmSettingsRaw.fz ?? 0,
+        bn: algorithmSettingsRaw.bn ?? "20,15,10,8,6,5,4,3,2,1"
+      };
 
+      this.challenge.algorithmSettings = algorithmSettings;
+      this.algorithmSettings = JSON.parse(JSON.stringify(algorithmSettings));
+      
       this.challenge.startTime = new Date(this.challenge.startTime);
       this.challenge.endTime = new Date(this.challenge.endTime);
 
       this.clearFlags();
 
       this.status = 'ok';
-    }).catch(() => {
+    }).catch((e) => {
+      console.error(e);
       this.$router.push({ name: 'challenges' });
     })
   }
@@ -149,7 +172,7 @@ export default {
     </h2>
 
     <Tabs v-model="page"
-      :tabs="[{ text: 'Challenge Overview', id: 'overview' }, { text: 'Teams', id: 'teams' }, { text: 'Participations', id: 'participations' }, { text: 'Questions', id: 'questions', onExit: clearUpdatedQuestions }, { text: 'Challenge Options', id: 'options' }]">
+      :tabs="[{ text: 'Challenge Overview', id: 'overview' }, { text: 'Teams', id: 'teams' }, { text: 'Participations', id: 'participations' }, { text: 'Questions', id: 'questions', onExit: clearUpdatedQuestions }, { text: 'Challenge Options', id: 'options', onExit: clearUpdatedAlgorithmSettings }]">
       <div v-if="page === 'overview'">
         <table class="text-left">
           <tr>
@@ -235,6 +258,19 @@ export default {
           <button @click="$refs.submitChallengeModal.show()" class="btn primary">Submit Challenge</button>
 
           <hr />
+
+          <div>
+            <h4>Algorithm Settings<Badge type="warning" v-if="updatedAlgorithmSettings">NOT SAVED</Badge></h4>
+            <form @submit="saveChallenge">
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.si" type="number" label="Minutes to end when stop points increase" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.bp" type="number" label="Starting points per question" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.fz" type="number" label="Minutes to end when scoreboard starts freezing" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.dt" type="number" label="Correct answers per question before stop increment points" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.bn" label="Bonus points for first answers (separated by comma)" pattern="^(,*[0-9]+)+$"></InputBlock>
+              <input type="submit" value="Save algorithm settings" class="btn primary">
+            </form>
+            <hr />
+          </div>
         </div>
 
         <div v-if="challenge.runningStatus === 1 && (challenge.status & 8) === 0">
@@ -315,7 +351,7 @@ export default {
         edit the details anymore.
       </Alert>
 
-      <button class="btn warning" @click="submitChallenge()">Submit challenge</button>
+      <button class="btn warning" @click="saveChallenge(null, 'submit')">Submit challenge</button>
 
     </Modal>
 

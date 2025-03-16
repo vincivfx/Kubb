@@ -25,13 +25,17 @@ public class ScoreboardWorker(IServiceProvider serviceProvider) : BackgroundServ
 
             foreach (var challenge in challenges)
             {
+                try {
+                    var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
+                    var answers = context.Answers.Where(answer => teams.Contains(answer.Team)).ToList();
 
-                var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
-                var answers = context.Answers.Where(answer => teams.Contains(answer.Team)).ToList();
+                    var scoreboard = Utils.ScoreboardGenerator.GenerateScoreboard(challenge, teams, answers);
 
-                var scoreboard = Utils.ScoreboardGenerator.GenerateScoreboard(challenge, teams, answers);
+                    cache.Set(challenge.ChallengeId.ToString(), scoreboard);
 
-                cache.Set(challenge.ChallengeId.ToString(), scoreboard);
+                } catch (Exception exception) {
+                    Console.WriteLine("ERROR GENERATING SCOREBOARD FOR " + challenge.Name + ": "+exception.Message+"\n");
+                }
             }
 
             var roundFinish = DateTime.UtcNow;

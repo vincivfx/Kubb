@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using KubbAdminAPI.Models;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace KubbAdminAPI.Utils;
 
@@ -10,10 +11,14 @@ public class ScoreboardGenerator
     {
         string output = "";
 
-        var algorithmSettings = JsonConvert.DeserializeObject<AlgorithmSettings>(challenge.AlgorithmSettings)!;
+        var algorithmSettings = JsonSerializer.Deserialize<AlgorithmSettings>(challenge.AlgorithmSettings)!;
 
-        // if deriva = 0 then we access array at -1
-        if (algorithmSettings.derivaTeams <= 0) return "ERROR";
+        if (algorithmSettings.freezeScoreboard > 0 && DateTime.UtcNow < challenge.EndTime && challenge.EndTime.Value.AddMinutes(-algorithmSettings.freezeScoreboard) < DateTime.UtcNow)
+        {
+            return "(!)FREEZED";
+        }
+
+
 
         if (challenge.StartTime == null || challenge.EndTime == null) return "";
 
@@ -35,8 +40,8 @@ public class ScoreboardGenerator
         for (var i = 0; i < challenge.Questions.Count; i++) points.Add(algorithmSettings.basePoints);
 
         var deriva = algorithmSettings.derivaTeams;
-        var bonuses = new List<int> { 20, 15, 10, 8, 6, 5, 4, 3, 2, 1 };
-        var completeLineBonuses = new List<int> { 100, 60, 40, 30, 20, 10 };
+        var bonuses = algorithmSettings.Bonus;
+        // var completeLineBonuses = new List<int> { 100, 60, 40, 30, 20, 10 };
 
         foreach (var answer in answers)
         {
@@ -76,7 +81,11 @@ public class ScoreboardGenerator
             var rightAnswersGroup = rightAnswersGroups[groupId];
 
             double diffTime = 0;
-            if (rightAnswersGroup.Count >= deriva)
+            if (deriva <= 0)
+            {
+                diffTime = 0;
+            }
+            else if (rightAnswersGroup.Count >= deriva)
             {
                 diffTime = rightAnswersGroup[deriva - 1].Created.Subtract(challenge.StartTime!.Value).TotalMinutes;
             }
@@ -86,7 +95,7 @@ public class ScoreboardGenerator
             }
             else
             {
-                diffTime = challenge.EndTime!.Value.AddMinutes(-20).Subtract(challenge.StartTime!.Value).TotalMinutes;
+                diffTime = challenge.EndTime!.Value.AddMinutes(algorithmSettings.stopIncreseMinutes).Subtract(challenge.StartTime!.Value).TotalMinutes;
             }
 
             points[groupId] += Convert.ToInt32(diffTime);
@@ -172,16 +181,25 @@ public class SimpleTeam
     public string TeamName { get; set; }
     public Guid TeamId { get; set; }
 }
+
+[JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
 public class AlgorithmSettings
 {
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "bp"), DefaultValue(30)]
-    public int basePoints { get; set; }
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "dt"), DefaultValue(3)]
-    public int derivaTeams { get; set; }
+    [JsonPropertyName("bp")]
+    public int basePoints { get; set; } = 30;
+    [JsonPropertyName("dt")]
 
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "si"), DefaultValue(20)]
-    public int stopIncreseMinutes { get; set; }
+    public int derivaTeams { get; set; } = 3;
 
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "fz"), DefaultValue(0)]
-    public int freezeScoreboard { get; set; }
+    [JsonPropertyName("si")]
+    public int stopIncreseMinutes { get; set; } = 20;
+
+    [JsonPropertyName("fz")]
+
+    public int freezeScoreboard { get; set; } = 0;
+
+    [JsonPropertyName("bn")]
+
+    public List<int> Bonus { get; set; } = [20, 15, 10, 8, 6, 5, 4, 3, 2, 1];
 }
+

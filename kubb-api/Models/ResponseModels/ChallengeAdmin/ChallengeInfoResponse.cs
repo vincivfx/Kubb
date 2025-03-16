@@ -31,6 +31,7 @@ public class ChallengeInfoResponse
         public List<string> Questions { get; set; } = challenge.Questions;
         public Models.ChallengeStatus Status { get; set; } = challenge.Status;
         public Models.RunningChallengeStatus RunningStatus { get; set; } = challenge.RunningStatus;
+        public string AlgorithmSettings { get; set; } = challenge.AlgorithmSettings;
     }
 
     public static ChallengeInfoResponse Create(Models.Challenge challenge, List<Participation> participations,

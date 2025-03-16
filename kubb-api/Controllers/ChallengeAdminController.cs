@@ -100,6 +100,8 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         challenge.Status = request.Status;
         challenge.RunningStatus = request.RunningStatus;
         challenge.Questions = request.Questions;
+        challenge.AlgorithmSettings = request.AlgorithmSettings;
+
         context.SaveChanges();
 
         return Ok();

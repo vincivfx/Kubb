@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using KubbAdminAPI.Utils;
 
 namespace KubbAdminAPI.Models.ResponseModels.ChallengeAdmin;
 
@@ -20,5 +21,9 @@ public class UpdateChallengeRequest
 
     [Required]
     public required List<string> Questions { get; set; }
+
+
+    [ValidJSON]    
+    public required string AlgorithmSettings { get; set; } = "{}";
 
 }

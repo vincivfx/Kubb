@@ -14,7 +14,7 @@ export default {
   }),
   methods: {
     loadPage(page) {
-      this.$http.get("/Home/Challenges/" + this.repo + "?offset=" + encodeURIComponent(page)).then((response) => {
+      this.$http.get("/Home/" + this.repo + "?offset=" + encodeURIComponent(page)).then((response) => {
         this.challenges = response.data.challenges;
         this.count = response.data.count;
         this.page = page;

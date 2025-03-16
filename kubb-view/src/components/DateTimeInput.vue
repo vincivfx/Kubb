@@ -4,7 +4,7 @@ import Modal from "./Modal.vue";
 
 export default {
   name: "DateTimeInput",
-  props: ['modelValue', 'label'],
+  props: ['modelValue', 'label', 'min', 'max'],
   components: { InputBlock, Modal },
   data: () => ({
     showPicker: false,

@@ -13,9 +13,9 @@
                 :value="modelValue"
                 @focus="$emit('focus')"
                 @focusout="$emit('focusout')"
-                @change="$emit('change')"
-                @keyup="$emit('keyup')"
-                @input="$emit('update:modelValue', $event.target.value)"
+                @change="$emit('change', formatValue($event.target.value))"
+                @keyup="$emit('keyup', formatValue($event.target.value))"
+                @input="$emit('update:modelValue', formatValue($event.target.value))"
             />
             <span class="input-under-text">{{ underText }}</span>
         </label>
@@ -29,5 +29,11 @@
 <script>
 export default {
     props: ['underText', 'placeholder', 'disabled', 'type', 'readonly', 'modelValue', 'label', 'pattern', 'required'],
+    methods: {
+        formatValue(val) {
+            if (this.type === 'number') return Number.parseInt(val);
+            return val;
+        }
+    }
 }
 </script>
