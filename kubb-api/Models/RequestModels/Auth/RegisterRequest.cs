@@ -13,7 +13,7 @@ public class RegisterRequest
     [Required, MaxLength(63)]
     public required string Surname { get; set; }
     
-    [Required, MaxLength(63)]
+    [Required, RegularExpression("^.*(?=.{10,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.,;:@#!]).*$")]
     public required string Password { get; set; }
     
     [Required, MaxLength(8), RegularExpression("^I accept$")]

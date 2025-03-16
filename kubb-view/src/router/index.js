@@ -25,17 +25,26 @@ const router = createRouter({
     {
       path: '/auth/register',
       name: 'register',
-      component: () => import('../views/Auth/RegisterView.vue')
+      component: () => import('../views/Auth/RegisterView.vue'),
+      meta: {
+        title: 'Register'
+      }
     },
     {
       path: '/auth/verify',
       name: 'verify',
       component: () => import('../views/Auth/VerifyView.vue'),
+      meta: {
+        title: 'Verify your Account'
+      }
     },
     {
       path: '/auth/update-password',
       name: 'mandatory-update-password',
-      component: () => import('../views/Auth/MandatoryUpdatePasswordView.vue')
+      component: () => import('../views/Auth/MandatoryUpdatePasswordView.vue'),
+      meta: {
+        title: 'Mandatory password update'
+      }
     },    
     {
       path: '/',
@@ -45,14 +54,18 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('../views/User/ProfileView.vue')
+      component: () => import('../views/User/ProfileView.vue'),
+      meta: {
+        title: 'Profile'
+      }
     },
     {
       path: '/challenges/:page?',
       name: 'challenges',
       component: () => import('../views/ChallengesView.vue'),
       meta: {
-        view: 'tabs'
+        view: 'tabs',
+        title: 'Challenges'
       }
     },
     {
@@ -60,23 +73,39 @@ const router = createRouter({
       name: 'challenge-score',
       component: () => import('../views/ScoreView.vue'),
       meta: {
-        view: 'score'
+        view: 'score',
+        title: 'Live'
       }
     },
     {
       path: '/challenge/send',
       name: 'challenge-sender',
-      component: () => import('../views/Challenge/SenderView.vue')
+      component: () => import('../views/Challenge/SenderView.vue'),
+      meta: {
+        title: 'Send Answers'
+      }
     },
     {
       path: '/challenge/admin',
       name: 'challenge-admin',
-      component: () => import('../views/Challenge/AdminView.vue')
+      component: () => import('../views/Challenge/AdminView.vue'),
+      meta: {
+        title: 'Challenge Admin'
+      }
     },
     {
       path: '/error',
       name: 'error',
-      component: () => import('../views/ErrorView.vue')
+      component: () => import('../views/ErrorView.vue'),
+      
+    },
+    {
+      path: '/auth/recover',
+      name: 'recover',
+      component: () => import('../views/Auth/RecoverView.vue'),
+      meta: {
+        title: 'Recover your Password'
+      }
     },
     {
       path: '/:pathMatch(.*)*',

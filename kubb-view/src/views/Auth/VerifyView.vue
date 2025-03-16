@@ -11,7 +11,7 @@ export default {
   mounted() {
     this.$http.post("Auth/CompleteRegistration", {
       registrationToken: this.$route.query.token,
-      emailAddress: this.$route.query.emailAddress
+      emailAddress: this.$route.query.email
     }).then(() => {
       this.verifyStatus = 'success';
     }).catch(() => this.verifyStatus = 'error');

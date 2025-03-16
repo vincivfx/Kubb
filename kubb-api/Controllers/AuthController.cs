@@ -16,15 +16,16 @@ namespace KubbAdminAPI.Controllers;
 [ApiController, Route("[controller]/[action]")]
 public class AuthController(DatabaseContext context, TurnstileService turnstileService, EmailTask emailTask, IConfiguration configuration) : BaseController
 {
-    
+
     /**
      * 
      */
     [HttpPost]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
     {
-        
-        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress())) {
+
+        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress()))
+        {
             return BadRequest();
         }
 
@@ -63,10 +64,11 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
         if (!configuration.GetValue<bool>("SystemConfiguration:EnableRegistration"))
             return BadRequest("registration is not enabled");
 
-        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress())) {
+        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress()))
+        {
             return BadRequest();
         }
-        
+
         // check if email address is registered yet
         if (context.Users.Any(user => user.EmailAddress == request.EmailAddress))
         {
@@ -80,56 +82,59 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
             Surname = request.Surname,
             Status = UserStatus.NeedsVerification
         };
-        
+
         user.SetPasswordHash(request.Password);
         var verificationToken = user.SetVerificationToken();
-        
+
         context.Users.Add(user);
         context.SaveChanges();
-        
-        var messageHtml = @"Hi, in order to complete your registration, please enter the following link: <br><br>https://localhost:8080/auth/verify?token=" + verificationToken + "<br><br>best regards,<br>Kubb Contest Platform";
+
+        var messageHtml = @"Hi, in order to complete your registration, please enter the following link: <br><br>" + configuration.GetValue<string>("SystemConfiguration:RootUrl") + "/auth/verify?email=" + Uri.EscapeDataString(user.EmailAddress) + "&token=" + verificationToken + "<br><br>best regards,<br>Kubb Contest Platform";
 
         Console.WriteLine(messageHtml);
-        
+
         var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Complete Registration", messageHtml);
-        
+
         // Enqueue mailMessage to be sent early
         emailTask.EnqueueEmail(message);
-        
+
         return new OkResult();
     }
 
     [HttpPost]
     public ActionResult RecoverPassword([FromBody] RecoverPasswordRequest request)
     {
-        
-        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress())) {
+
+        if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress()))
+        {
             return BadRequest();
         }
-        
+
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
 
         if (user == null || (user.Status & UserStatus.Active) != UserStatus.Active || user.LastRecoverRequiredTime.AddHours(2) > DateTime.UtcNow)
         {
             return new UnauthorizedResult();
         }
-        
-        var temporaryPassword = user.SetTemporaryPassword();
-        user.LastRecoverRequiredTime = DateTime.UtcNow;
 
-        var messageHtml = @"Hi, in order to reset your password, please use this temporary one: <br><br>" + temporaryPassword + "<br><br>best regards,<br>Kubb Contest Platform";
-        
+        // var temporaryPassword = user.SetTemporaryPassword();
+        var recoveryToken = user.SetRecoveryToken();
+        user.LastRecoverRequiredTime = DateTime.UtcNow;
+        context.SaveChanges();
+
+        var messageHtml = @"Hi, in order to reset your password, please enter the following link: <br><br>" + configuration.GetValue<string>("SystemConfiguration:RootUrl") + "/auth/recover?email=" + Uri.EscapeDataString(user.EmailAddress) + "&token=" + recoveryToken + "<br><br>best regards,<br>Kubb Contest Platform";
+
         var message = EmailFactory.CreateEmailMessage(user.EmailAddress, "Reset Password", messageHtml);
-        
+
         emailTask.EnqueueEmail(message);
-        
+
         return new OkResult();
     }
 
     [HttpHead]
     public ActionResult Logout()
     {
-        
+
         context.Logins.Remove(CurrentUserLogin());
         context.SaveChanges();
 
@@ -141,14 +146,15 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
     public ActionResult CompleteRegistration([FromBody] CompleteRegistrationRequest request)
     {
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
-        
+
         if (user == null || (user.Status & UserStatus.NeedsVerification) != UserStatus.NeedsVerification || !user.VerifyVerificationToken(request.RegistrationToken))
         {
             return BadRequest();
         }
-        
+
         user.Status &= ~UserStatus.NeedsVerification;
         user.Status &= UserStatus.Active;
+        user.VerificationToken = null;
         context.Users.Update(user);
         context.SaveChanges();
 
@@ -156,7 +162,7 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
 
 
     }
-    
+
     /**
      *
      */
@@ -165,7 +171,7 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
     {
 
         var login = CurrentUserLoginNullable();
-        
+
         if (login == null) return Unauthorized();
 
         var user = login.User;
@@ -176,7 +182,25 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
         user.SetPasswordHash(request.NewPassword);
         user.Status &= ~UserStatus.MustChangePassword;
         context.SaveChanges();
-        
+
         return Ok();
+    }
+
+    [HttpPost]
+    public ActionResult CompleteRecoverPassword([FromBody] CompleteRecoverPasswordRequest request)
+    {
+        var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
+
+        // check token expired or wrong token
+        if (user == null || user.LastRecoverRequiredTime.AddHours(2) < DateTime.UtcNow || !user.VerifyRecoveryToken(request.Token)) {
+            return Unauthorized();
+        }
+
+        user.SetPasswordHash(request.Password);
+        user.RecoverToken = null;
+        context.SaveChanges();
+
+        return Ok();
+        
     }
 }

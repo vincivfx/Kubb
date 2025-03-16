@@ -8,29 +8,32 @@ public class User : BaseModel
 {
     [Key]
     public Guid UserId { get; set; } = Guid.NewGuid();
-    
+
     [Required, MaxLength(255)]
     public required string EmailAddress { get; set; }
-    
+
     [Required, MaxLength(63)]
     public required string Name { get; set; }
-    
+
     [Required, MaxLength(63)]
     public required string Surname { get; set; }
-    
+
     [Required, MaxLength(24)]
     public byte[] Salt { get; set; }
-    
+
     [Required, MaxLength(80)]
-    public byte[] PasswordHash { get; set; }
-    
+    public byte[]? PasswordHash { get; set; }
+
     [MaxLength(80)]
-    public byte[] VerificationToken { get; set; }
-    
+    public byte[]? VerificationToken { get; set; }
+
+    [MaxLength(80)]
+    public byte[]? RecoverToken { get; set; }
+
     public DateTime LastRecoverRequiredTime { get; set; }
 
     [Required] public required UserStatus Status { get; set; } = 0;
-    
+
     public User()
     {
         RandomNumberGenerator.Create().GetBytes(Salt = new byte[16]);
@@ -44,11 +47,26 @@ public class User : BaseModel
         return Convert.ToHexString(tempPassword);
     }
 
+    public string SetRecoveryToken()
+    {
+        byte[] tempPassword;
+        RandomNumberGenerator.Create().GetBytes(tempPassword = new byte[32]);
+        RecoverToken = SHA3_256.Create().ComputeHash(tempPassword);
+        return Convert.ToHexString(tempPassword);
+    }
+
     public bool VerifyVerificationToken(string token)
     {
         var userVerificationToken = Convert.FromHexString(token);
         var encUserVerificationToken = SHA3_256.Create().ComputeHash(userVerificationToken);
         return VerificationToken.SequenceEqual(encUserVerificationToken);
+    }
+
+    public bool VerifyRecoveryToken(string token)
+    {
+        var userRecoveryToken = Convert.FromHexString(token);
+        var encUserRecoveryToken = SHA3_256.Create().ComputeHash(userRecoveryToken);
+        return RecoverToken.SequenceEqual(encUserRecoveryToken);
     }
 
     public string SetTemporaryPassword()
