@@ -11,7 +11,7 @@ public class TurnstileService(IConfiguration configuration) {
      *  Verify Cloudflare Turnstile using httpClient
      */
     public bool VerifyTurnstile(string token, string ipAddress) {
-        if (!_configuration.GetValue<bool>("Turnstile:Enable")) return true;
+        if (!_configuration.GetValue<bool>("SystemConfiguration:EnableTurnstile")) return true;
         var secret = _configuration.GetValue<string>("Turnstile:Secret")!;
         var task = Task.Run(async() => await VerifyTurnstileAsync(token, ipAddress, secret));
         task.Wait();

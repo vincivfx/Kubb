@@ -15,6 +15,17 @@ export default {
     page: ''
   }),
   components: {ChallengesPartialView, MyChallengesPartialView, ChallengeInfo, Tabs, SlPlus, Pagination},
+  mounted() {
+    this.page = this.$route.params.page ?? '';
+  },
+  watch: {
+    page(newVal) {
+      this.$router.push({
+        name: 'challenges',
+        params: {page: newVal}
+      })
+    }
+  }
 }
 </script>
 

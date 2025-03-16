@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using KubbAdminAPI.Filters;
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.RequestModels;
@@ -105,9 +106,46 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
     }
 
 
-    [HttpDelete]
-    public void DeleteChallenge()
-    {
+    [HttpPost]
+    public ActionResult DeleteChallenge([FromBody] GenericChallengeRequest request) {
+
+        var currentUser = CurrentUser();
+        var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId && challenge.Administrator == currentUser);
+        
+        if (challenge == null) return Unauthorized();
+
+        // Stuff to delete
+        var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
+        var answers = context.Answers.Where(answer => teams.Contains(answer.Team)).ToList();
+        var participations = context.Participations.Where(participation => participation.Challenge == challenge).ToList();
+
+        context.Answers.RemoveRange(answers);
+        context.Participations.RemoveRange(participations);
+        context.Teams.RemoveRange(teams);
+        context.Challenges.Remove(challenge);
+
+        context.SaveChanges();
+
+        return Ok();
+
     }
     
+    [HttpPost]
+    public ActionResult ManualStart([FromBody] GenericChallengeRequest request) {
+        var currentUser = CurrentUser();
+        var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId && challenge.Administrator == currentUser);
+        
+        if (challenge == null) return Unauthorized();
+
+        var timeDifference = challenge.EndTime!.Value.Subtract(challenge.StartTime!.Value).TotalSeconds;
+
+        challenge.StartTime = DateTime.UtcNow;
+        challenge.EndTime = DateTime.UtcNow.AddSeconds(timeDifference);
+        challenge.RunningStatus = RunningChallengeStatus.Running;
+
+        context.SaveChanges();
+
+        return Ok();
+
+    }
 }

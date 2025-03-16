@@ -16,11 +16,13 @@ export default {
     scrollerInterval: null,
     timer: setInterval(() => {}, 1000000),
     timer_text: '',
-    zoomRatio: 1
+    zoomRatio: 1,
+    updateTimer: 15
   }),
   components: {SlSettings, Modal, CheckBox, SlPlus, SlMinus},
   methods: {
     loadScoreboard() {
+      this.updateTimer = 15;
       if (this.$route.query.id === 'test') {
         this.scoreboard = Scoreboard.parseScoreboard(Scoreboard.testScoreboard());
         return;
@@ -30,13 +32,7 @@ export default {
 
       this.$http.get('/Home/GetCache?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
         this.scoreboard = Scoreboard.parseScoreboard(response.data);
-      }).catch(error => {
-        if (error.response.status === 404) {
-          this.$router.push({
-            name: 'challenges'
-          })
-        }
-      })
+      });
     },
     zoom(direction) {
       if (direction > 0) this.zoomRatio += 0.1;
@@ -80,6 +76,8 @@ export default {
         this.timer_text = Math.floor(diff / 3600) + "h " + Math.floor(diff / 60) % 60 + "m " + diff % 60 + "s"
       else 
         this.timer_text = 'finished'
+
+      this.updateTimer -= 1;
     }, 1000);
 
   }
@@ -115,8 +113,10 @@ export default {
   <div :style="{'zoom': zoomRatio}" class="scoreboard-container" v-if="new Date().getTime() > new Date(this.challenge.startTime).getTime()">
     <div class="scoreboard-table" v-if="scoreboard">
       <div class="scoreboard-header">
-        <div></div>
-        <div>
+        <div style="font-size: 24px; vertical-align: middle;">
+          {{ updateTimer }}
+        </div>
+        <div style="vertical-align: middle;">
           {{ timer_text }}
         </div>
         <div></div>

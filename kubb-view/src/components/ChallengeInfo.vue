@@ -11,8 +11,11 @@ export default {
 
 <template>
   <div class="b-1 mv-2">
-    <div :class="['p-2', {'bg-primary': challenge.runningStatus <= 1}, {'bg-gray': challenge.runningStatus > 1}]">
-      <h3>{{challenge.name}} <Badge type="warning" v-if="challenge.runningStatus === 0">(DRAFT)</Badge></h3>
+    <div :class="['p-2', {'bg-primary': challenge.runningStatus <= 2}, {'bg-gray': challenge.runningStatus > 2}]">
+      <h3>{{challenge.name}} 
+        <Badge type="warning" v-if="challenge.runningStatus === 0">DRAFT</Badge>
+        <Badge type="secondary" v-if="challenge.runningStatus === 2">RUNNING</Badge>
+      </h3>
     </div>
     <div class="p-2">
       <p>
@@ -26,8 +29,8 @@ export default {
         50 teams
       </p>
       <div class="text-right btn-group-right">
-        <RouterLink v-if="send !== false && send !== undefined && challenge.runningStatus === 1" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
-        <RouterLink v-if="challenge.runningStatus < 3 && admin !== undefined && admin !== false" :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
+        <RouterLink v-if="send !== false && send !== undefined && challenge.runningStatus === 2" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
+        <RouterLink v-if="challenge.runningStatus < 4 && admin !== undefined && admin !== false" :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
         <RouterLink v-if="challenge.runningStatus > 0" :to="{name: 'challenge-score', query: {id: challenge.challengeId}}" class="btn primary">Follow</RouterLink>
       </div>
     </div>

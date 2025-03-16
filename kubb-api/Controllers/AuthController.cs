@@ -14,7 +14,7 @@ using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
 namespace KubbAdminAPI.Controllers;
 
 [ApiController, Route("[controller]/[action]")]
-public class AuthController(DatabaseContext context, TurnstileService turnstileService, EmailTask emailTask) : BaseController
+public class AuthController(DatabaseContext context, TurnstileService turnstileService, EmailTask emailTask, IConfiguration configuration) : BaseController
 {
     
     /**
@@ -60,6 +60,9 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
     [HttpPost]
     public ActionResult Register([FromBody] RegisterRequest request)
     {
+        if (!configuration.GetValue<bool>("SystemConfiguration:EnableRegistration"))
+            return BadRequest("registration is not enabled");
+
         if (!turnstileService.VerifyTurnstile(request.TurnstileToken, GetIpAddress())) {
             return BadRequest();
         }

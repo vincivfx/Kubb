@@ -72,7 +72,7 @@ export default {
                 <button type="button" class="btn link" @click="$refs.recoverPassword.show(); recoveryStatus = 'none';">Recover your password</button>
             </p>
 
-            <VueTurnstile ref="loginTurnstile" v-model="loginForm.turnstileToken" :site-key="$turnstileSiteKey"  />
+            <VueTurnstile v-if="$settings.enableTurnstile" ref="loginTurnstile" v-model="loginForm.turnstileToken" :site-key="$turnstileSiteKey"  />
 
             <input type="submit" class="btn primary" value="Login">
         </form>
@@ -103,7 +103,7 @@ export default {
             
             <InputBlock placeholder="email address..." type="email" required v-model="recoverPasswordForm.emailAddress" label="Type your email address"></InputBlock>
             
-            <VueTurnstile v-model="recoverPasswordForm.turnstileToken" :site-key="$turnstileSiteKey"  />
+            <VueTurnstile v-if="$settings.enableTurnstile" v-model="recoverPasswordForm.turnstileToken" :site-key="$turnstileSiteKey"  />
 
             <input type="submit" class="btn primary" value="Recover password">
         </form>

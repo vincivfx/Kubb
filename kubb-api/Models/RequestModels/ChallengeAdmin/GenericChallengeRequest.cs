@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KubbAdminAPI.Models.RequestModels.ChallengeAdmin;
 
-public abstract class Challenge
+public class GenericChallengeRequest
 {
-    
-   
-    
+    [Required]
+    public Guid ChallengeId { get; set; }
 }

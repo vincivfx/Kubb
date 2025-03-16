@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using KubbAdminAPI.Models;
+using Newtonsoft.Json;
 
 namespace KubbAdminAPI.Utils;
 
@@ -7,10 +9,13 @@ public class ScoreboardGenerator
     public static string GenerateScoreboard(Challenge challenge, List<Team> teams, List<Answer> answers)
     {
         string output = "";
-        const int basePoints = 30;
+
+        var algorithmSettings = JsonConvert.DeserializeObject<AlgorithmSettings>(challenge.AlgorithmSettings)!;
+
+        // if deriva = 0 then we access array at -1
+        if (algorithmSettings.derivaTeams <= 0) return "ERROR";
 
         if (challenge.StartTime == null || challenge.EndTime == null) return "";
-
 
         var teamPoints = new Dictionary<Guid, SimpleTeam>();
 
@@ -27,9 +32,9 @@ public class ScoreboardGenerator
         }
 
         var points = new List<int>();
-        for (var i = 0; i < challenge.Questions.Count; i++) points.Add(basePoints);
+        for (var i = 0; i < challenge.Questions.Count; i++) points.Add(algorithmSettings.basePoints);
 
-        var deriva = teams.Count / 10 + 1;
+        var deriva = algorithmSettings.derivaTeams;
         var bonuses = new List<int> { 20, 15, 10, 8, 6, 5, 4, 3, 2, 1 };
         var completeLineBonuses = new List<int> { 100, 60, 40, 30, 20, 10 };
 
@@ -166,4 +171,17 @@ public class SimpleTeam
     public List<ScoreboardCell> Cells { get; set; } = [];
     public string TeamName { get; set; }
     public Guid TeamId { get; set; }
+}
+public class AlgorithmSettings
+{
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "bp"), DefaultValue(30)]
+    public int basePoints { get; set; }
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "dt"), DefaultValue(3)]
+    public int derivaTeams { get; set; }
+
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "si"), DefaultValue(20)]
+    public int stopIncreseMinutes { get; set; }
+
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate, PropertyName = "fz"), DefaultValue(0)]
+    public int freezeScoreboard { get; set; }
 }

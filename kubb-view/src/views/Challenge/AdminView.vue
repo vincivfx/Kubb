@@ -1,6 +1,6 @@
 <script lang="ts">
 import Modal from '@/components/Modal.vue';
-import {SlPencil, SlPlus, SlTrash} from 'vue-icons-plus/sl';
+import { SlPencil, SlPlus, SlTrash } from 'vue-icons-plus/sl';
 import Tabs from "@/components/Tabs.vue";
 import InputBlock from "@/components/InputBlock.vue";
 import Alert from "@/components/Alert.vue";
@@ -9,7 +9,7 @@ import CheckBox from "@/components/CheckBox.vue";
 import Badge from "@/components/Badge.vue";
 
 export default {
-  components: {Badge, CheckBox, DateTimeInput, Alert, InputBlock, Tabs, SlPencil, SlPlus, SlTrash, Modal},
+  components: { Badge, CheckBox, DateTimeInput, Alert, InputBlock, Tabs, SlPencil, SlPlus, SlTrash, Modal },
   data: () => ({
     status: 'loading',
     teams: [],
@@ -32,7 +32,8 @@ export default {
     updatedQuestions: false,
     updatedFlags: false,
     flags: {},
-    editFlags: {}
+    editFlags: {},
+    deleteChallengeName: '' // check to delete challenge the name typed
   }),
   methods: {
     clearFlags() {
@@ -45,7 +46,7 @@ export default {
       this.updatedFlags = false;
       this.editFlags = JSON.parse(JSON.stringify(this.flags));
     },
-    clearUpdatedQuestions(){
+    clearUpdatedQuestions() {
       this.updatedQuestions = false;
       this.updateChallengeForm.questions = JSON.parse(JSON.stringify(this.challenge.questions)); // JS SUCKS
     },
@@ -96,6 +97,22 @@ export default {
         this.createTeamStatus = 'error';
         setTimeout(() => this.createTeamStatus = '', 20000);
       })
+    },
+    deleteChallenge(e) {
+      e.preventDefault();
+      this.$http.post("ChallengeAdmin/DeleteChallenge", {
+        challengeId: this.$route.query.id
+      }).then(() => this.$router.push({ name: 'challenges', params: { page: 'my' } }))
+        .catch(() => alert("cannot delete challenge"));
+    },
+    manualStart() {
+      this.$http.post("ChallengeAdmin/ManualStart", {
+        challengeId: this.$route.query.id
+      }).then(() => {
+        this.challenge.runningStatus = 2;
+        this.$refs.manualStartModal.hide();
+      })
+        .catch(() => alert("cannot start challenge"));
     }
   },
   mounted() {
@@ -114,7 +131,7 @@ export default {
 
       this.status = 'ok';
     }).catch(() => {
-      this.$router.push({name: 'challenges'});
+      this.$router.push({ name: 'challenges' });
     })
   }
 }
@@ -125,13 +142,14 @@ export default {
   <div v-if="status === 'ok'">
 
     <h2>{{ challenge.name }}
-      <button v-if="challenge.runningStatus === 0" @click="$refs.editChallengeModal.show()" class="btn btn-primary small">
-        <SlPencil/>
+      <button v-if="challenge.runningStatus === 0" @click="$refs.editChallengeModal.show()"
+        class="btn btn-primary small">
+        <SlPencil />
       </button>
     </h2>
 
     <Tabs v-model="page"
-          :tabs="[{text: 'Challenge Overview', id: 'overview'}, {text: 'Teams', id: 'teams'}, {text: 'Participations', id: 'participations'}, {text: 'Questions', id: 'questions', onExit: clearUpdatedQuestions}, {text: 'Challenge Options', id: 'options'}]">
+      :tabs="[{ text: 'Challenge Overview', id: 'overview' }, { text: 'Teams', id: 'teams' }, { text: 'Participations', id: 'participations' }, { text: 'Questions', id: 'questions', onExit: clearUpdatedQuestions }, { text: 'Challenge Options', id: 'options' }]">
       <div v-if="page === 'overview'">
         <table class="text-left">
           <tr>
@@ -139,8 +157,9 @@ export default {
             <td>
               <Badge v-if="challenge.runningStatus === 0" type="info">DRAFT</Badge>
               <Badge v-if="challenge.runningStatus === 1" type="info">SUBMITTED</Badge>
-              <Badge v-if="challenge.runningStatus === 2" type="info">FROZEN</Badge>
-              <Badge v-if="challenge.runningStatus === 3" type="info">TERMINATED</Badge>
+              <Badge v-if="challenge.runningStatus === 2" type="info">RUNNING</Badge>
+              <Badge v-if="challenge.runningStatus === 3" type="info">FROZEN</Badge>
+              <Badge v-if="challenge.runningStatus === 4" type="info">TERMINATED</Badge>
             </td>
           </tr>
           <tr>
@@ -157,28 +176,28 @@ export default {
 
         <h3>Teams
           <button @click="$refs.addTeamModal.show()" class="btn primary small">
-            <SlPlus/>
+            <SlPlus />
           </button>
         </h3>
         <table class="table">
           <thead>
-          <tr>
-            <th>Team name</th>
-            <th>User</th>
-            <th></th>
-          </tr>
+            <tr>
+              <th>Team name</th>
+              <th>User</th>
+              <th></th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="(item, key) in teams" :key="key">
-            <td>{{ item.teamName }}</td>
-            <td><b v-if="item.owner">you</b></td>
-            <td>
-              <button class="btn small danger">
-                <SlTrash/>
-              </button>
-            </td>
+            <tr v-for="(item, key) in teams" :key="key">
+              <td>{{ item.teamName }}</td>
+              <td><b v-if="item.owner">you</b></td>
+              <td>
+                <button class="btn small danger">
+                  <SlTrash />
+                </button>
+              </td>
 
-          </tr>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -192,14 +211,16 @@ export default {
             Challenge flags
             <Badge type="warning" v-if="updatedFlags">NOT SAVED</Badge>
           </h4>
-          
-          <CheckBox v-model="editFlags[0]" @change="updatedFlags = true">Challenge will be visibile on active challenges page</CheckBox>
+
+          <CheckBox v-model="editFlags[0]" @change="updatedFlags = true">Challenge will be visibile on active challenges
+            page</CheckBox>
           <CheckBox v-model="editFlags[1]" @change="updatedFlags = true">Allow anonymous joins</CheckBox>
           <CheckBox v-model="editFlags[2]" @change="updatedFlags = true">Allow joiners to remove answers</CheckBox>
-          <CheckBox v-model="editFlags[3]" @change="updatedFlags = true">Start challenge automatically at <i>starting time</i></CheckBox>
-          
+          <CheckBox v-model="editFlags[3]" @change="updatedFlags = true">Start challenge automatically at <i>starting
+              time</i></CheckBox>
+
           <button class="btn primary" @click="saveChallenge">Save flags</button>
-          
+
           <hr />
 
           <h4>Submit challenge</h4>
@@ -216,8 +237,15 @@ export default {
           <hr />
         </div>
 
-        
-        
+        <div v-if="challenge.runningStatus === 1 && (challenge.status & 8) === 0">
+          <h4>Manual Start</h4>
+          <p>
+            This challenge has been set to manual start.
+          </p>
+          <button class="btn primary" @click="$refs.manualStartModal.show()">Start Challenge</button>
+          <hr />
+        </div>
+
         <h4>Delete this challenge</h4>
         <p>
           If you request the challenge deletion, you will be not able to recover it.
@@ -233,7 +261,9 @@ export default {
 
         <form @submit="saveChallenge">
           <div v-for="(_, qid) in updateChallengeForm.questions" :key="qid" class="">
-            <InputBlock @change="updatedQuestions = true" @keyup="updatedQuestions = true" v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)" :label="'Question #' + (qid + 1)">
+            <InputBlock @change="updatedQuestions = true" @keyup="updatedQuestions = true"
+              v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)"
+              :label="'Question #' + (qid + 1)">
               <button @click="updateChallengeForm.questions.splice(qid, 1)" class="btn danger small">
                 <SlTrash />
               </button>
@@ -255,8 +285,19 @@ export default {
 
     <Modal title="Delete this challenge" ref="deleteChallengeModal">
       Are you sure to delete <b>{{ challenge.name }}</b> challenge?
-      <InputBlock label="Type the challenge name"></InputBlock>
-      <input :disabled="false" type="submit" class="btn danger" value="Delete this challenge">
+      <form @submit="deleteChallenge">
+        <InputBlock v-model="deleteChallengeName" label="Type the challenge name"></InputBlock>
+        <input :disabled="deleteChallengeName !== challenge.name" type="submit" class="btn danger"
+          value="Delete this challenge">
+      </form>
+    </Modal>
+
+    <Modal ref="manualStartModal" title="Manual Start">
+      Are you sure to start <b>{{ challenge.name }}</b> challenge?
+      <div class="text-center m-2">
+        <button class="btn primary m-1" @click="manualStart()">Yes, start challenge</button>
+        <button class="btn m-1" @click="$refs.manualStartModal.hide()">Cancel</button>
+      </div>
     </Modal>
 
     <Modal title="Delete a team" ref="deleteTeamModal">
@@ -287,7 +328,8 @@ export default {
         Team {{ createTeamLastName }} created successfully!
       </Alert>
       <form @submit="createTeam">
-        <InputBlock placeholder="team name..." v-model="createTeamForm.name" label="Type a name for the new team"></InputBlock>
+        <InputBlock placeholder="team name..." v-model="createTeamForm.name" label="Type a name for the new team">
+        </InputBlock>
         <input type="submit" class="btn primary" value="Create Team">
       </form>
     </Modal>

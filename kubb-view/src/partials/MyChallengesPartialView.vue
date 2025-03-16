@@ -13,7 +13,8 @@ export default {
     createChallengeForm: {
       challengeName: ''
     },
-    createChallengeStatus: ''
+    createChallengeStatus: '',
+    filterByName: ''
   }),
   methods: {
     createChallenge(e) {
@@ -54,8 +55,10 @@ export default {
       <SlPlus />
     </button>
   </h2>
+
+  <InputBlock v-model="filterByName" label="Filter by name" placeholder="name..." />
   
-  <ChallengeInfo send="" admin="" v-for="(item, key) in challenges" :challenge="item" :key="key" />
+  <ChallengeInfo send="" admin="" v-for="(item, key) in challenges.filter(ch => ch.name.toLowerCase().indexOf(filterByName.toLowerCase()) >= 0)" :challenge="item" :key="key" />
   
   <Pagination />
 </template>

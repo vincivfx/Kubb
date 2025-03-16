@@ -43,8 +43,6 @@ builder.Services.AddMemoryCache();
 
 // Adding worker for scoreboard generation
 builder.Services.AddHostedService<ScoreboardWorker>();
-// builder.Services.AddHostedService<FreezerWorker>();
-builder.Services.AddScoped<EmailService>();
 
 // Cloudflare Turnstile
 builder.Services.AddScoped<TurnstileService>();

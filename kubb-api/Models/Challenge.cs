@@ -6,33 +6,35 @@ public class Challenge : BaseModel
 {
     [Key]
     public Guid ChallengeId { get; set; } = Guid.NewGuid();
-    
+
     [Required, MaxLength(63)]
-    public required string Name {get; set;}
-    
+    public required string Name { get; set; }
+
     [Required]
     public required User Administrator { get; set; }
 
     public DateTime? StartTime { get; set; } = null;
 
     public DateTime? EndTime { get; set; } = null;
-    
+
     [Required]
     public required List<string> Questions { get; set; } = [];
 
     public int MaxTeamPerUser { get; set; } = 0;
 
+    public string AlgorithmSettings { get; set; } = "{}";
+
     public ChallengeStatus Status { get; set; } = ChallengeStatus.None;
 
     public RunningChallengeStatus RunningStatus { get; set; } = RunningChallengeStatus.Draft;
 
-    
-    
+
+
 }
 
 public class AlgorithmSettings
 {
-    
+
 }
 
 [Flags]
@@ -49,6 +51,7 @@ public enum RunningChallengeStatus
 {
     Draft = 0,
     Submitted = 1,
-    Frozen = 2,
-    Terminated = 3
+    Running = 2,
+    Frozen = 3,
+    Terminated = 4
 }

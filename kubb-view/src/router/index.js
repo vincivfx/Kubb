@@ -7,7 +7,8 @@ const router = createRouter({
     {
       path: '/discover',
       name: 'discover',
-      component: DiscoverView,
+      // component: DiscoverView,
+      redirect: '/',
       meta: {
         title: 'Discover'
       }
@@ -38,7 +39,7 @@ const router = createRouter({
     },    
     {
       path: '/',
-      name: 'root',
+      name: 'index',
       redirect: '/challenges'
     },
     {
@@ -47,7 +48,7 @@ const router = createRouter({
       component: () => import('../views/User/ProfileView.vue')
     },
     {
-      path: '/challenges',
+      path: '/challenges/:page?',
       name: 'challenges',
       component: () => import('../views/ChallengesView.vue'),
       meta: {

@@ -65,7 +65,7 @@ export default {
       </div>
 
 
-      <VueTurnstile ref="registerTurnstile" v-model="registerForm.turnstileToken" :site-key="$turnstileSiteKey"/>
+      <VueTurnstile v-if="$settings.enableTurnstile" ref="registerTurnstile" v-model="registerForm.turnstileToken" :site-key="$turnstileSiteKey"/>
 
       <input type="submit" class="btn primary" value="Register">
     </div>

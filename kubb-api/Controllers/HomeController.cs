@@ -16,9 +16,9 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
     {
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
-            _context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted && (challenge.Status & ChallengeStatus.Visible) != 0)
-                .Select(challenge => new ChallengesResponse.Challenge(challenge)).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
-        var totalCount = _context.Challenges.Count(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted);
+            _context.Challenges.Where(challenge => (challenge.RunningStatus == RunningChallengeStatus.Submitted || challenge.RunningStatus == RunningChallengeStatus.Running) && (challenge.Status & ChallengeStatus.Visible) != 0)
+                .OrderBy(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengesResponse.Challenge(challenge)).ToList();
+        var totalCount = _context.Challenges.Count(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted && (challenge.Status & ChallengeStatus.Visible) != 0);
         return Ok(new ChallengesResponse(challenges, totalCount));
     }
 
@@ -28,8 +28,8 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
             _context.Challenges.Where(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0)
-                .Select(challenge => new ChallengesResponse.Challenge(challenge)).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
-        var totalCount = _context.Challenges.Count(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted);
+                .Select(challenge => new ChallengesResponse.Challenge(challenge)).OrderByDescending(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
+        var totalCount = _context.Challenges.Count(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0);
         return Ok(new ChallengesResponse(challenges, totalCount));
     }
 
@@ -52,7 +52,7 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
 
     [HttpGet]
     public ActionResult SystemConfiguration() {
-        var configSection = _configuration.GetSection("GlobalPreferences");
+        var configSection = _configuration.GetSection("SystemConfiguration");
         var config = configSection.Get<SystemConfiguration>();
         return Ok(config);
     }
