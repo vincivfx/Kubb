@@ -8,7 +8,7 @@
                 :type="type"
                 :disabled="disabled"
                 :placeholder="placeholder"
-                :readonly="readonly"
+                :readonly="readonly !== false && readonly !== undefined"
                 class="text-input"
                 :value="modelValue"
                 @focus="$emit('focus')"

@@ -1,6 +1,8 @@
 <script>
+import Badge from '@/components/Badge.vue';
 import CheckBox from '@/components/CheckBox.vue';
 import Modal from '@/components/Modal.vue';
+import Select from '@/components/Select.vue';
 import Scoreboard from '@/util/score';
 import {SlMinus, SlPlus, SlSettings} from 'vue-icons-plus/sl';
 
@@ -17,9 +19,11 @@ export default {
     timer: setInterval(() => {}, 1000000),
     timer_text: '',
     zoomRatio: 1,
-    updateTimer: 15
+    updateTimer: 15,
+    highlightTeams: [],
+    showTop: 'all'
   }),
-  components: {SlSettings, Modal, CheckBox, SlPlus, SlMinus},
+  components: {SlSettings, Modal, CheckBox, SlPlus, SlMinus, Select, Badge},
   methods: {
     loadScoreboard() {
       this.updateTimer = 15;
@@ -31,7 +35,7 @@ export default {
       if (new Date().getTime() < new Date(this.challenge.startTime).getTime()) return;
 
       this.$http.get('/Home/GetCache?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
-        this.scoreboard = Scoreboard.parseScoreboard(response.data);
+        this.scoreboard = Scoreboard.parseScoreboard(response.data, this.challenge);
       });
     },
     zoom(direction) {
@@ -47,7 +51,6 @@ export default {
     clearInterval(this.timer);
   },
   mounted() {
-    this.loadScoreboard();
     this.fetcherInterval = setInterval(() => this.loadScoreboard(), 15000);
     this.scrollerInterval = setInterval(() => {
       if (this.scroll) {
@@ -68,6 +71,8 @@ export default {
     
     this.$http.get("Home/ChallengeSetup?challengeId=" + encodeURIComponent(this.$route.query.id)).then(response => {
       this.challenge = response.data;
+      this.challenge.algorithmSettings = JSON.parse(this.challenge.algorithmSettings);
+      this.loadScoreboard();
     });
     
     this.timer = setInterval(() => {
@@ -86,6 +91,7 @@ export default {
 
 <template>
   <Modal title="Settings" ref="settingsModal">
+    <h2>Display Settings</h2>
     <CheckBox v-model="scroll">
       enable automatic scroll
     </CheckBox>
@@ -103,6 +109,20 @@ export default {
     <button @click="zoom(-1)" class="btn small">
       <SlMinus />
     </button>
+
+    <hr />
+
+    <Select readonly="" v-model="showTop" :options="[{key: 'all', text: 'Show all'}, {key: 10, text: '10'}, {key: 20, text: '20'}, {key: 30, text: '30'}, {text: 'Only Highlighted', key: 0}]" label="Top teams to show" />
+
+    <h2>Filter by Team Name</h2>
+
+    <Select @change="(e) => highlightTeams.indexOf(e) === -1 && scoreboard.teams.map(item => item.name).indexOf(e) >= 0 ? highlightTeams.push(e) : {}" :options="scoreboard.teams.map(item => ({text: item.name, key: item.name}))" label="Search by Team Name" />
+    <p>Highlight: (click to remove)</p>
+      <Badge @click="highlightTeams.splice(tid, 1)" class="m-1" type="warning" v-for="(team, tid) in highlightTeams" :key="tid">
+      {{ team }}
+      
+    </Badge>
+    <div style="height: 400px;"></div>
   </Modal>
 
   <h1>{{ challenge.name }} {{ name }}
@@ -126,10 +146,9 @@ export default {
           <span :class="['answers', {'blocked': question.blocked}]">{{ question.answers }}</span>
         </div>
       </div>
-      <div class="team" v-for="(team, key) in scoreboard.teams" :key="key">
-
+      <div :class="['team', {'highlight': highlightTeams.indexOf(team.name) >= 0}]" v-for="(team, key) in scoreboard.teams.filter((t, i) => showTop === 'all' || highlightTeams.indexOf(t.name) >= 0 ||  i < showTop)" :key="key">
         <div class="team-position">
-          {{ key + 1 }}
+          {{ team.position }}
         </div>
         <div class="team-name">
           {{ team.name }}

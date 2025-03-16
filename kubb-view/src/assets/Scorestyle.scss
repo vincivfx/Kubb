@@ -15,7 +15,10 @@
             vertical-align: middle;
             font-size: 16px;
     
-    
+            &.highlight {
+                background-color: $warningColor !important;
+            }
+
             &:nth-child(odd) {
                 background-color: transparentize($color: $primaryColor, $amount: 0.9)
             }

@@ -35,7 +35,7 @@ export default {
     /**
      * 
      */
-    parseScoreboard(text) {
+    parseScoreboard(text, challenge) {
 
         const lines = text.split('\n');
 
@@ -71,7 +71,7 @@ export default {
 
                 if (arrow === 'up') {
                     questions[j - 1]['answers'] += 1;
-                    if (questions[j - 1]['answers'] > 1) 
+                    if (questions[j - 1]['answers'] >= (challenge.algorithmSettings.dt ?? 3)) 
                         questions[j - 1]['blocked'] = true; // TODO: make this working
                 }
 
@@ -92,6 +92,8 @@ export default {
         }
         
         teams = teams.sort((a, b) => b.points - a.points);
+        
+        teams.forEach((team, key) => team.position = key + 1); // set position value
 
         return {
             teams,

@@ -24,7 +24,7 @@ export default {
 
     <div class="nav-left">
       <div class="header-main-sitename">
-        KCP <span class="small">Kubb Contest Platform</span>
+        Kubb <span class="small"></span>
       </div>
 
       <div class="header-nav">

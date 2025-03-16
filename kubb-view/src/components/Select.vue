@@ -2,7 +2,7 @@
 import InputBlock from './InputBlock.vue';
 export default {
     components: {InputBlock},
-    props: ['options', 'label', 'modelValue'],
+    props: ['options', 'label', 'modelValue', 'readonly'],
     data: () => ({
         visibleSelect: false,
         filter: ''
@@ -12,12 +12,13 @@ export default {
             setTimeout(() => this.visibleSelect = false, 250)
         },
         select(item) {
-            this.filter = item.text;
+            this.filter = item.text;            
+            this.$emit('change', item.key);
             this.$emit('update:modelValue', item.key);
         },
         write() {
-            this.$emit('update:modelValue', this.filter);
-            console.log(this.filter);
+            if (this.readonly === false || this.readonly === undefined)
+                this.$emit('update:modelValue', this.filter);
         },
         clear() {
             this.filter = '';
