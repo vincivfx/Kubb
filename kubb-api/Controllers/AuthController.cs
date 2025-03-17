@@ -112,7 +112,7 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
 
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
 
-        if (user == null || (user.Status & UserStatus.Active) != UserStatus.Active || user.LastRecoverRequiredTime.AddHours(2) > DateTime.UtcNow)
+        if (user == null || (user.Status & UserStatus.Active) != UserStatus.Active || user.LastRecoverRequiredTime != null && user.LastRecoverRequiredTime.AddHours(2) > DateTime.UtcNow)
         {
             return new UnauthorizedResult();
         }
@@ -192,7 +192,7 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
 
         // check token expired or wrong token
-        if (user == null || user.LastRecoverRequiredTime.AddHours(2) < DateTime.UtcNow || !user.VerifyRecoveryToken(request.Token)) {
+        if (user == null || user.LastRecoverRequiredTime == null || user.LastRecoverRequiredTime.AddHours(2) < DateTime.UtcNow || !user.VerifyRecoveryToken(request.Token)) {
             return Unauthorized();
         }
 
