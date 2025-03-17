@@ -9,9 +9,7 @@ import ChallengesPartialView from "@/partials/Challenges/ChallengesPartialView.v
 
 export default {
   data: () => ({
-    challenges: [
-      {name: 'Gara di Aprile', organizer: 'Rossi'}
-    ],
+    challenges: [],
     page: ''
   }),
   components: {ChallengesPartialView, MyChallengesPartialView, ChallengeInfo, Tabs, SlPlus, Pagination},
@@ -31,7 +29,7 @@ export default {
 
 <template>
   <Tabs v-model="page" :tabs="[{text: 'Running Challenges', id: ''}, {text: 'Archived Challenges', id: 'archived'}, {text: 'My Challenges', id: 'my', runIf: () => $authSession.getStored()}, {text: 'Joinable Challenges', id: 'join', runIf: () => $authSession.getStored()}]">
-    <ChallengesPartialView v-if="page === ''" title="Running Challenges" repo="" />
+    <ChallengesPartialView v-if="page === ''" title="Running Challenges" repo="Challenges" />
     <ChallengesPartialView v-if="page === 'archived'" title="Archived Challenges" repo="Archived"></ChallengesPartialView>
     <MyChallengesPartialView v-if="page === 'my'" />
     

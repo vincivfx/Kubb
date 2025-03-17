@@ -54,7 +54,10 @@ export default {
     },
     clearUpdatedAlgorithmSettings() {
       this.updatedAlgorithmSettings = false;
-      this.algorithmSettings = JSON.parse(JSON.stringify(this.challenge.algorithmSettings));
+      let a = JSON.parse(JSON.stringify(this.challenge.algorithmSettings));
+      
+
+      // this.algorithmSettings = a;    
     },
     saveChallenge(e = null, s = null) {
       if (e !== null)
@@ -65,22 +68,27 @@ export default {
       })
 
       // format bonus string
-      this.algorithmSettings.bn = this.algorithmSettings.bn.split(',').map(item => Number.parseInt(item))
 
-      this.updateChallengeForm.algorithmSettings = JSON.stringify(this.algorithmSettings);
+      let algorithmSettings = JSON.parse(JSON.stringify(this.algorithmSettings));
+      algorithmSettings.bn = algorithmSettings.bn.split(',').map(item => Number.parseInt(item))
+      this.updateChallengeForm.algorithmSettings = JSON.stringify(algorithmSettings);
 
       if (s === 'submit') this.updateChallengeForm.runningStatus = 1;
       
       this.$http.put("/ChallengeAdmin/UpdateChallenge", this.updateChallengeForm).then(() => {
         this.updateChallengeStatus = 'success';
+        
+        
+
         this.challenge = JSON.parse(JSON.stringify(this.updateChallengeForm));
         this.updatedQuestions = false;
-        this.updatedAlgorithmSettings = false;
+        this.clearUpdatedAlgorithmSettings();
         this.updatedFlags = false;
         this.flags = JSON.parse(JSON.stringify(this.editFlags));
         this.$refs.submitChallengeModal.hide();
         setTimeout(() => this.updateChallengeStatus = '', 20000);
-      }).catch(() => {
+      }).catch((e) => {
+        console.error(e);
         this.updateChallengeStatus = 'error';
         setTimeout(() => this.updateChallengeStatus = '', 20000);
         if (s === 'submit') {
@@ -133,18 +141,17 @@ export default {
       this.teams = response.data.teams;
       this.participations = response.data.participations;
       
-      const algorithmSettingsRaw = JSON.parse(response.data.challenge.algorithmSettings);
-    
+      const algorithmSettingsRaw = this.challenge.algorithmSettings;
+      
       const algorithmSettings = {
         dt: algorithmSettingsRaw.dt ?? 3,
         bp: algorithmSettingsRaw.bp ?? 30,
         si: algorithmSettingsRaw.si ?? 20,
         fz: algorithmSettingsRaw.fz ?? 0,
-        bn: algorithmSettingsRaw.bn ?? "20,15,10,8,6,5,4,3,2,1"
+        bn: algorithmSettingsRaw.bn ? algorithmSettingsRaw.bn.join(",") : "20,15,10,8,6,5,4,3,2,1"
       };
 
-      this.challenge.algorithmSettings = algorithmSettings;
-      this.algorithmSettings = JSON.parse(JSON.stringify(algorithmSettings));
+      this.algorithmSettings = algorithmSettings;
       
       this.challenge.startTime = new Date(this.challenge.startTime);
       this.challenge.endTime = new Date(this.challenge.endTime);
@@ -161,7 +168,6 @@ export default {
 </script>
 
 <template>
-
   <div v-if="status === 'ok'">
 
     <h2>{{ challenge.name }}
