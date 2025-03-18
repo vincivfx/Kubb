@@ -1,5 +1,6 @@
 using KubbAdminAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using KubbAdminAPI.Utils;
 
 namespace KubbAdminAPI.Workers;
 
@@ -26,8 +27,8 @@ public class CleanerWorker(IServiceProvider serviceProvider) : BackgroundService
             context.Users.RemoveRange(users);
 
             // move challenges starting in the next 15 minutes (automatically) to 'running'
-            var challengesToStart = context.Challenges.Where(challenge => 
-                    challenge.StartTime < DateTime.UtcNow.AddMinutes(15) && 
+            var challengesToStart = context.Challenges.Where(challenge =>
+                    challenge.StartTime < DateTime.UtcNow.AddMinutes(15) &&
                     (challenge.Status & ChallengeStatus.StartEnabled) != 0 &&
                     challenge.RunningStatus == RunningChallengeStatus.Submitted
             ).ToList();
@@ -38,14 +39,32 @@ public class CleanerWorker(IServiceProvider serviceProvider) : BackgroundService
 
 
             // move finished challenges to 'frozen' runningStatus after (at least) 60 minutes from the endTime
-            var challengesToFreeze = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted && challenge.EndTime!.Value.AddHours(1) < DateTime.UtcNow);
+            var challengesToFreeze = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted && challenge.EndTime!.Value.AddHours(1) < DateTime.UtcNow).ToList();
             foreach (var challenge in challengesToFreeze)
             {
+                var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
+                var answers = context.Answers.Where(answer => teams.Contains(answer.Team)).ToList();
+                var offlineFileDir = Path.Combine("./Scoreboards/", challenge.ChallengeId.ToString() + ".txt");
+                var scoreboard = ScoreboardGenerator.GenerateScoreboard(challenge, teams, answers);
+                using (StreamWriter outputFile = new StreamWriter(offlineFileDir))
+                {
+                    outputFile.WriteLine(scoreboard);
+                }
                 challenge.RunningStatus = RunningChallengeStatus.Frozen;
             }
 
-            // TODO: move frozen challenges to 'terminated' runningStatus after one day from the endTime
-            // saving everything in a file
+            // deleting all useless data after one week the end of the challenge
+            var challengesToTerminate = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Terminated && challenge.EndTime!.Value.AddDays(7) < DateTime.UtcNow).ToList();
+            foreach (var challenge in challengesToTerminate)
+            {
+                var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
+                var answers = context.Answers.Where(answer => teams.Contains(answer.Team)).ToList();
+
+                challenge.RunningStatus = RunningChallengeStatus.Terminated;
+
+                context.Teams.RemoveRange(teams);
+                context.Answers.RemoveRange(answers);
+            }
 
 
             await context.SaveChangesAsync(stoppingToken);
@@ -55,4 +74,3 @@ public class CleanerWorker(IServiceProvider serviceProvider) : BackgroundService
 
     }
 }
-

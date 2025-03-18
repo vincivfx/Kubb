@@ -6,13 +6,14 @@ import ChallengeInfo from "@/components/ChallengeInfo.vue";
 import MyChallengesPartialView from "@/partials/MyChallengesPartialView.vue";
 import Pagination from '@/components/Pagination.vue';
 import ChallengesPartialView from "@/partials/Challenges/ChallengesPartialView.vue";
+import JoinableChallengesPartialView from '@/partials/Challenges/JoinableChallengesPartialView.vue';
 
 export default {
   data: () => ({
     challenges: [],
     page: ''
   }),
-  components: {ChallengesPartialView, MyChallengesPartialView, ChallengeInfo, Tabs, SlPlus, Pagination},
+  components: {ChallengesPartialView, MyChallengesPartialView, ChallengeInfo, Tabs, SlPlus, Pagination, JoinableChallengesPartialView},
   mounted() {
     this.page = this.$route.params.page ?? '';
   },
@@ -32,7 +33,6 @@ export default {
     <ChallengesPartialView v-if="page === ''" title="Running Challenges" repo="Challenges" />
     <ChallengesPartialView v-if="page === 'archived'" title="Archived Challenges" repo="Archived"></ChallengesPartialView>
     <MyChallengesPartialView v-if="page === 'my'" />
-    
-    
+    <JoinableChallengesPartialView v-if="page === 'join'" />
   </Tabs>
 </template>

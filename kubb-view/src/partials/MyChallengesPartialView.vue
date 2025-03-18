@@ -28,7 +28,7 @@ export default {
     }
   },
   mounted() {
-    this.$http.get("/ChallengeAdmin/All").then((response) => {
+    this.$http.get("/Challenge/All").then((response) => {
       this.challenges = response.data;
     })
   }

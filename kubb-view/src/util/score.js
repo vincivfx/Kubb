@@ -37,7 +37,7 @@ export default {
      */
     parseScoreboard(text, challenge) {
 
-        if (text === "(!)FREEZED") return 'freezed';
+        if (text === "(!)FROZEN") return 'frozen';
 
         const lines = text.split('\n');
 

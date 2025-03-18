@@ -55,7 +55,7 @@ export default {
     clearUpdatedAlgorithmSettings() {
       this.updatedAlgorithmSettings = false;
       let a = JSON.parse(JSON.stringify(this.challenge.algorithmSettings));
-      
+
 
       // this.algorithmSettings = a;    
     },
@@ -74,11 +74,11 @@ export default {
       this.updateChallengeForm.algorithmSettings = JSON.stringify(algorithmSettings);
 
       if (s === 'submit') this.updateChallengeForm.runningStatus = 1;
-      
+
       this.$http.put("/ChallengeAdmin/UpdateChallenge", this.updateChallengeForm).then(() => {
         this.updateChallengeStatus = 'success';
-        
-        
+
+
 
         this.challenge = JSON.parse(JSON.stringify(this.updateChallengeForm));
         this.updatedQuestions = false;
@@ -140,9 +140,9 @@ export default {
       this.updateChallengeForm = JSON.parse(JSON.stringify(response.data.challenge)); // js sucks!
       this.teams = response.data.teams;
       this.participations = response.data.participations;
-      
+
       const algorithmSettingsRaw = this.challenge.algorithmSettings;
-      
+
       const algorithmSettings = {
         dt: algorithmSettingsRaw.dt ?? 3,
         bp: algorithmSettingsRaw.bp ?? 30,
@@ -152,7 +152,7 @@ export default {
       };
 
       this.algorithmSettings = algorithmSettings;
-      
+
       this.challenge.startTime = new Date(this.challenge.startTime);
       this.challenge.endTime = new Date(this.challenge.endTime);
 
@@ -232,6 +232,25 @@ export default {
       </div>
       <div v-if="page === 'participations'">
         <h3>Participations</h3>
+
+        <div class="table-resposive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name and Surname</th>
+                <th>Email Address</th>
+                <th>Created at</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, key) in participations" :key="key">
+                <td>{{ item.name }} {{ item.surname }}</td>
+                <td>{{ item.emailAddress }}</td>
+                <td>{{ new Date(item.created).toLocaleString() }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <div v-if="page === 'options'">
 
@@ -266,13 +285,19 @@ export default {
           <hr />
 
           <div>
-            <h4>Algorithm Settings<Badge type="warning" v-if="updatedAlgorithmSettings">NOT SAVED</Badge></h4>
+            <h4>Algorithm Settings<Badge type="warning" v-if="updatedAlgorithmSettings">NOT SAVED</Badge>
+            </h4>
             <form @submit="saveChallenge">
-              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.si" type="number" label="Minutes to end when stop points increase" />
-              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.bp" type="number" label="Starting points per question" />
-              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.fz" type="number" label="Minutes to end when scoreboard starts freezing" />
-              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.dt" type="number" label="Correct answers per question before stop increment points" />
-              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.bn" label="Bonus points for first answers (separated by comma)" pattern="^(,*[0-9]+)+$"></InputBlock>
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.si" type="number"
+                label="Minutes to end when stop points increase" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.bp" type="number"
+                label="Starting points per question" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.fz" type="number"
+                label="Minutes to end when scoreboard starts freezing" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.dt" type="number"
+                label="Correct answers per question before stop increment points" />
+              <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.bn"
+                label="Bonus points for first answers (separated by comma)" pattern="^(,*[0-9]+)+$"></InputBlock>
               <input type="submit" value="Save algorithm settings" class="btn primary">
             </form>
             <hr />

@@ -5,6 +5,7 @@ using KubbAdminAPI.Models.RequestModels;
 using KubbAdminAPI.Models.ResponseModels.Home;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using KubbAdminAPI.Filters;
 
 namespace KubbAdminAPI.Controllers;
 
@@ -32,6 +33,7 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
         var totalCount = _context.Challenges.Count(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0);
         return Ok(new ChallengesResponse(challenges, totalCount));
     }
+
 
     [HttpGet]
     public ActionResult GetCache([FromQuery] string key)

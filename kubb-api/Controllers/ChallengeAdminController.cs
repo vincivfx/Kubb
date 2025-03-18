@@ -14,25 +14,6 @@ namespace KubbAdminAPI.Controllers;
 public class ChallengeAdminController(DatabaseContext context) : BaseController
 {
     [HttpGet]
-    public IActionResult All([FromQuery] Pagination pagination)
-    {
-        if (pagination.Limit > 100) return BadRequest();
-        var user = CurrentUser();
-        var challenges = context.Challenges.Where(challenge => challenge.Administrator == user)
-            .OrderByDescending(challenge => challenge.EndTime).Select(challenge => new
-            {
-                challenge.ChallengeId,
-                challenge.Name,
-                challenge.StartTime,
-                challenge.EndTime,
-                challenge.RunningStatus,
-                challenge.Status
-            }).Skip(pagination.Offset * pagination.Limit)
-            .Take(pagination.Limit).ToList();
-        return Ok(challenges);
-    }
-
-    [HttpGet]
     public ActionResult<ChallengeInfoResponse> ChallengeInfo([FromQuery] Guid challengeId)
     {
         var current = CurrentUser()!;

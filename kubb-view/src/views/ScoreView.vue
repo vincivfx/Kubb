@@ -21,7 +21,8 @@ export default {
     zoomRatio: 1,
     updateTimer: 15,
     highlightTeams: [],
-    showTop: 'all'
+    showTop: 'all',
+
   }),
   components: {SlSettings, Modal, CheckBox, SlPlus, SlMinus, Select, Badge},
   methods: {
@@ -32,11 +33,11 @@ export default {
         return;
       }
 
-      if (new Date().getTime() < new Date(this.challenge.startTime).getTime()) return;
+      if (new Date().getTime() < new Date(this.challenge.startTime).getTime() && (this.challenge.status & 8) === 1) return;
 
       this.$http.get('/Home/GetCache?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
         this.scoreboard = Scoreboard.parseScoreboard(response.data, this.challenge);
-      });
+      }).catch(() => this.scoreboard = null);
     },
     zoom(direction) {
       if (direction > 0) this.zoomRatio += 0.1;
@@ -130,14 +131,14 @@ export default {
       <SlSettings/>
     </button>
   </h1>
-  <div v-if="scoreboard === 'freezed'">
+  <div v-if="scoreboard === 'frozen'">
     <p style="font-size: 48px;">
-      Challenge has been freezed in the last minutes.
+      Challenge has been frozen in the last minutes.
       <br>
       {{ timer_text }}
     </p>
   </div>
-  <div :style="{'zoom': zoomRatio}" class="scoreboard-container" v-if="scoreboard !== 'freezed' && new Date().getTime() > new Date(this.challenge.startTime).getTime()">
+  <div :style="{'zoom': zoomRatio}" class="scoreboard-container" v-if="scoreboard !== 'frozen' && (new Date().getTime() > new Date(this.challenge.startTime).getTime() || (this.challenge.status & 8) === 0) && scoreboard !== null">
     <div class="scoreboard-table" v-if="scoreboard">
       <div class="scoreboard-header">
         <div style="font-size: 24px; vertical-align: middle;">
@@ -174,7 +175,7 @@ export default {
       </div>
     </div>
   </div>
-  <div v-else-if="scoreboard !== 'freezed'">
+  <div v-else-if="scoreboard !== 'frozen' || scoreboard === null">
     This challenge is not started yet!<br>
     Starting at: {{ new Date(this.challenge.startTime).toLocaleString() }}
   </div>

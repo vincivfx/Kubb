@@ -25,16 +25,24 @@ public class ScoreboardWorker(IServiceProvider serviceProvider) : BackgroundServ
 
             foreach (var challenge in challenges)
             {
-                try {
+                try
+                {
                     var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
                     var answers = context.Answers.Where(answer => teams.Contains(answer.Team)).ToList();
 
                     var scoreboard = Utils.ScoreboardGenerator.GenerateScoreboard(challenge, teams, answers);
 
-                    cache.Set(challenge.ChallengeId.ToString(), scoreboard);
+                    var cacheSettings = new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+                    };
 
-                } catch (Exception exception) {
-                    Console.WriteLine("ERROR GENERATING SCOREBOARD FOR " + challenge.Name + ": "+exception.Message+"\n");
+                    cache.Set(challenge.ChallengeId.ToString(), scoreboard, cacheSettings);
+
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine("ERROR GENERATING SCOREBOARD FOR " + challenge.Name + ": " + exception.Message + "\n");
                 }
             }
 

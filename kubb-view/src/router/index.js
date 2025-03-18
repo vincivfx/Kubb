@@ -94,6 +94,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/challenge/guest-admin',
+      name: 'guest-admin',
+      component: () => import('../views/Challenge/GuestAdminView.vue'),
+      meta: {
+        title: 'Guest Admin'
+      }
+    },
+    {
       path: '/error',
       name: 'error',
       component: () => import('../views/ErrorView.vue'),

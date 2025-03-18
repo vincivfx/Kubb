@@ -28,7 +28,7 @@ export default {
       </div>
 
       <div class="header-nav">
-        <RouterLink :to="{name: 'discover'}">Discover more</RouterLink>        
+        <a href="https://github.com/vincivfx/Kubb" target="_blank">Discover more</a>        
         <RouterLink :to="{name: 'challenges'}">Challenges</RouterLink>        
       </div>
     </div>
@@ -57,6 +57,7 @@ export default {
   </div>
 
   <div class="footer">
+    Made with &lt;3 from Italy<br>	  
     &copy; Vincenzo Gallina 2025
   </div>
 

@@ -15,10 +15,9 @@ public class ChallengeInfoResponse
     }
     public class Participation(Models.Participation participation)
     {
-        public string UserName { get; set; } = participation.User.Name;
-        public string UserSurname { get; set; } = participation.User.Surname;
+        public string Name { get; set; } = participation.User.Name;
+        public string Surname { get; set; } = participation.User.Surname;
         public string EmailAddress { get; set; } = participation.User.EmailAddress;
-        public Guid UserId { get; set; } = participation.User.UserId;
         public DateTime Created { get; set; } = participation.Created;
     }
 

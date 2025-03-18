@@ -15,7 +15,7 @@ public class ScoreboardGenerator
 
         if (algorithmSettings.freezeScoreboard > 0 && DateTime.UtcNow < challenge.EndTime && challenge.EndTime.Value.AddMinutes(-algorithmSettings.freezeScoreboard) < DateTime.UtcNow)
         {
-            return "(!)FREEZED";
+            return "(!)FROZEN";
         }
 
 

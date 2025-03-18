@@ -4,7 +4,7 @@ import Badge from "@/components/Badge.vue";
 
 export default {
   name: "ChallengeInfo",
-  props: ['challenge', 'admin', 'send'],
+  props: ['challenge', 'admin', 'send', 'guest'],
   components: {Badge, RouterLink}
 }
 </script>
@@ -14,7 +14,10 @@ export default {
     <div :class="['p-2', {'bg-primary': challenge.runningStatus <= 2}, {'bg-gray': challenge.runningStatus > 2}]">
       <h3>{{challenge.name}} 
         <Badge type="warning" v-if="challenge.runningStatus === 0">DRAFT</Badge>
-        <Badge type="secondary" v-if="challenge.runningStatus === 2">RUNNING</Badge>
+        <Badge type="secondary" v-if="challenge.runningStatus === 2">SUBMITTED</Badge>
+        <Badge type="secondary" v-if="challenge.runningStatus === 3">RUNNING</Badge>
+        <Badge type="secondary" v-if="challenge.runningStatus === 4">FROZEN</Badge>
+        <Badge type="secondary" v-if="challenge.runningStatus === 5">TERMINATED</Badge>
       </h3>
     </div>
     <div class="p-2">
@@ -29,8 +32,9 @@ export default {
         50 teams
       </p>
       <div class="text-right btn-group-right">
-        <RouterLink v-if="send !== false && send !== undefined && challenge.runningStatus === 2" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
+        <RouterLink v-if="send !== false && send !== undefined && challenge.runningStatus in [1,2]" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
         <RouterLink v-if="challenge.runningStatus < 4 && admin !== undefined && admin !== false" :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
+        <RouterLink v-if="challenge.runningStatus < 4 && guest !== undefined && guest !== false" :to="{name: 'guest-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
         <RouterLink v-if="challenge.runningStatus > 0" :to="{name: 'challenge-score', query: {id: challenge.challengeId}}" class="btn primary">Follow</RouterLink>
       </div>
     </div>
