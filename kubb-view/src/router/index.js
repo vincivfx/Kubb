@@ -118,7 +118,18 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('../views/NotFoundView.vue')
+      component: () => import('../views/NotFoundView.vue'),
+      title: {
+        meta: 'Not Found'
+      }
+    },
+    {
+      path: '/mgmt',
+      name: 'admin-user-management',
+      component: () => import('../views/Admin/UserManagementView.vue'),
+      title: {
+        meta: 'User Management'
+      }
     }
   ],
 })

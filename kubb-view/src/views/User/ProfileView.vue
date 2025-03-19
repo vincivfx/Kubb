@@ -19,17 +19,6 @@ export default {
   }),
   components: {Badge, Alert, MandatoryUpdatePasswordView, Tabs, InputBlock, PasswordSecurityCheck},
   methods: {
-    logout: function () {
-      this.$http.head('/logout').then(() => {
-        this.$authSession.removeStored();
-        this.$router.push({name: 'login'});
-      }).catch((error) => {
-        if (error.response.status === 404) {
-          this.$authSession.removeStored();
-          this.$router.push({name: 'login'});
-        }
-      })
-    },
     updatePassword(e) {
       e.preventDefault();
 
@@ -59,10 +48,7 @@ export default {
 <template>
 
   <h2>
-    Manage your account, {{ $authSession.getName() }},
-    <button @click="logout()" class="btn small">
-      Logout
-    </button>
+    Manage your account, {{ $authSession.getName() }}
   </h2>
 
   <Tabs

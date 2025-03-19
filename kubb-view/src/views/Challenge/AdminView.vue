@@ -7,9 +7,10 @@ import Alert from "@/components/Alert.vue";
 import DateTimeInput from "@/components/DateTimeInput.vue";
 import CheckBox from "@/components/CheckBox.vue";
 import Badge from "@/components/Badge.vue";
+import TeamTab from '@/partials/AdminView/TeamTab.vue';
 
 export default {
-  components: { Badge, CheckBox, DateTimeInput, Alert, InputBlock, Tabs, SlPencil, SlPlus, SlTrash, Modal },
+  components: { Badge, CheckBox, DateTimeInput, Alert, InputBlock, Tabs, SlPencil, SlPlus, SlTrash, Modal, TeamTab },
   data: () => ({
     status: 'loading',
     teams: [],
@@ -18,12 +19,6 @@ export default {
     challenge: {
       questions: []
     },
-    createTeamForm: {
-      name: '',
-      challengeId: '',
-    },
-    createTeamStatus: '',
-    createTeamLastName: '',
     updateChallengeForm: {
       questions: []
     },
@@ -97,24 +92,7 @@ export default {
         }
       })
     },
-    createTeam(e) {
-      e.preventDefault();
 
-      this.$http.post("/Challenge/CreateTeam", this.createTeamForm).then((response) => {
-        this.createTeamStatus = 'success';
-        this.createTeamLastName = this.createTeamForm.name + "";
-        setTimeout(() => this.createTeamStatus = '', 20000);
-        this.teams.push({
-          teamName: this.createTeamForm.name,
-          teamId: response.data.teamId,
-          created: new Date(),
-        });
-        this.createTeamForm.name = '';
-      }).catch(() => {
-        this.createTeamStatus = 'error';
-        setTimeout(() => this.createTeamStatus = '', 20000);
-      })
-    },
     deleteChallenge(e) {
       e.preventDefault();
       this.$http.post("ChallengeAdmin/DeleteChallenge", {
@@ -133,7 +111,6 @@ export default {
     }
   },
   mounted() {
-    this.createTeamForm.challengeId = this.$route.query.id;
     this.$http.get("/ChallengeAdmin/ChallengeInfo?challengeId=" + encodeURIComponent(this.$route.query.id)).then((response) => {
       this.challenge = response.data.challenge;
       this.challenge.challengeId = this.$route.query.id;
@@ -201,35 +178,7 @@ export default {
           </tr>
         </table>
       </div>
-      <div v-if="page === 'teams'">
-
-        <h3>Teams
-          <button @click="$refs.addTeamModal.show()" class="btn primary small">
-            <SlPlus />
-          </button>
-        </h3>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Team name</th>
-              <th>User</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, key) in teams" :key="key">
-              <td>{{ item.teamName }}</td>
-              <td><b v-if="item.owner">you</b></td>
-              <td>
-                <button class="btn small danger">
-                  <SlTrash />
-                </button>
-              </td>
-
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <TeamTab v-if="page === 'teams'" :challenge="challenge" :teams="teams" />
       <div v-if="page === 'participations'">
         <h3>Participations</h3>
 
@@ -260,7 +209,8 @@ export default {
             <Badge type="warning" v-if="updatedFlags">NOT SAVED</Badge>
           </h4>
 
-          <CheckBox v-model="editFlags[0]" @change="updatedFlags = true">Challenge will be visibile on active challenges
+          <CheckBox v-model="editFlags[0]" @change="updatedFlags = true">Challenge will be visibile on active
+            challenges
             page</CheckBox>
           <CheckBox v-model="editFlags[1]" @change="updatedFlags = true">Allow anonymous joins</CheckBox>
           <CheckBox v-model="editFlags[2]" @change="updatedFlags = true">Allow joiners to remove answers</CheckBox>
@@ -387,19 +337,6 @@ export default {
     </Modal>
 
 
-    <Modal title="Add a new team" ref="addTeamModal">
-      <Alert type="danger" v-if="createTeamStatus === 'error'">
-        Sorry, we encountered an error trying to create a new team
-      </Alert>
-      <Alert type="success" v-if="createTeamStatus === 'success'">
-        Team {{ createTeamLastName }} created successfully!
-      </Alert>
-      <form @submit="createTeam">
-        <InputBlock placeholder="team name..." v-model="createTeamForm.name" label="Type a name for the new team">
-        </InputBlock>
-        <input type="submit" class="btn primary" value="Create Team">
-      </form>
-    </Modal>
 
     <Modal title="Edit challenge settings" ref="editChallengeModal">
       <Alert type="danger" v-if="updateChallengeStatus === 'error'">

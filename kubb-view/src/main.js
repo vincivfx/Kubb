@@ -31,6 +31,15 @@ axiosInstance.interceptors.request.use((config) => {
     } 
     return config;
 })
+axiosInstance.interceptors.response.use((response) => {
+    return response;
+}, (error) => {
+    if (error.response && error.response.status === 401 && error.response.data === 'Invalid login') {
+        authSession.removeStored();
+        router.push({name: 'login'})
+    }
+    return Promise.reject(error);
+})
 
 app.config.globalProperties.$http = axiosInstance;
 app.config.globalProperties.$authSession = authSession;
