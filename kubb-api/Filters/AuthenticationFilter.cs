@@ -12,16 +12,16 @@ public class AuthenticationFilter(bool mandatoryPasswordStop = true) : ActionFil
     {
         var dbContext = context.HttpContext.RequestServices.GetRequiredService<DatabaseContext>();
         
-        var loginId = context.HttpContext.Request.Headers["X-AuthId"];
+        var loginIdString = context.HttpContext.Request.Headers["X-AuthId"];
         var loginToken = context.HttpContext.Request.Headers["X-AuthToken"];
 
-        if (loginId == string.Empty || loginToken == string.Empty)
+        if (loginIdString == string.Empty || loginToken == string.Empty)
         {
             context.Result = new BadRequestObjectResult("Missing Authorization header");
             return;
         }
         
-        var login = dbContext.Logins.Include(login => login.User).FirstOrDefault(login => login.LoginId == Guid.Parse(loginId));
+        var login = dbContext.Logins.Include(login => login.User).FirstOrDefault(login => login.LoginId == Guid.Parse(loginIdString));
 
         if (login == null || !login.ValidateToken(loginToken!))
         {

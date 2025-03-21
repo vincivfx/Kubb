@@ -30,7 +30,7 @@ public class User : BaseModel
     [MaxLength(80)]
     public byte[]? RecoverToken { get; set; }
 
-    public DateTime LastRecoverRequiredTime { get; set; }
+    public DateTime? LastRecoverRequiredTime { get; set; }
 
     [Required] public required UserStatus Status { get; set; } = 0;
 
@@ -57,6 +57,7 @@ public class User : BaseModel
 
     public bool VerifyVerificationToken(string token)
     {
+        if (VerificationToken == null) return false;
         var userVerificationToken = Convert.FromHexString(token);
         var encUserVerificationToken = SHA3_256.Create().ComputeHash(userVerificationToken);
         return VerificationToken.SequenceEqual(encUserVerificationToken);
@@ -64,6 +65,7 @@ public class User : BaseModel
 
     public bool VerifyRecoveryToken(string token)
     {
+        if (RecoverToken == null) return false;
         var userRecoveryToken = Convert.FromHexString(token);
         var encUserRecoveryToken = SHA3_256.Create().ComputeHash(userRecoveryToken);
         return RecoverToken.SequenceEqual(encUserRecoveryToken);
@@ -90,6 +92,7 @@ public class User : BaseModel
 
     public bool CheckPassword(string password)
     {
+        if (PasswordHash == null) return false;
         return KeyDerivation.Pbkdf2(
             password,
             Salt,

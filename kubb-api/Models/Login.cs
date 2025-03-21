@@ -15,7 +15,7 @@ public class Login : BaseModel
     public DateTime Expiration { get; set; } = DateTime.UtcNow.AddMinutes(20);
     
     [Required, MaxLength(64)]
-    public byte[] TokenHash { get; set; }
+    public byte[] TokenHash { get; set; } = [];
 
     public string SetToken()
     {

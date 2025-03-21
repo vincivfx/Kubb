@@ -1,55 +1,18 @@
-import DiscoverView from '@/views/DiscoverView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import authSession from '@/util/session';
+import authRoutes from './auth';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/discover',
-      name: 'discover',
-      // component: DiscoverView,
-      redirect: '/',
-      meta: {
-        title: 'Discover'
-      }
-    },
-    {
-      path: '/auth',
-      name: 'login',
-      component: () => import('../views/Auth/LoginView.vue'),
-      meta: {
-        view: 'empty',
-        title: 'Login'
-      }
-    },
-    {
-      path: '/auth/register',
-      name: 'register',
-      component: () => import('../views/Auth/RegisterView.vue'),
-      meta: {
-        title: 'Register'
-      }
-    },
-    {
-      path: '/auth/verify',
-      name: 'verify',
-      component: () => import('../views/Auth/VerifyView.vue'),
-      meta: {
-        title: 'Verify your Account'
-      }
-    },
-    {
-      path: '/auth/update-password',
-      name: 'mandatory-update-password',
-      component: () => import('../views/Auth/MandatoryUpdatePasswordView.vue'),
-      meta: {
-        title: 'Mandatory password update'
-      }
-    },    
+  routes: [ 
     {
       path: '/',
       name: 'index',
       redirect: '/challenges'
+    },
+    {
+      path: '/auth',
+      children: authRoutes,
     },
     {
       path: '/profile',
@@ -134,8 +97,12 @@ const router = createRouter({
   ],
 })
 
-router.afterEach((from, to, next) => {
+router.afterEach((from, to) => {
   document.title = from.meta.title + " :: Kubb";
+
+  if (from.name !== 'mandatory-update-password' && authSession.getStored().mustChangePassword) {
+    router.push({name: 'mandatory-update-password'})
+  }
 })
 
 export default router

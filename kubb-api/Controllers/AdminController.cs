@@ -73,7 +73,7 @@ public class AdminController(DatabaseContext context, EmailTask emailTask, IConf
             }
             emailText += "<br><br>best regards,<br>Kubb Contest Platform";
             emailTask.EnqueueEmail(EmailFactory.CreateEmailMessage(request.EmailAddress, "Verify your Account", emailText));
-            user.Status &= UserStatus.NeedsVerification;
+            user.Status |= UserStatus.NeedsVerification;
             user.SetPasswordHash(request.Password!);
         }
         else

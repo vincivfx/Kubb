@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace KubbAdminAPI.Models.ResponseModels.ChallengeAdmin;
 
-public class ChallengeInfoResponse
+public class ChallengeInfoResponse(Models.Challenge challenge, List<ChallengeInfoResponse.Participation> participations, List<ChallengeInfoResponse.Team> teams)
 {
-    public ChallengeItem Challenge { get; set; }
-    public List<Team> Teams { get; set; }
-    public List<Participation> Participations { get; set; }
+    public ChallengeItem Challenge { get; set; } = new ChallengeItem(challenge);
+    public List<Team> Teams { get; set; } = teams;
+    public List<Participation> Participations { get; set; } = participations;
 
     public class Team(Models.Team team, Models.User user)
     {
@@ -35,17 +35,6 @@ public class ChallengeInfoResponse
         public Models.ChallengeStatus Status { get; set; } = challenge.Status;
         public Models.RunningChallengeStatus RunningStatus { get; set; } = challenge.RunningStatus;
         public string AlgorithmSettings { get; set; } = challenge.AlgorithmSettings;
-    }
-
-    public static ChallengeInfoResponse Create(Models.Challenge challenge, List<Participation> participations,
-        List<Team> teams)
-    {
-        return new ChallengeInfoResponse
-        {
-            Teams = teams,
-            Participations = participations,
-            Challenge = new ChallengeItem(challenge)
-        };
     }
 
 }

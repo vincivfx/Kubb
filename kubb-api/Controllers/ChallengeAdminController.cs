@@ -34,7 +34,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         var teams = context.Teams.Include(team => team.Administrator).Where(team => team.Challenge == challenge)
             .Select(team => new ChallengeInfoResponse.Team(team, current)).ToList();
 
-        return Ok(ChallengeInfoResponse.Create(challenge, participations, teams));
+        return Ok(new ChallengeInfoResponse(challenge, participations, teams));
     }
 
 

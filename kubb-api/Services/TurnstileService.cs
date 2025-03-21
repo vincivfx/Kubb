@@ -10,8 +10,9 @@ public class TurnstileService(IConfiguration configuration) {
     /**
      *  Verify Cloudflare Turnstile using httpClient
      */
-    public bool VerifyTurnstile(string token, string ipAddress) {
+    public bool VerifyTurnstile(string? token, string ipAddress) {
         if (!_configuration.GetValue<bool>("SystemConfiguration:EnableTurnstile")) return true;
+        if (token == null) return false;
         var secret = _configuration.GetValue<string>("Turnstile:Secret")!;
         var task = Task.Run(async() => await VerifyTurnstileAsync(token, ipAddress, secret));
         task.Wait();
