@@ -7,11 +7,11 @@ using KubbAdminAPI.Utils;
 
 namespace KubbAdminAPI.Workers;
 
+/**
+ * MISSION: background worker enabled to send emails that are enqueued in EmailTask
+ */
 public class EmailSenderWorker(ILogger<EmailSenderWorker> logger, EmailTask emailTask, IConfiguration configuration) : BackgroundService
 {
-    
-    
-    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var configSection = configuration.GetSection("EmailSettings");

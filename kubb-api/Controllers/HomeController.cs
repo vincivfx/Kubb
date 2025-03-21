@@ -9,6 +9,9 @@ using KubbAdminAPI.Filters;
 
 namespace KubbAdminAPI.Controllers;
 
+/**
+ * MISSION: basic endpoints for non-authenticated users
+ */
 [ApiController, Route("[controller]/[action]")]
 public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConfiguration _configuration) : BaseController
 {

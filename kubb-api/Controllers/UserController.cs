@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace KubbAdminAPI.Controllers;
 
+/**
+ * MISSION: provide endpoints for authenticated users to manage their account
+ */
 [ApiController, Route("[controller]/[action]"), AuthenticationFilter]
 public class UserController : BaseController
 {

@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KubbAdminAPI.Controllers;
 
+/**
+ * MISSION: provide endpoints to allow users to join / send answers / fetch informations about challenges
+ */
 [ApiController, Route("[controller]/[action]"), AuthenticationFilter]
 public class ChallengeController(DatabaseContext context) : BaseController
 {

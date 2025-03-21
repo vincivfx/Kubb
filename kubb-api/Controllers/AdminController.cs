@@ -9,6 +9,9 @@ using KubbAdminAPI.Singletons;
 
 namespace KubbAdminAPI.Controllers;
 
+/**
+ * MISSION: manage server administrator endpoints, allowing creation / edit / deletion of users
+ */
 [ApiController, Route("[controller]/[action]")]
 [AuthenticationFilter, AdministratorFilter]
 public class AdminController(DatabaseContext context, EmailTask emailTask, IConfiguration configuration) : BaseController

@@ -10,6 +10,9 @@ using Challenge = KubbAdminAPI.Models.Challenge;
 
 namespace KubbAdminAPI.Controllers;
 
+/**
+ * MISSION: allowing challenge administrators to create / edit / manage their challenges 
+ */
 [ApiController, Route("[controller]/[action]"), AuthenticationFilter]
 public class ChallengeAdminController(DatabaseContext context) : BaseController
 {

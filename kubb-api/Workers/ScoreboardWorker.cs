@@ -3,6 +3,9 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace KubbAdminAPI.Workers;
 
+/**
+ * MISSION: generate scoreboards for RUNNING challenges every 15 seconds
+ */
 public class ScoreboardWorker(IServiceProvider serviceProvider) : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider = serviceProvider;

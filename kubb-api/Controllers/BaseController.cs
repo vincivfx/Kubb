@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace KubbAdminAPI.Controllers;
 
+/**
+ * MISSION: provide basic functions for the controllers
+ */
 public class BaseController : Controller
 {
 
