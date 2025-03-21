@@ -317,10 +317,6 @@ export default {
       </div>
     </Modal>
 
-    <Modal title="Delete a team" ref="deleteTeamModal">
-
-    </Modal>
-
     <Modal title="Submit challenge" ref="submitChallengeModal">
       <Alert type="danger" v-if="submitChallengeError">
         Sorry, we encountered an error.
@@ -347,8 +343,8 @@ export default {
       </Alert>
       <form @submit="saveChallenge">
         <InputBlock v-model="updateChallengeForm.name" placeholder="name" label="Challenge name" />
-        <DateTimeInput v-model="updateChallengeForm.startTime" label="Starting Time"></DateTimeInput>
-        <DateTimeInput v-model="updateChallengeForm.endTime" label="Ending Time"></DateTimeInput>
+        <DateTimeInput :min="new Date().getTime()" :max="updateChallengeForm.endTime" v-model="updateChallengeForm.startTime" label="Starting Time"></DateTimeInput>
+        <DateTimeInput :min="updateChallengeForm.startTime" v-model="updateChallengeForm.endTime" label="Ending Time"></DateTimeInput>
         <input type="submit" class="btn primary" value="Save">
       </form>
     </Modal>

@@ -194,7 +194,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         return Ok();
     }
 
-    [HttpDelete]
+    [HttpPost]
     public ActionResult DeleteAnswer([FromBody] DeleteAnswerRequest request)
     {
         var answer = context.Answers.Include(answer => answer.Team).ThenInclude(team => team.Challenge)
@@ -247,12 +247,12 @@ public class ChallengeController(DatabaseContext context) : BaseController
         };
     }
 
-    [HttpDelete]
+    [HttpPost]
     public ActionResult DeleteTeam([FromBody] DeleteTeamRequest request)
     {
-        var team = context.Teams.Include(team => team.Administrator).Include(team => team.Challenge)
+        var team = context.Teams.Include(team => team.Administrator).Include(team => team.Challenge).Include(team => team.Challenge)
             .FirstOrDefault(team => team.TeamId == request.TeamId);
-        if (team == null || team.Administrator != CurrentUser() || team.Challenge.StartTime < DateTime.UtcNow)
+        if (team == null || team.Administrator != CurrentUser() || (int)team.Challenge.RunningStatus >= (int)RunningChallengeStatus.Running)
         {
             return Unauthorized();
         }

@@ -24,7 +24,7 @@
           <span v-else>you</span>
         </td>
         <td>
-          <button v-if="challenge.runningStatus < 2" class="btn small danger">
+          <button @click="showDeleteTeamModal(key)" v-if="challenge.runningStatus < 2" class="btn small danger">
             <SlTrash />
           </button>
         </td>
@@ -45,6 +45,20 @@
       </InputBlock>
       <input type="submit" class="btn primary" value="Create Team">
     </form>
+  </Modal>
+  
+  <Modal title="Delete a team" ref="deleteTeamModal">
+    <Alert type="danger" v-if="deleteTeamStatus === 'error'">
+      Cannot delete {{teams[pendingDeleteTeam].teamName}}
+    </Alert>
+    <div class="text-center">
+      Are you sure to delete {{teams[pendingDeleteTeam].teamName}}?
+      
+      <div class="m-2 btn-group-right">
+        <button class="btn danger" @click="deleteTeam()">Yes, delete team</button>
+        <button class="btn" @click="$refs.deleteTeamModal.hide()">Cancel</button>
+      </div>
+    </div>
   </Modal>
 </template>
 
@@ -76,14 +90,31 @@ export default {
         setTimeout(() => this.createTeamStatus = '', 20000);
       })
     },
+    showDeleteTeamModal(id) {
+      this.pendingDeleteTeam = id;
+      this.$refs.deleteTeamModal.show();
+    },
+    deleteTeam() {
+      this.$http.post("Challenge/DeleteTeam", {
+        teamId: this.teams[this.pendingDeleteTeam].teamId
+      }).then(() => {
+        this.teams.splice(this.pendingDeleteTeam, 1);
+        this.$refs.deleteTeamModal.hide();
+      }).catch(() => {
+        this.deleteTeamStatus = 'error';
+        setInterval(() => this.deleteTeamStatus = '', 20000);
+      })
+    }
   },
   data: () => ({
+    pendingDeleteTeam: -1,
     createTeamForm: {
       name: '',
       challengeId: '',
     },
     createTeamStatus: '',
     createTeamLastName: '',
+    deleteTeamStatus: ''
   }),
   mounted() {
     this.createTeamForm.challengeId = this.$route.query.id;

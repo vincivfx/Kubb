@@ -15,7 +15,7 @@ export default {
     date: {},
     hours: '0',
     minutes: '0',
-    dateLabel: ''
+    dateLabel: '',
   }),
   methods: {
     today() {
@@ -81,9 +81,8 @@ export default {
     const today = new Date();
     this.month = today.getMonth();
     this.year = today.getFullYear();
-    this.getMonthCalendar();
 
-    if (this.modelValue !== '') {
+    if (this.modelValue !== '' && this.modelValue !== null) {
       const date = new Date(this.modelValue);
       if (date === null) return;
       this.dateLabel = date.toLocaleString();
@@ -96,8 +95,10 @@ export default {
       this.year = date.getFullYear();
       this.hours = date.getHours();
       this.minutes = date.getMinutes();
-      
+    } else {
+      this.today();
     }
+    this.getMonthCalendar();
   }
 }
 </script>
@@ -117,16 +118,16 @@ export default {
               {{ year }}
             </div>
             <div class="datetime-month">
-              <button type="button" class="btn small" @click="nextMonth(-1)">&lt;</button>
+              <button :disabled="(min && new Date(year, month, 1).getTime() - 1 < min)" type="button" class="btn small" @click="nextMonth(-1)">&lt;</button>
               <span style="width: 120px; display: inline-block;">
                 {{ monthLabel }}
               </span>
-              <button type="button" class="btn small" @click="nextMonth()">&gt;</button>
+              <button ::disabled="(min && new Date(year, month + 1, 1).getTime() > min)" type="button" class="btn small" @click="nextMonth()">&gt;</button>
             </div>
 
             <div class="datetime-days">
               <span v-for="(day, dayKey) in ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']" class="day-of-week-span" :key="dayKey">{{ day }}</span>
-              <button @click="selectDate(day)" type="button" :class="['btn small', {'secondary': day === date.day && month === date.month}]" v-for="(day, key) in days" :key="key" :disabled="day === 0">
+              <button @click="selectDate(day)" type="button" :class="['btn small', {'secondary': day === date.day && month === date.month}]" v-for="(day, key) in days" :key="key" :disabled="day === 0 || (min && new Date(year, month, day).getTime() < min) || (max && new Date(year, month, day).getTime() > max)">
                 <span v-if="day !== 0">{{ day }}</span>
                 <span v-else>&nbsp;</span>
               </button>
