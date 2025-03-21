@@ -50,7 +50,9 @@ public class AdminController(DatabaseContext context, EmailTask emailTask, IConf
     public IActionResult CreateUser([FromBody] CreateUserRequest request)
     {
         if (request.Password == null && request.SendVerificationEmail == false) return BadRequest();
-            
+
+        if (context.Users.Any(user => user.EmailAddress == request.EmailAddress)) return BadRequest("mail registered");
+
         var user = new User
         {
             EmailAddress = request.EmailAddress,
@@ -59,10 +61,12 @@ public class AdminController(DatabaseContext context, EmailTask emailTask, IConf
             Status = request.Status
         };
 
-        if (request.SendVerificationEmail) {
+        if (request.SendVerificationEmail)
+        {
             var verificationToken = user.SetVerificationToken();
             var emailText = @"Hi, in order to complete your registration, please enter the following link: <br><br>" + configuration.GetValue<string>("SystemConfiguration:RootUrl") + "/auth/verify?email=" + Uri.EscapeDataString(user.EmailAddress) + "&token=" + verificationToken;
-            if (request.SendRandomPassword) {
+            if (request.SendRandomPassword)
+            {
                 var temporaryPassword = user.SetTemporaryPassword();
                 emailText += "<br><br>Use this password for the first login: <b>" + temporaryPassword + "</b>";
                 user.Status &= UserStatus.MustChangePassword;
@@ -71,7 +75,9 @@ public class AdminController(DatabaseContext context, EmailTask emailTask, IConf
             emailTask.EnqueueEmail(EmailFactory.CreateEmailMessage(request.EmailAddress, "Verify your Account", emailText));
             user.Status &= UserStatus.NeedsVerification;
             user.SetPasswordHash(request.Password!);
-        } else {
+        }
+        else
+        {
             user.SetPasswordHash(request.Password!);
         }
 
@@ -82,14 +88,44 @@ public class AdminController(DatabaseContext context, EmailTask emailTask, IConf
     }
 
     [HttpPut]
-    public void UpdateUser()
+    public ActionResult UpdateUser([FromBody] UpdateUserRequest request)
     {
+        var current = CurrentUser();
+        var user = context.Users.FirstOrDefault(user => user.UserId == request.UserId);
+        if (user == null) return BadRequest();
+        
+        // cannot set NeedsVerification = 1 if user is verified!
+        if ((user.Status & UserStatus.NeedsVerification) == 0 && (request.Status & UserStatus.NeedsVerification) != 0) return BadRequest();
+        
+        // admin cannot disable theirselves.
+        if (user == current && ((request.Status & UserStatus.Administrator) == 0 || (request.Status & UserStatus.Active) == 0)) return BadRequest();
 
+        user.Name = request.Name;
+        user.Status = request.Status;
+        user.Surname = request.Surname;
+
+        if (request.ResetPassword)
+        {
+            Console.WriteLine(request.Password!);
+            user.SetPasswordHash(request.Password!);
+        }
+
+        context.SaveChanges();
+        return Ok();
     }
 
     [HttpDelete]
-    public void DeleteUser()
+    public ActionResult DeleteUser([FromBody] Guid UserId)
     {
+        /* cannot delete the current user
+        var currentUser = CurrentUser();
+        if (currentUser.UserId == UserId) return BadRequest();
 
+        var user = context.Users.FirstOrDefault(user => user.UserId == UserId);
+        if (user == null) return BadRequest();
+
+        var challenges = context.Challenges.Where(challenge => challenge.Administrator == user).ToList();
+        */
+        return NotFound();
     }
 }
