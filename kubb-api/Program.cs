@@ -3,7 +3,6 @@ using System.Security.Cryptography.X509Certificates;
 using KubbAdminAPI;
 using KubbAdminAPI.Services;
 using KubbAdminAPI.Singletons;
-using KubbAdminAPI.Utils;
 using KubbAdminAPI.Workers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -36,7 +35,14 @@ builder.Services.AddSwaggerGen();
 // Database service
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("POSTGRES"));
+    if (builder.Configuration["DefaultConnection"] == "sqlite")
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("Sqlite"));
+    }
+    else
+    {
+        options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
+    }
 });
 // Cache service
 builder.Services.AddMemoryCache();
@@ -79,7 +85,7 @@ if (app.Environment.IsDevelopment())
 // app.UseAuthorization();
 
 // static files
-StaticFileOptions staticFileOptions = new StaticFileOptions
+var staticFileOptions = new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(builder.Environment.ContentRootPath, "Static")),
@@ -91,8 +97,8 @@ StaticFileOptions staticFileOptions = new StaticFileOptions
             DateTime.UtcNow.AddDays(30).ToString("R", CultureInfo.InvariantCulture));
     },
 };
-
 app.UseStaticFiles(staticFileOptions);
+
 app.MapFallbackToFile("index.html", new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -101,5 +107,7 @@ app.MapFallbackToFile("index.html", new StaticFileOptions
 
 app.MapControllers();
 
+// ensure database is created
+app.Services.CreateScope().ServiceProvider.GetRequiredService<DatabaseContext>().Database.EnsureCreated();
 
 app.Run();

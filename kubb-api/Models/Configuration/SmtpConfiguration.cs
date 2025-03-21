@@ -5,29 +5,29 @@ namespace KubbAdminAPI.Models.Configuration;
 
 public class SmtpConfiguration
 {
-    public required string SmtpServer { get; set; }
-    public int SmtpPort { get; set; }
-    public bool SmtpEnableSsl { get; set; }
-    public bool SmtpUseAuthentication { get; set; }
-    public string? SmtpUsername { get; set; }
-    public string? SmtpPassword { get; set; }
+    public required string Server { get; set; }
+    public int Port { get; set; }
+    public bool EnableSsl { get; set; }
+    public bool UseAuthentication { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
 
     public SmtpClient GetSmtpClient()
     {
         var smtpClient = new SmtpClient
         {
-            Host = SmtpServer,
-            Port = SmtpPort,
-            EnableSsl = SmtpEnableSsl,
+            Host = Server,
+            Port = Port,
+            EnableSsl = EnableSsl,
             UseDefaultCredentials = false
         };
 
-        if (SmtpUseAuthentication)
+        if (UseAuthentication)
         {
             smtpClient.Credentials = new NetworkCredential
             {
-                UserName = SmtpUsername,
-                Password = SmtpPassword
+                UserName = Username,
+                Password = Password
             };
         }
         

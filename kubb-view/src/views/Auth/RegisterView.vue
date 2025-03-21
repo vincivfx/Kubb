@@ -58,9 +58,9 @@ export default {
           <InputBlock v-model="registerForm.surname" label="Type your last name"/>
         </div>
         <div class="col">
-          <InputBlock v-model="registerForm.password" label="Choose a secure password"/>
+          <InputBlock type="password" v-model="registerForm.password" label="Choose a secure password"/>
           <PasswordSecurityCheck :passwd="registerForm.password"/>
-          <InputBlock v-model="passwordConfirmation" label="Type again your password"/>
+          <InputBlock type="password" v-model="passwordConfirmation" label="Type again your password"/>
         </div>
       </div>
 

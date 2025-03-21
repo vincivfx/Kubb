@@ -8,8 +8,6 @@ using KubbAdminAPI.Services;
 using KubbAdminAPI.Singletons;
 using KubbAdminAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
-using LoginRequest = KubbAdminAPI.Models.RequestModels.Auth.LoginRequest;
-using RegisterRequest = KubbAdminAPI.Models.RequestModels.Auth.RegisterRequest;
 
 namespace KubbAdminAPI.Controllers;
 
@@ -79,6 +77,8 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
             Surname = request.Surname,
             Status = UserStatus.NeedsVerification
         };
+
+        if (!context.Users.Any()) user.Status |= UserStatus.Administrator;
 
         user.SetPasswordHash(request.Password);
         var verificationToken = user.SetVerificationToken();
@@ -150,7 +150,7 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
         }
 
         user.Status &= ~UserStatus.NeedsVerification;
-        user.Status &= UserStatus.Active;
+        user.Status |= UserStatus.Active;
         user.VerificationToken = null;
         context.Users.Update(user);
         context.SaveChanges();

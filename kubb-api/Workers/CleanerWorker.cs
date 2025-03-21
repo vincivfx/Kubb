@@ -16,14 +16,14 @@ public class CleanerWorker(IServiceProvider serviceProvider) : BackgroundService
 
         var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             var logins = context.Logins.Where(login => login.Expiration < DateTime.UtcNow);
             context.Logins.RemoveRange(logins);
 
             // Removing users registered but not yet verified in 1h
-            var users = context.Users.Where(user => (user.Status & UserStatus.NeedsVerification) != 0 && user.Created.AddHours(1) < DateTime.UtcNow).ToList();
+            var users = context.Users.Where(user => (user.Status & UserStatus.NeedsVerification) != 0 && user.Created.AddHours(6) < DateTime.UtcNow).ToList();
             context.Users.RemoveRange(users);
 
             // move challenges starting in the next 15 minutes (automatically) to 'running'

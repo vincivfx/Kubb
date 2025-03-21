@@ -14,7 +14,9 @@ export default {
       challengeName: ''
     },
     createChallengeStatus: '',
-    filterByName: ''
+    filterByName: '',
+    count: 0,
+    page: 0
   }),
   methods: {
     createChallenge(e) {
@@ -25,12 +27,17 @@ export default {
         this.createChallengeStatus = 'error';
         setTimeout(() => this.createChallengeStatus = '', 10000);
       });
+    },
+    loadPage(page) {
+      this.page = page;
+      this.$http.get("/Challenge/All?limit=25&offset=" + encodeURIComponent(page)).then((response) => {
+        this.challenges = response.data.challenges;
+        this.count = response.data.count;
+      })
     }
   },
   mounted() {
-    this.$http.get("/Challenge/All").then((response) => {
-      this.challenges = response.data;
-    })
+    this.loadPage(0)
   }
 }
 </script>
@@ -55,12 +62,14 @@ export default {
       <SlPlus />
     </button>
   </h2>
-
-  <InputBlock v-model="filterByName" label="Filter by name" placeholder="name..." />
   
   <ChallengeInfo send="" admin="" v-for="(item, key) in challenges.filter(ch => ch.name.toLowerCase().indexOf(filterByName.toLowerCase()) >= 0)" :challenge="item" :key="key" />
   
-  <Pagination />
+  <Alert type="warning" v-if="count === 0">
+    There are no challenges.
+  </Alert>
+  
+  <Pagination @move="(i) => loadPage(page + i)" :count="count" :page="page" :per-page="25" />
 </template>
 
 <style scoped>

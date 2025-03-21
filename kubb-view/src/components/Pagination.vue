@@ -1,5 +1,5 @@
 <template>
-    <div class="text-center" v-if="page !== 0 || (page + 1) * perPage <= count">
+    <div class="text-center" v-if="count > perPage">
         <button @click="move(-1)" class="btn" :disabled="page === 0">
             &lt;
         </button>
