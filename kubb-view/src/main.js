@@ -5,7 +5,6 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import authSession from './util/session';
-import vClickOutside from 'v-click-outside'
 
 const app = createApp(App)
 
@@ -23,6 +22,7 @@ const axiosInstance = axios.create({
         'Content-Type': 'application/json',
     },
 });
+
 axiosInstance.interceptors.request.use((config) => {
     const authStored = authSession.getStored();
     if (authStored) {
@@ -31,6 +31,7 @@ axiosInstance.interceptors.request.use((config) => {
     } 
     return config;
 })
+
 axiosInstance.interceptors.response.use((response) => {
     return response;
 }, (error) => {
@@ -50,6 +51,8 @@ axiosInstance.get("Home/SystemConfiguration").then(response => {
     app.config.globalProperties.$settings = response.data;
     app.mount('#app')
 })
+
+if (authSession.getStored()) axiosInstance.get("User/Ping");
 
 
 

@@ -39,7 +39,7 @@ public class CleanerWorker(IServiceProvider serviceProvider) : BackgroundService
 
 
             // move finished challenges to 'frozen' runningStatus after (at least) 60 minutes from the endTime
-            var challengesToFreeze = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Submitted && challenge.EndTime!.Value.AddHours(1) < DateTime.UtcNow).ToList();
+            var challengesToFreeze = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Running && challenge.EndTime!.Value.AddHours(1) < DateTime.UtcNow).ToList();
             foreach (var challenge in challengesToFreeze)
             {
                 var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();

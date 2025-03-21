@@ -28,14 +28,19 @@ export default {
   methods: {
     loadScoreboard() {
       this.updateTimer = 15;
+      /*
       if (this.$route.query.id === 'test') {
         this.scoreboard = Scoreboard.parseScoreboard(Scoreboard.testScoreboard());
         return;
       }
+      */
 
       if (new Date().getTime() < new Date(this.challenge.startTime).getTime() && (this.challenge.status & 8) === 1) return;
 
-      this.$http.get('/Home/GetCache?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
+      let uri = "Home/GetCache";
+      if (this.challenge.runningStatus >= 3) uri = "Home/GetArchived";
+
+      this.$http.get(uri + '?key=' + encodeURIComponent(this.$route.query.id)).then(response => {
         this.scoreboard = Scoreboard.parseScoreboard(response.data, this.challenge);
       }).catch(() => this.scoreboard = null);
     },
@@ -52,7 +57,6 @@ export default {
     clearInterval(this.timer);
   },
   mounted() {
-    this.fetcherInterval = setInterval(() => this.loadScoreboard(), 15000);
     this.scrollerInterval = setInterval(() => {
       if (this.scroll) {
         if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight) {
@@ -74,6 +78,9 @@ export default {
       this.challenge = response.data;
       this.challenge.algorithmSettings = JSON.parse(this.challenge.algorithmSettings);
       this.loadScoreboard();
+      // if challenge is frozen or terminated stop updating scoreboard
+      if (this.challenge.runningStatus < 3) 
+        this.fetcherInterval = setInterval(() => this.loadScoreboard(), 15000);
     });
     
     this.timer = setInterval(() => {
@@ -82,8 +89,10 @@ export default {
         this.timer_text = Math.floor(diff / 3600) + "h " + Math.floor(diff / 60) % 60 + "m " + diff % 60 + "s"
       else 
         this.timer_text = 'finished'
-
-      this.updateTimer -= 1;
+      if (this.challenge.runningStatus < 3) 
+        this.updateTimer -= 1;
+      else
+        this.updateTimer = "";
     }, 1000);
 
   }

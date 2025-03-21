@@ -24,6 +24,12 @@ public class UserController : BaseController
         });
 
     }
-    
-    
+
+    [HttpGet]
+    public ActionResult Ping()
+    {
+        return NoContent();
+    }
+
+
 }

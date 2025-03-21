@@ -29,18 +29,29 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
             _context.Challenges.Where(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0)
-                .Select(challenge => new ChallengesResponse.Challenge(challenge)).OrderByDescending(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).ToList();
+                .OrderByDescending(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengesResponse.Challenge(challenge)).ToList();
         var totalCount = _context.Challenges.Count(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0);
         return Ok(new ChallengesResponse(challenges, totalCount));
     }
 
 
     [HttpGet]
-    public ActionResult GetCache([FromQuery] string key)
+    public ActionResult GetCache([FromQuery] Guid key)
     {
         var value = _cache.Get(key);
         if (value == null) return NotFound();
         return Ok(value);
+    }
+
+    [HttpGet]
+    public ActionResult GetArchived([FromQuery] Guid key) {
+        if (!System.IO.File.Exists(Path.Join("./Scoreboards/", key + ".txt"))) {
+            return NotFound();
+        }
+
+        var content = System.IO.File.ReadAllText(Path.Join("./Scoreboards/", key + ".txt"));
+
+        return Ok(content);
     }
 
     [HttpGet]

@@ -1,13 +1,14 @@
 <script>
 import { RouterLink, RouterView } from 'vue-router'
-import { SlLogout, SlUser } from 'vue-icons-plus/sl'
+import { SlLogout, SlUser, SlMenu } from 'vue-icons-plus/sl'
 import Modal from './components/Modal.vue';
 
 export default {
-  components: { SlUser, RouterLink, RouterView, SlLogout, Modal },
+  components: { SlUser, RouterLink, RouterView, SlLogout, Modal, SlMenu },
   data: () => ({
     headerScoreView: true,
-    mainColor: '#0000ff'
+    mainColor: '#0000ff',
+    visibleHeaderMobile: false
   }),
   methods: {
     disableHeaderScoreView(v) {
@@ -35,7 +36,16 @@ export default {
 <template>
   <header v-if="headerScoreView || $route.name !== 'challenge-score'">
 
-    <div class="nav-left">
+    <div class="header-mobile">
+      <div v-if="!visibleHeaderMobile" class="header-main-sitename">
+        Kubb <span class="small"></span>
+      </div>
+      <button @click="visibleHeaderMobile = !visibleHeaderMobile">
+        <SlMenu />
+      </button>
+    </div>
+
+    <div :class="['nav-left', {'visible': visibleHeaderMobile}]">
       <div class="header-main-sitename">
         Kubb <span class="small"></span>
       </div>
@@ -48,7 +58,7 @@ export default {
       </div>
     </div>
 
-    <div class="nav-rigth">
+    <div :class="['nav-rigth', {'visible': visibleHeaderMobile}]">
 
       <div class="nav-right-icons">
         <RouterLink v-if="!$authSession.getStored()" :to="{ name: 'login' }" class="right-nav-btn">
@@ -77,7 +87,7 @@ export default {
   </div>
 
   <div class="footer">
-    Made with &lt;3 from Italy<br>
+    Made with &lt;3 from Friuli, Italy<br>
     &copy; Vincenzo Gallina 2025
   </div>
 

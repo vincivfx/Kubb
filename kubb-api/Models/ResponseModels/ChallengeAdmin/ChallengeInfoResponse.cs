@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Razor.TagHelpers;
+
 namespace KubbAdminAPI.Models.ResponseModels.ChallengeAdmin;
 
 public class ChallengeInfoResponse
@@ -6,12 +8,14 @@ public class ChallengeInfoResponse
     public List<Team> Teams { get; set; }
     public List<Participation> Participations { get; set; }
 
-    public class Team(Models.Team team)
+    public class Team(Models.Team team, Models.User user)
     {
         public Guid TeamId { get; set; } = team.TeamId;
         public string TeamName { get; set; } = team.TeamName;
         public Guid UserId { get; set; } = team.Administrator.UserId;
         public DateTime Created { get; set; } = team.Created;
+        public string? OwnerName { get; set; } = user.UserId != team.Administrator.UserId ? team.Administrator.Name + " " + team.Administrator.Surname : null;
+        public string? OwnerEmail { get; set; } = user.UserId != team.Administrator.UserId ? team.Administrator.EmailAddress : null;
     }
     public class Participation(Models.Participation participation)
     {

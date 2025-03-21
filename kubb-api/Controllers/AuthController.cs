@@ -47,14 +47,7 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
         context.Logins.Add(login);
         context.SaveChanges();
 
-        return new LoginResponse
-        {
-            LoginId = login.LoginId,
-            Token = loginToken,
-            Name = user.Name + " " + user.Surname,
-            TokenExpiry = login.Expiration,
-            MustChangePassword = (user.Status & UserStatus.MustChangePassword) == UserStatus.MustChangePassword,
-        };
+        return Ok(new LoginResponse(user, login, loginToken));
 
     }
 

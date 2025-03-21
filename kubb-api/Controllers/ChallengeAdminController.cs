@@ -28,8 +28,8 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         var participations = context.Participations.Where(participation => participation.Challenge == challenge).Select(
             participation => new ChallengeInfoResponse.Participation(participation)).ToList();
 
-        var teams = context.Teams.Where(team => team.Challenge == challenge)
-            .Select(team => new ChallengeInfoResponse.Team(team)).ToList();
+        var teams = context.Teams.Include(team => team.Administrator).Where(team => team.Challenge == challenge)
+            .Select(team => new ChallengeInfoResponse.Team(team, current)).ToList();
 
         return Ok(ChallengeInfoResponse.Create(challenge, participations, teams));
     }
@@ -64,7 +64,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         // Challenge should be set in "DRAFT" status to be modified
         var challenge = context.Challenges.Include(challenge => challenge.Administrator).FirstOrDefault(challenge =>
             challenge.ChallengeId == request.ChallengeId && challenge.Administrator == user &&
-            challenge.RunningStatus == RunningChallengeStatus.Draft);
+            (challenge.RunningStatus == RunningChallengeStatus.Draft || challenge.RunningStatus == RunningChallengeStatus.Submitted) );
 
         if (challenge == null) return Unauthorized();
 
