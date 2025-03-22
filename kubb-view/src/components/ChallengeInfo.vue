@@ -25,14 +25,14 @@ export default {
         {{challenge.description}}
       </p>
       <p>
-        from {{new Date(challenge.startTime).toLocaleString()}}
-        to {{new Date(challenge.endTime).toLocaleString()}}
+        Starting at {{new Date(challenge.startTime).toLocaleString()}}<br>
+        Ending at {{new Date(challenge.endTime).toLocaleString()}}
       </p>
       <p>
         50 teams
       </p>
       <div class="text-right btn-group-right">
-        <RouterLink v-if="send !== false && send !== undefined && challenge.runningStatus in [1, 2]" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
+        <RouterLink v-if="send !== false && send !== undefined && [1, 2].indexOf(challenge.runningStatus) >= 0" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
         <RouterLink v-if="challenge.runningStatus < 4 && admin !== undefined && admin !== false" :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
         <RouterLink v-if="challenge.runningStatus < 2 && guest !== undefined && guest !== false" :to="{name: 'guest-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>
         <RouterLink v-if="challenge.runningStatus > 0" :to="{name: 'challenge-score', query: {id: challenge.challengeId}}" class="btn primary">

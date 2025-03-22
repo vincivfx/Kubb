@@ -1,7 +1,9 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace KubbAdminAPI.Services;
 
 using System.Text;
-using Newtonsoft.Json;
 
 public class TurnstileService(IConfiguration configuration) {
 
@@ -32,7 +34,7 @@ public class TurnstileService(IConfiguration configuration) {
             Response = token
         };
 
-        var jsonBody = JsonConvert.SerializeObject(request);
+        var jsonBody = JsonSerializer.Serialize(request);
 
         var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
@@ -41,10 +43,7 @@ public class TurnstileService(IConfiguration configuration) {
 
         var result = await rawResponse.Content.ReadAsStringAsync();
         
-        var turnstileResponse = JsonConvert.DeserializeObject<TurnstileResponse>(result);
-
-        Console.WriteLine(result);
-        Console.WriteLine(jsonBody);
+        var turnstileResponse = JsonSerializer.Deserialize<TurnstileResponse>(result);
 
         return turnstileResponse!.Success;
 
@@ -52,19 +51,19 @@ public class TurnstileService(IConfiguration configuration) {
 
     private class TurnstileRequest
     {
-        [JsonProperty(PropertyName = "secret")]
+        [JsonPropertyName("secret")]
         public string Secret { get; set; } = "";
 
-        [JsonProperty(PropertyName = "response")]
+        [JsonPropertyName("response")]
         public string Response { get; set; } = "";
 
-        [JsonProperty(PropertyName = "remoteip")]
+        [JsonPropertyName("remoteip")]
         public string RemoteIp { get; set; } = "";
     }
 
     private class TurnstileResponse
     {
-        [JsonProperty(PropertyName = "success")]
+        [JsonPropertyName("success")]
         public bool Success { get; set; }
     }
 }

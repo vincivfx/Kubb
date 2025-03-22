@@ -29,8 +29,10 @@ if (builder.Configuration["SSL:Enable"] == "True")
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+#if DEBUG
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+#endif
 
 // Database service
 builder.Services.AddDbContext<DatabaseContext>(options =>
@@ -75,11 +77,13 @@ var app = builder.Build();
 app.UseCors("cors.def");
 
 // Configure the HTTP request pipeline.
+#if DEBUG
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+#endif
 
 // app.UseHttpsRedirection();
 // app.UseAuthorization();

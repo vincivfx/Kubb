@@ -11,19 +11,23 @@ public class UpdateChallengeRequest
     [Required]
     public required string Name { get; set; }
 
-    public DateTime? StartTime { get; set; }
+    [Required]
+    public DateTime StartTime { get; set; }
 
-    public DateTime? EndTime { get; set; }
+    [Required]
+    public DateTime EndTime { get; set; }
 
+    [Required]
     public ChallengeStatus Status { get; set; }
 
+    [Required]
     public RunningChallengeStatus RunningStatus { get; set; }
 
     [Required]
     public required List<string> Questions { get; set; }
 
 
-    [ValidJSON]    
+    [ValidJSON]
     public required string AlgorithmSettings { get; set; } = "{}";
 
 }

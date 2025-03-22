@@ -13,14 +13,10 @@ public class ScoreboardGenerator
 
         var algorithmSettings = JsonSerializer.Deserialize<AlgorithmSettings>(challenge.AlgorithmSettings)!;
 
-        if (algorithmSettings.freezeScoreboard > 0 && DateTime.UtcNow < challenge.EndTime && challenge.EndTime.Value.AddMinutes(-algorithmSettings.freezeScoreboard) < DateTime.UtcNow)
+        if (algorithmSettings.freezeScoreboard > 0 && DateTime.UtcNow < challenge.EndTime && challenge.EndTime.AddMinutes(-algorithmSettings.freezeScoreboard) < DateTime.UtcNow)
         {
             return "(!)FROZEN";
         }
-
-
-
-        if (challenge.StartTime == null || challenge.EndTime == null) return "";
 
         var teamPoints = new Dictionary<Guid, SimpleTeam>();
 
@@ -87,15 +83,15 @@ public class ScoreboardGenerator
             }
             else if (rightAnswersGroup.Count >= deriva)
             {
-                diffTime = rightAnswersGroup[deriva - 1].Created.Subtract(challenge.StartTime!.Value).TotalMinutes;
+                diffTime = rightAnswersGroup[deriva - 1].Created.Subtract(challenge.StartTime).TotalMinutes;
             }
             else if (DateTime.UtcNow < challenge.EndTime)
             {
-                diffTime = DateTime.UtcNow.Subtract(challenge.StartTime!.Value).TotalMinutes;
+                diffTime = DateTime.UtcNow.Subtract(challenge.StartTime).TotalMinutes;
             }
             else
             {
-                diffTime = challenge.EndTime!.Value.AddMinutes(algorithmSettings.stopIncreseMinutes).Subtract(challenge.StartTime!.Value).TotalMinutes;
+                diffTime = challenge.EndTime.AddMinutes(algorithmSettings.stopIncreseMinutes).Subtract(challenge.StartTime).TotalMinutes;
             }
 
             points[groupId] += Convert.ToInt32(diffTime);

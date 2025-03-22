@@ -5,13 +5,17 @@ import InputBlock from "@/components/InputBlock.vue";
 import Alert from "@/components/Alert.vue";
 import ChallengeInfo from "@/components/ChallengeInfo.vue";
 import Pagination from "@/components/Pagination.vue";
+import DateTimeInput from "@/components/DateTimeInput.vue";
+
 export default {
   name: "MyChallengesPartialView",
-  components: {Pagination, ChallengeInfo, Alert, InputBlock, Modal, SlPlus},
+  components: {Pagination, ChallengeInfo, Alert, InputBlock, Modal, SlPlus, DateTimeInput},
   data: () => ({
     challenges: [],
     createChallengeForm: {
-      challengeName: ''
+      challengeName: '',
+      startTime: new Date(),
+      endTime: new Date()
     },
     createChallengeStatus: '',
     filterByName: '',
@@ -50,6 +54,8 @@ export default {
     </Alert>
     <form @submit="createChallenge">
       <InputBlock placeholder="challenge name" v-model="createChallengeForm.challengeName" label="Type the challenge name"></InputBlock>
+      <DateTimeInput :min="new Date().getTime()" :max="createChallengeForm.endTime" v-model="createChallengeForm.startTime" />
+      <DateTimeInput :min="createChallengeForm.startTime" v-model="createChallengeForm.endTime" />
       <div class="text-right">
         <input type="submit" value="Create new challenge" class="btn primary">
       </div>

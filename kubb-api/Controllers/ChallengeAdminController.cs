@@ -44,9 +44,13 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         var user = CurrentUser();
         if ((user.Status & UserStatus.ChallengeCreator) == 0) return Unauthorized("you are not challenge creator");
 
+        // TODO: check startTime > today
+
         var challenge = new Challenge
         {
             Name = request.ChallengeName,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
             Administrator = user,
             Questions = []
         };
@@ -123,7 +127,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         
         if (challenge == null) return Unauthorized();
 
-        var timeDifference = challenge.EndTime!.Value.Subtract(challenge.StartTime!.Value).TotalSeconds;
+        var timeDifference = challenge.EndTime.Subtract(challenge.StartTime).TotalSeconds;
 
         challenge.StartTime = DateTime.UtcNow;
         challenge.EndTime = DateTime.UtcNow.AddSeconds(timeDifference);

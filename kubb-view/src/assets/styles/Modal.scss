@@ -23,12 +23,9 @@
     .modal-body {
         padding: 24px;
         display: block;
-        max-height: 516px;
+        max-height: 600px;
         overflow: scroll;
 
-    }
-
-    .modal-content {
     }
 
     .modal-button-close {
@@ -49,13 +46,18 @@
         }
     }
     
-    @media (max-width: 700px) {
+    @media (max-width: 700px) or (max-height: 600px) {
         max-width: 100%;
+        width: 100%;
         margin: 0;
         padding: 0;
         height: 100%;
         top: 0;
         left: 0;
+
+        .modal-body {
+            height: calc(100vh - 84px);
+        }
     }
 }
 

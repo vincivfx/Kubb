@@ -1,9 +1,5 @@
-using System.Collections.Concurrent;
-using System.Net.Mail;
 using KubbAdminAPI.Models.Configuration;
-using KubbAdminAPI.Services;
 using KubbAdminAPI.Singletons;
-using KubbAdminAPI.Utils;
 
 namespace KubbAdminAPI.Workers;
 

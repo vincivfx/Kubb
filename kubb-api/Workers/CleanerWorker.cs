@@ -39,7 +39,7 @@ public class CleanerWorker(IServiceProvider serviceProvider) : BackgroundService
 
 
             // move finished challenges to 'frozen' runningStatus after (at least) 60 minutes from the endTime
-            var challengesToFreeze = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Running && challenge.EndTime!.Value.AddHours(1) < DateTime.UtcNow).ToList();
+            var challengesToFreeze = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Running && challenge.EndTime.AddHours(1) < DateTime.UtcNow).ToList();
             foreach (var challenge in challengesToFreeze)
             {
                 var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
@@ -54,7 +54,7 @@ public class CleanerWorker(IServiceProvider serviceProvider) : BackgroundService
             }
 
             // deleting all useless data after one week the end of the challenge
-            var challengesToTerminate = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Terminated && challenge.EndTime!.Value.AddDays(7) < DateTime.UtcNow).ToList();
+            var challengesToTerminate = context.Challenges.Where(challenge => challenge.RunningStatus == RunningChallengeStatus.Terminated && challenge.EndTime.AddDays(7) < DateTime.UtcNow).ToList();
             foreach (var challenge in challengesToTerminate)
             {
                 var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
