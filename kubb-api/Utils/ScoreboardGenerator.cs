@@ -115,6 +115,8 @@ public class ScoreboardGenerator
 
         output += pointLine + "\n";
 
+        var jollyTimeFinished = challenge.StartTime.AddMinutes(10) < DateTime.UtcNow;
+
         foreach (var teamPoint in teamPoints.ToList())
         {
             var teamLine = teamPoint.Value.TeamName + ",";
@@ -122,10 +124,19 @@ public class ScoreboardGenerator
             for (var cell = 0; cell < teamPoint.Value.Cells.Count; cell += 1)
             {
                 var t = teamPoint.Value.Cells[cell];
+
+                // set jolly
+                if (teamPoint.Value.TeamOptions.JollyId == cell || cell == 0 && jollyTimeFinished && teamPoint.Value.TeamOptions.JollyId == null)
+                {
+                    t.IsJolly = true;
+                }
+
                 if (cell > 0) teamLine += ",";
                 if (t.HasBeenSet)
-                    teamLine += t.GetPoints().ToString() + (t.Highlight ? 'H' : null) + (t.IsJolly ? 'J' : null) +
+                    teamLine += t.GetPoints().ToString() + (t.Highlight ? 'H' : null) +
                                 (t.Direction ? '+' : '-');
+                
+                teamLine += jollyTimeFinished && t.IsJolly ? 'J' : null;
             }
 
             output += teamLine + "\n";
@@ -170,12 +181,16 @@ public class SimpleTeam
     {
         TeamName = team.TeamName;
         TeamId = team.TeamId;
+        TeamOptions = JsonSerializer.Deserialize<TeamOptionString>(team.OptionString)!;
+
         for (var i = 0; i < size; i += 1) Cells.Add(new ScoreboardCell());
     }
 
     public List<ScoreboardCell> Cells { get; set; } = [];
     public string TeamName { get; set; }
     public Guid TeamId { get; set; }
+
+    public TeamOptionString TeamOptions { get; set; }
 }
 
 [JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
@@ -199,3 +214,9 @@ public class AlgorithmSettings
     public List<int> Bonus { get; set; } = [20, 15, 10, 8, 6, 5, 4, 3, 2, 1];
 }
 
+[JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
+public class TeamOptionString
+{
+    [JsonPropertyName("j")]
+    public int? JollyId { get; set; } = null;
+}

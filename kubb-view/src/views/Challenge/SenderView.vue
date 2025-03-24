@@ -6,7 +6,7 @@ import Alert from "@/components/Alert.vue";
 import Badge from "@/components/Badge.vue";
 
 export default {
-  components: {Badge, Alert, Tabs, Select, InputBlock},
+  components: { Badge, Alert, Tabs, Select, InputBlock },
   data: () => ({
     page: 'send-answer',
     challenge: {},
@@ -21,12 +21,30 @@ export default {
     sendAnswerAlert: '',
     questions: [],
     answers: [],
-    answerFilter: ''
+    answerFilter: '',
+    setJollyAlert: '',
+    setJollyForm: {
+      questionId: '',
+      teamId: ''
+    }
   }),
   methods: {
+    setJolly(e) {
+      e.preventDefault()
+      this.$http.post("Challenge/SetJolly", this.setJollyForm).then((res) => {
+        this.setJollyAlert = 'success';
+        this.sendJollyForm = {
+          teamId: '',
+          questionId: ''
+        }
+        setTimeout(() => { this.setJollyAlert = '' }, 10000)
+      }).catch((err) => {
+        this.setJollyAlert = 'error';
+        setTimeout(() => { this.setJollyAlert = '' }, 10000)
+      })
+    },
     sendAnswer(e) {
       e.preventDefault()
-
       this.$http.post("Challenge/SendAnswer", this.sendAnswerForm).then((res) => {
         this.sendAnswerAlert = 'success';
         this.sendAnswerForm = {
@@ -35,10 +53,10 @@ export default {
           answerText: ''
         }
         this.correctness = res.data.correctness;
-        setTimeout(() => {this.sendAnswerAlert = ''}, 10000)
+        setTimeout(() => { this.sendAnswerAlert = '' }, 10000)
       }).catch((err) => {
         this.sendAnswerAlert = 'error';
-        setTimeout(() => {this.sendAnswerAlert = ''}, 10000)
+        setTimeout(() => { this.sendAnswerAlert = '' }, 10000)
       })
     },
     getAnswers() {
@@ -61,7 +79,7 @@ export default {
         else
           this.timer_text = 'finished'
       }, 1000);
-      
+
       for (let i = 0; i < this.challenge.questions; i += 1)
         this.questions.push({
           text: 'Challenge #' + (i + 1),
@@ -90,7 +108,7 @@ export default {
   </p>
 
   <Tabs v-model="page"
-        :tabs="[{text: 'Send answer', id: 'send-answer'}, {text: 'Set Jolly', id: 'set-jolly'}, {text: 'Answer List', id: 'answer-list'}]">
+    :tabs="[{ text: 'Send answer', id: 'send-answer' }, { text: 'Set Jolly', id: 'set-jolly' }, { text: 'Answer List', id: 'answer-list' }]">
     <div v-if="page === 'send-answer'">
       <h3>Send answer</h3>
       <Alert v-if="sendAnswerAlert === 'error'" type="danger">
@@ -100,8 +118,8 @@ export default {
         Answer sent successfully <Badge v-if="correctness" type="success">CORRECT</Badge>
         <Badge v-if="!correctness" type="danger">WRONG</Badge>
       </Alert>
-      
-      
+
+
       <form @submit="sendAnswer">
         <Select :options="teams" v-model="sendAnswerForm.teamId" label="Select team"></Select>
 
@@ -112,13 +130,35 @@ export default {
         <input type="submit" value="Send Answer" class="btn primary">
       </form>
     </div>
-    
+
+    <div v-if="page === 'set-jolly'">
+      <h3>Set Jolly</h3>
+
+      <Alert v-if="setJollyAlert === 'error'" type="danger">
+        Cannot set jolly
+      </Alert>
+      <Alert v-if="setJollyAlert === 'success'" type="success">
+        Jolly set successfully
+      </Alert>
+
+      <form @submit="setJolly">
+        <Select v-model="setJollyForm.teamId" :options="teams" label="Select team"></Select>
+
+        <Select v-model="setJollyForm.questionId" :options="questions" label="Question"></Select>
+
+        <input type="submit" class="btn primary" value="Set Jolly">
+      </form>
+
+
+    </div>
+
 
     <div v-if="page === 'answer-list'">
       <button class="btn primary" @click="getAnswers()">Refresh</button>
 
-      <Select v-model="answerFilter" :options="answers.map(item => ({text: item.teamName, key: item.teamName}))" placeholder="" label="Search by Team Name" />
-      
+      <Select v-model="answerFilter" :options="answers.map(item => ({ text: item.teamName, key: item.teamName }))"
+        placeholder="" label="Search by Team Name" />
+
       <div class="table-responsive">
         <table class="table">
           <thead>
@@ -130,20 +170,24 @@ export default {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(team, teamKey) in answers.filter(a => a.teamName.toLowerCase().indexOf(answerFilter.toLowerCase()) >= 0)" :key="teamKey">
+            <tr
+              v-for="(team, teamKey) in answers.filter(a => a.teamName.toLowerCase().indexOf(answerFilter.toLowerCase()) >= 0)"
+              :key="teamKey">
               <td>
                 {{ team.teamName }}
               </td>
               <td v-for="(_, qid) in questions" :key="qid">
-                
-                <Badge :type="answer.correctness ? 'success' : 'danger'" v-for="(answer, answerKey) in team.answers.filter(answer => answer.question === qid)" :key="answerKey">{{ answer.answerText }}</Badge>
+
+                <Badge :type="answer.correctness ? 'success' : 'danger'"
+                  v-for="(answer, answerKey) in team.answers.filter(answer => answer.question === qid)"
+                  :key="answerKey">{{ answer.answerText }}</Badge>
               </td>
-            
+
             </tr>
           </tbody>
         </table>
       </div>
-      
+
     </div>
 
   </Tabs>

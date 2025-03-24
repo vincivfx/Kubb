@@ -41,7 +41,7 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
     [HttpGet]
     public ActionResult GetCache([FromQuery] Guid key)
     {
-        var value = _cache.Get(key);
+        var value = _cache.Get(key.ToString());
         if (value == null) return NotFound();
         return Ok(value);
     }

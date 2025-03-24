@@ -19,6 +19,8 @@ public class Team : BaseModel
 
     [Required] public required TeamType TeamType { get; set; } = TeamType.None;
 
+    [Required] public string OptionString {get;set;} = "{}";
+
 }
 
 [Flags]

@@ -171,9 +171,20 @@ public class ChallengeController(DatabaseContext context) : BaseController
     }
 
     [HttpPost]
-    public ActionResult SendJolly()
+    public ActionResult SetJolly([FromBody] SetJollyRequest request)
     {
-        return BadRequest();
+        var currentUser = CurrentUser();
+        var team = context.Teams.Include(team => team.Challenge).FirstOrDefault(team => team.TeamId == request.TeamId && team.Administrator == currentUser);
+        
+        if (team == null) return BadRequest();
+
+        // if user not administrator and time expired for jolly return bad request
+        if (team.Challenge.Administrator != currentUser && team.Challenge.StartTime.AddMinutes(10) < DateTime.UtcNow) return BadRequest();
+
+        team.OptionString = "{\"j\":"+request.QuestionId.ToString()+"}";
+        context.SaveChanges();
+
+        return Ok();
     }
 
     [HttpPut]

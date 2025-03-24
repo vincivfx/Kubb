@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace KubbAdminAPI.Workers;
@@ -21,7 +22,6 @@ public class ScoreboardWorker(IServiceProvider serviceProvider) : BackgroundServ
 
         while (!stoppingToken.IsCancellationRequested)
         {
-
             var roundInit = DateTime.UtcNow;
 
             var challenges = context.Challenges.Where(challenge => challenge.RunningStatus == Models.RunningChallengeStatus.Running).ToList();
@@ -30,8 +30,8 @@ public class ScoreboardWorker(IServiceProvider serviceProvider) : BackgroundServ
             {
                 try
                 {
-                    var teams = context.Teams.Where(team => team.Challenge == challenge).ToList();
-                    var answers = context.Answers.Where(answer => teams.Contains(answer.Team)).ToList();
+                    var teams = context.Teams.Where(team => team.Challenge == challenge).AsNoTracking().ToList();
+                    var answers = context.Answers.Include(answer => answer.Team).Where(answer => teams.Contains(answer.Team)).AsNoTracking().ToList();
 
                     var scoreboard = Utils.ScoreboardGenerator.GenerateScoreboard(challenge, teams, answers);
 
@@ -41,6 +41,7 @@ public class ScoreboardWorker(IServiceProvider serviceProvider) : BackgroundServ
                     };
 
                     cache.Set(challenge.ChallengeId.ToString(), scoreboard, cacheSettings);
+
 
                 }
                 catch (Exception exception)
