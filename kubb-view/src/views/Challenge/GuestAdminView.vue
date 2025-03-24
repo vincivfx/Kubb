@@ -8,42 +8,11 @@
       Date(challenge.endTime).toLocaleString() }}
   </p>
 
-  <h3>Teams
-    <button @click="$refs.addTeamModal.show()" class="btn primary small">
-      <SlPlus />
-    </button>
-  </h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th colspan="2">Team name</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(item, key) in teams" :key="key">
-        <td>{{ item.teamName }}
-          <button class="btn small danger">
-            <SlTrash />
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <p>
+    Maximum teams per participation: {{ challenge.maxTeamPerUser }}
+  </p>
 
-  <Modal title="Add a new team" ref="addTeamModal">
-    <Alert type="danger" v-if="createTeamStatus === 'error'">
-      Sorry, we encountered an error trying to create a new team
-    </Alert>
-    <Alert type="success" v-if="createTeamStatus === 'success'">
-      Team {{ createTeamLastName }} created successfully!
-    </Alert>
-    <form @submit="createTeam">
-      <InputBlock placeholder="team name..." v-model="createTeamForm.name" label="Type a name for the new team">
-      </InputBlock>
-      <input type="submit" class="btn primary" value="Create Team">
-    </form>
-  </Modal>
-
+  <TeamTab :challenge="challenge" :teams="teams" />
 
 </template>
 
@@ -51,11 +20,12 @@
 import Alert from '@/components/Alert.vue';
 import InputBlock from '@/components/InputBlock.vue';
 import Modal from '@/components/Modal.vue';
+import TeamTab from '@/partials/AdminView/TeamTab.vue';
 import { SlCalender, SlPlus, SlTrash } from 'vue-icons-plus/sl';
 
 
 export default {
-  components: { SlCalender, SlTrash, SlPlus, Modal, InputBlock, Alert },
+  components: { SlCalender, SlTrash, SlPlus, Modal, InputBlock, Alert, TeamTab },
   data: () => ({
     challenge: {},
     createTeamForm: {
@@ -67,24 +37,7 @@ export default {
     createTeamLastName: ''
   }),
   methods: {
-    createTeam(e) {
-      e.preventDefault();
 
-      this.$http.post("/Challenge/CreateTeam", this.createTeamForm).then((response) => {
-        this.createTeamStatus = 'success';
-        this.createTeamLastName = this.createTeamForm.name + "";
-        setTimeout(() => this.createTeamStatus = '', 20000);
-        this.teams.push({
-          teamName: this.createTeamForm.name,
-          teamId: response.data.teamId,
-          created: new Date(),
-        });
-        this.createTeamForm.name = '';
-      }).catch(() => {
-        this.createTeamStatus = 'error';
-        setTimeout(() => this.createTeamStatus = '', 20000);
-      })
-    }
   },
   mounted() {
     this.$http.get("Challenge/GetInfo?challengeId=" + encodeURIComponent(this.$route.query.id)).then(res => {

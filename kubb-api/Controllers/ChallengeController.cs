@@ -37,7 +37,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
 
         var teams = context.Teams.Where(team => team.Challenge == challenge && team.Administrator == currentUser).ToList();
 
-        if (challenge.Administrator != currentUser && context.Participations.Any(p => p.Challenge == challenge && p.User == currentUser)) return Unauthorized();
+        if (challenge.Administrator != currentUser && !context.Participations.Any(p => p.Challenge == challenge && p.User == currentUser)) return Unauthorized();
 
         return Ok(new GetInfoResponse(teams, challenge));
     }
@@ -98,6 +98,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         return new OkResult();
     }
 
+    
     [HttpGet]
     public ActionResult<GetAnswersResponse> GetAnswers([FromQuery] Guid ChallengeId)
     {
@@ -175,7 +176,6 @@ public class ChallengeController(DatabaseContext context) : BaseController
     {
         var currentUser = CurrentUser();
         var team = context.Teams.Include(team => team.Challenge).FirstOrDefault(team => team.TeamId == request.TeamId && team.Administrator == currentUser);
-        
         if (team == null) return BadRequest();
 
         // if user not administrator and time expired for jolly return bad request
@@ -232,7 +232,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
 
         var user = CurrentUser();
 
-        if (challenge == null || challenge.StartTime != null && challenge.StartTime < DateTime.UtcNow ||
+        if (challenge == null || challenge.StartTime < DateTime.UtcNow ||
             challenge.Administrator != user && !context.Participations.Any(participation =>
                 participation.User == user && participation.Challenge == challenge))
         {

@@ -35,6 +35,7 @@ public class ChallengeInfoResponse(Models.Challenge challenge, List<ChallengeInf
         public Models.ChallengeStatus Status { get; set; } = challenge.Status;
         public Models.RunningChallengeStatus RunningStatus { get; set; } = challenge.RunningStatus;
         public string AlgorithmSettings { get; set; } = challenge.AlgorithmSettings;
+        public int MaxTeamPerUser { get; set; } = challenge.MaxTeamPerUser;
     }
 
 }

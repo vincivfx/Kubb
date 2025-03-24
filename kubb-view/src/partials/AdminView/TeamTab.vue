@@ -17,7 +17,7 @@
       <tr v-for="(item, key) in teams" :key="key">
         <td>{{ item.teamName }}</td>
         <td>
-          <span v-if="item.ownerEmail !== null">
+          <span v-if="item.ownerEmail !== null && item.ownerEmail !== undefined">
             {{ item.ownerName }}
             <i>({{ item.ownerEmail }})</i>
           </span>

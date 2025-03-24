@@ -20,6 +20,8 @@ public class GetInfoResponse
         public DateTime? StartTime { get; set; } = challenge.StartTime;
         public DateTime? EndTime { get; set; } = challenge.EndTime;
         public int Questions { get; set; } = challenge.Questions.Count;
+        public int MaxTeamPerUser { get; set; } = challenge.MaxTeamPerUser;
+        public RunningChallengeStatus RunningStatus { get; set; } = challenge.RunningStatus;
     }
 
     public Challenge ChallengeSetup { get; set; }

@@ -45,6 +45,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         if ((user.Status & UserStatus.ChallengeCreator) == 0) return Unauthorized("you are not challenge creator");
 
         // TODO: check startTime > today
+        if (request.StartTime < DateTime.UtcNow) return BadRequest();
 
         var challenge = new Challenge
         {
@@ -79,8 +80,6 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         if (request.RunningStatus != RunningChallengeStatus.Submitted && request.RunningStatus != RunningChallengeStatus.Draft) {
             return Unauthorized();
         }
-
-        // TODO: Check statuses
         
         challenge.Name = request.Name;
         challenge.StartTime = request.StartTime;
@@ -88,6 +87,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         challenge.Status = request.Status;
         challenge.RunningStatus = request.RunningStatus;
         challenge.Questions = request.Questions;
+        challenge.MaxTeamPerUser = request.MaxTeamPerUser;
         challenge.AlgorithmSettings = request.AlgorithmSettings;
 
         context.SaveChanges();
@@ -125,7 +125,7 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         var currentUser = CurrentUser();
         var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId && challenge.Administrator == currentUser);
         
-        if (challenge == null) return Unauthorized();
+        if (challenge == null || (challenge.Status & ChallengeStatus.StartEnabled) != 0) return Unauthorized();
 
         var timeDifference = challenge.EndTime.Subtract(challenge.StartTime).TotalSeconds;
 

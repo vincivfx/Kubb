@@ -74,7 +74,7 @@ export default {
                 if (arrow === 'up') {
                     questions[j - 1]['answers'] += 1;
                     if (questions[j - 1]['answers'] >= (challenge.algorithmSettings.dt ?? 3)) 
-                        questions[j - 1]['blocked'] = true; // TODO: make this working
+                        questions[j - 1]['blocked'] = true;
                 }
 
                 teamQuestions.push({

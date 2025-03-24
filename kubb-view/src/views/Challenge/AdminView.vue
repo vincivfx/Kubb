@@ -217,20 +217,9 @@ export default {
           <CheckBox v-model="editFlags[3]" @change="updatedFlags = true">Start challenge automatically at <i>starting
               time</i></CheckBox>
 
+          <InputBlock type="number" placeholder="number of teams" label="Maximum teams for participation" v-model="updateChallengeForm.maxTeamPerUser" />
+
           <button class="btn primary" @click="saveChallenge">Save flags</button>
-
-          <hr />
-
-          <h4>Submit challenge</h4>
-
-          <Alert type="warning">
-            To make your challenge visible to the other people or just
-            to start it, you need to set its status to submitted.<br>
-            <b>NOTE</b> Once you set it to submitted status you won't be able to
-            edit the details anymore.
-          </Alert>
-
-          <button @click="$refs.submitChallengeModal.show()" class="btn primary">Submit Challenge</button>
 
           <hr />
 
@@ -252,6 +241,19 @@ export default {
             </form>
             <hr />
           </div>
+
+          <h4>Submit challenge</h4>
+
+          <Alert type="warning">
+            To make your challenge visible to the other people or just
+            to start it, you need to set its status to submitted.<br>
+            <b>NOTE</b> Once you set it to submitted status you won't be able to
+            edit the details anymore.
+          </Alert>
+
+          <button @click="$refs.submitChallengeModal.show()" class="btn primary">Submit Challenge</button>
+
+          <hr />
         </div>
 
         <div v-if="challenge.runningStatus === 1 && (challenge.status & 8) === 0">
@@ -343,8 +345,10 @@ export default {
       </Alert>
       <form @submit="saveChallenge">
         <InputBlock v-model="updateChallengeForm.name" placeholder="name" label="Challenge name" />
-        <DateTimeInput :min="new Date().getTime()" :max="updateChallengeForm.endTime" v-model="updateChallengeForm.startTime" label="Starting Time"></DateTimeInput>
-        <DateTimeInput :min="updateChallengeForm.startTime" v-model="updateChallengeForm.endTime" label="Ending Time"></DateTimeInput>
+        <DateTimeInput :min="new Date().getTime()" :max="updateChallengeForm.endTime"
+          v-model="updateChallengeForm.startTime" label="Starting Time"></DateTimeInput>
+        <DateTimeInput :min="updateChallengeForm.startTime" v-model="updateChallengeForm.endTime" label="Ending Time">
+        </DateTimeInput>
         <input type="submit" class="btn primary" value="Save">
       </form>
     </Modal>

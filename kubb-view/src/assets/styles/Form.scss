@@ -1,12 +1,13 @@
-
 .input-block {
     display: table;
     width: 100%;
+
     .input-block-group {
         display: table-cell;
         vertical-align: bottom;
         text-align: right;
     }
+
     .text-input {
         display: table-cell;
         border: none;
@@ -15,11 +16,12 @@
         padding: 8px 16px;
         display: block;
         margin: 6px 0;
+        background-color: transparentize($color: $primaryColor, $amount: 0.9);
         max-width: calc(100% - 32px);
         width: 100%;
+
         &:focus {
             outline: 1px solid #333;
-            background-color: transparentize($color: $primaryColor, $amount: 0.9);
         }
 
         &:invalid {
@@ -32,6 +34,7 @@
 .input-select {
     max-width: calc(100% - 32px);
     position: relative;
+
     .select-box {
         width: 100%;
         z-index: 200;
@@ -39,12 +42,14 @@
         overflow: auto;
         margin-top: -6px;
         position: absolute;
+
         button {
             text-align: left;
             padding: 8px;
             border: none;
             width: 100%;
             display: block;
+
             &:hover {
                 cursor: pointer;
                 background-color: $primaryColor;

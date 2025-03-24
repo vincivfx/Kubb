@@ -30,4 +30,7 @@ public class UpdateChallengeRequest
     [ValidJSON]
     public required string AlgorithmSettings { get; set; } = "{}";
 
+    [Required, Range(1, 50)]
+    public int MaxTeamPerUser {get;set;}
+
 }

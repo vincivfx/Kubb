@@ -133,10 +133,11 @@ public class ScoreboardGenerator
 
                 if (cell > 0) teamLine += ",";
                 if (t.HasBeenSet)
-                    teamLine += t.GetPoints().ToString() + (t.Highlight ? 'H' : null) +
-                                (t.Direction ? '+' : '-');
+                    teamLine += t.GetPoints().ToString() + (t.Highlight ? 'H' : null);
                 
                 teamLine += jollyTimeFinished && t.IsJolly ? 'J' : null;
+
+                if (t.HasBeenSet) teamLine += t.Direction ? '+' : '-';
             }
 
             output += teamLine + "\n";
