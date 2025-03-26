@@ -1,9 +1,10 @@
 .input-block {
     display: table;
     width: 100%;
-
+    
     .input-block-group {
         display: table-cell;
+        
         vertical-align: bottom;
         text-align: right;
     }
@@ -24,7 +25,7 @@
             outline: 1px solid #333;
         }
 
-        &:invalid {
+        &:invalid, &.invalid {
             border-bottom: 2px solid $dangerColor;
             background-color: transparentize($color: $dangerColor, $amount: 0.9);
         }
@@ -32,7 +33,7 @@
 }
 
 .input-select {
-    max-width: calc(100% - 32px);
+    max-width: 100%;
     position: relative;
 
     .select-box {
@@ -57,4 +58,10 @@
             }
         }
     }
+}
+
+fieldset {
+    padding: 0;
+    border: 0;
+    outline: none;
 }

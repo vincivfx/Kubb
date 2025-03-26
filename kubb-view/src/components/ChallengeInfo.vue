@@ -28,9 +28,6 @@ export default {
         Starting at {{new Date(challenge.startTime).toLocaleString()}}<br>
         Ending at {{new Date(challenge.endTime).toLocaleString()}}
       </p>
-      <p>
-        50 teams
-      </p>
       <div class="text-right btn-group-right">
         <RouterLink v-if="send !== false && send !== undefined && [1, 2].indexOf(challenge.runningStatus) >= 0" :to="{name: 'challenge-sender', query: {id: challenge.challengeId}}" class="btn primary">Send answers</RouterLink>
         <RouterLink v-if="challenge.runningStatus < 4 && admin !== undefined && admin !== false" :to="{name: 'challenge-admin', query: {id: challenge.challengeId}}" class="btn primary">Manage</RouterLink>

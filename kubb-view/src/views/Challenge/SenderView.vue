@@ -4,9 +4,10 @@ import Select from '@/components/Select.vue';
 import Tabs from "@/components/Tabs.vue";
 import Alert from "@/components/Alert.vue";
 import Badge from "@/components/Badge.vue";
+import Modal from '@/components/Modal.vue';
 
 export default {
-  components: { Badge, Alert, Tabs, Select, InputBlock },
+  components: { Badge, Alert, Tabs, Select, InputBlock, Modal },
   data: () => ({
     page: 'send-answer',
     challenge: {},
@@ -26,19 +27,40 @@ export default {
     setJollyForm: {
       questionId: '',
       teamId: ''
-    }
+    },
+    deleteAnswerItem: {}
   }),
   methods: {
+    deleteAnswerPrepareForm(team, answerKey) {
+      this.deleteAnswerItem = { team, answer: team.answers[answerKey], answerKey };
+      this.$refs.deleteAnswerModal.show();
+    },
+    deleteAnswer() { 
+      this.$http.post("Challenge/DeleteAnswer", {
+        answerId: this.deleteAnswerItem.answer.answerId
+      }).then(() => {
+        this.deleteAnswerItem.team.answers.splice(this.deleteAnswerItem.answerKey, 1);
+        this.$refs.deleteAnswerModal.hide();
+      }).catch(() => {
+        alert("error");
+      })
+    },
+    getCurrentTeamJolly() {
+      let el = this.teams.filter(team => team.teamId === this.setJollyForm.teamId);
+      if (el.length === 0) return false;
+      return el[0];
+    },
     setJolly(e) {
       e.preventDefault()
-      this.$http.post("Challenge/SetJolly", this.setJollyForm).then((res) => {
+      this.$http.post("Challenge/SetJolly", this.setJollyForm).then(() => {
         this.setJollyAlert = 'success';
-        this.sendJollyForm = {
+        this.teams.filter(team => team.teamId === this.setJollyForm.teamId)[0].optionString.j = this.setJollyForm.questionId;
+        this.setJollyForm = {
           teamId: '',
           questionId: ''
         }
         setTimeout(() => { this.setJollyAlert = '' }, 10000)
-      }).catch((err) => {
+      }).catch(() => {
         this.setJollyAlert = 'error';
         setTimeout(() => { this.setJollyAlert = '' }, 10000)
       })
@@ -90,8 +112,9 @@ export default {
       this.teams = response.data.teams;
 
 
-      this.teams.forEach(team => {
+      this.teams.forEach((team) => {
         team.text = team.teamName;
+        team.optionString = JSON.parse(team.optionString);
         team.key = team.teamId;
       });
     });
@@ -141,6 +164,12 @@ export default {
         Jolly set successfully
       </Alert>
 
+      <Alert type="warning"
+        v-if="setJollyAlert !== 'success' && getCurrentTeamJolly() && getCurrentTeamJolly().optionString.j">
+        Jolly already set on <b>Question {{ getCurrentTeamJolly().optionString.j }}</b> for team <b>{{
+          getCurrentTeamJolly().teamName }}</b>
+      </Alert>
+
       <form @submit="setJolly">
         <Select v-model="setJollyForm.teamId" :options="teams" label="Select team"></Select>
 
@@ -160,7 +189,7 @@ export default {
         placeholder="" label="Search by Team Name" />
 
       <div class="table-responsive">
-        <table class="table">
+        <table class="table hover">
           <thead>
             <tr>
               <th>Team Name</th>
@@ -178,7 +207,7 @@ export default {
               </td>
               <td v-for="(_, qid) in questions" :key="qid">
 
-                <Badge :type="answer.correctness ? 'success' : 'danger'"
+                <Badge @click="deleteAnswerPrepareForm(team, answerKey)" :type="answer.correctness ? 'success' : 'danger'"
                   v-for="(answer, answerKey) in team.answers.filter(answer => answer.question === qid)"
                   :key="answerKey">{{ answer.answerText }}</Badge>
               </td>
@@ -191,5 +220,18 @@ export default {
     </div>
 
   </Tabs>
+
+  <Modal ref="deleteAnswerModal" title="Delete answer">
+    <div class="text-center">
+      <p>
+        Do you want to delete answer: <Badge :type="deleteAnswerItem.answer.correctness ? 'success' : 'danger'">{{
+          deleteAnswerItem.answer.answerText }}</Badge> for team <b>{{ deleteAnswerItem.team.teamName }}</b>?
+      </p>
+      <div class="btn-group-right">
+        <button class="btn danger" @click="deleteAnswer()">Yes, delete</button>
+        <button class="btn" @click="$refs.deleteAnswerModal.hide()">Cancel</button>
+      </div>
+    </div>
+  </Modal>
 
 </template>

@@ -4,7 +4,7 @@ import Modal from "./Modal.vue";
 
 export default {
   name: "DateTimeInput",
-  props: ['modelValue', 'label', 'min', 'max'],
+  props: ['modelValue', 'label', 'min', 'max', 'invalid'],
   components: { InputBlock, Modal },
   data: () => ({
     showPicker: false,
@@ -31,6 +31,7 @@ export default {
     save() {
       const finalDate = new Date(this.date.year, this.date.month, this.date.day, this.hours, this.minutes);
       this.$emit('update:modelValue', finalDate);
+      this.$emit('change', finalDate);
       this.dateLabel = finalDate.toLocaleString();
       this.$refs.dateTimeModal.hide();
     },
@@ -105,7 +106,7 @@ export default {
 
 <template>
   <div :click-outside="wow">
-    <InputBlock v-model="dateLabel" :label="label" readonly="" @focusin="$refs.dateTimeModal.show()" placeholder="dd/mm/YYYY HH:MM">
+    <InputBlock :invalid="invalid" v-model="dateLabel" :label="label" readonly="" @focusin="$refs.dateTimeModal.show()" placeholder="dd/mm/YYYY HH:MM">
       <slot />
     </InputBlock>
   </div>

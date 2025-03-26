@@ -9,8 +9,9 @@
                 :disabled="disabled"
                 :placeholder="placeholder"
                 :readonly="readonly !== false && readonly !== undefined"
-                class="text-input"
+                :class="['text-input', {'invalid': invalid}]"
                 :value="modelValue"
+                :tabindex="tabindex"
                 @focus="$emit('focus')"
                 @focusout="$emit('focusout')"
                 @change="$emit('change', formatValue($event.target.value))"
@@ -28,7 +29,7 @@
 
 <script>
 export default {
-    props: ['underText', 'placeholder', 'disabled', 'type', 'readonly', 'modelValue', 'label', 'pattern', 'required'],
+    props: ['underText', 'placeholder', 'disabled', 'type', 'readonly', 'modelValue', 'label', 'pattern', 'required', 'invalid', 'tabindex'],
     methods: {
         formatValue(val) {
             if (this.type === 'number') return Number.parseInt(val);

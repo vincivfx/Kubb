@@ -28,14 +28,15 @@ public class ChallengeInfoResponse(Models.Challenge challenge, List<ChallengeInf
     public class ChallengeItem(Models.Challenge challenge)
     {
         public string Name { get; set; } = challenge.Name;
-        public DateTime? StartTime { get; set; } = challenge.StartTime;
-        public DateTime? EndTime { get; set; } = challenge.EndTime;
+        public DateTime StartTime { get; set; } = challenge.StartTime;
+        public DateTime EndTime { get; set; } = challenge.EndTime;
         public DateTime Created { get; set; } = challenge.Created;
         public List<string> Questions { get; set; } = challenge.Questions;
         public Models.ChallengeStatus Status { get; set; } = challenge.Status;
         public Models.RunningChallengeStatus RunningStatus { get; set; } = challenge.RunningStatus;
         public string AlgorithmSettings { get; set; } = challenge.AlgorithmSettings;
         public int MaxTeamPerUser { get; set; } = challenge.MaxTeamPerUser;
+        public int BasePoints { get; set; } = challenge.BasePoints;
     }
 
 }

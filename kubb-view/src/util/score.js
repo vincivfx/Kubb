@@ -54,7 +54,7 @@ export default {
 
         for (let i = 1; i <= lines.length; i += 1) {
             
-            let totalPoints = 200;
+            let totalPoints = challenge.basePoints;
             
             if (!lines[i]) continue;
             const parts = lines[i].split(',');

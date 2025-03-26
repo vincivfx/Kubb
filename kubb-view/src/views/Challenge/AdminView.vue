@@ -25,7 +25,7 @@ export default {
     updateChallengeStatus: '',
     submitChallengeError: false,
     updatedQuestions: false,
-    updatedFlags: false,
+    updated: false,
     flags: {},
     editFlags: {},
     deleteChallengeName: '', // check to delete challenge the name typed
@@ -40,7 +40,7 @@ export default {
         (this.challenge.status & 4) != 0,
         (this.challenge.status & 8) != 0
       ]
-      this.updatedFlags = false;
+      this.updated = false;
       this.editFlags = JSON.parse(JSON.stringify(this.flags));
     },
     clearUpdatedQuestions() {
@@ -72,13 +72,10 @@ export default {
 
       this.$http.put("/ChallengeAdmin/UpdateChallenge", this.updateChallengeForm).then(() => {
         this.updateChallengeStatus = 'success';
-
-
-
         this.challenge = JSON.parse(JSON.stringify(this.updateChallengeForm));
         this.updatedQuestions = false;
         this.clearUpdatedAlgorithmSettings();
-        this.updatedFlags = false;
+        this.updated = false;
         this.flags = JSON.parse(JSON.stringify(this.editFlags));
         this.$refs.submitChallengeModal.hide();
         setTimeout(() => this.updateChallengeStatus = '', 20000);
@@ -106,8 +103,7 @@ export default {
       }).then(() => {
         this.challenge.runningStatus = 2;
         this.$refs.manualStartModal.hide();
-      })
-        .catch(() => alert("cannot start challenge"));
+      }).catch(() => alert("cannot start challenge"));
     }
   },
   mounted() {
@@ -147,12 +143,7 @@ export default {
 <template>
   <div v-if="status === 'ok'">
 
-    <h2>{{ challenge.name }}
-      <button v-if="challenge.runningStatus === 0" @click="$refs.editChallengeModal.show()"
-        class="btn btn-primary small">
-        <SlPencil />
-      </button>
-    </h2>
+    <h2>{{ challenge.name }}</h2>
 
     <Tabs v-model="page"
       :tabs="[{ text: 'Challenge Overview', id: 'overview' }, { text: 'Teams', id: 'teams' }, { text: 'Participations', id: 'participations' }, { text: 'Questions', id: 'questions', onExit: clearUpdatedQuestions }, { text: 'Challenge Options', id: 'options', onExit: clearUpdatedAlgorithmSettings }]">
@@ -197,29 +188,58 @@ export default {
                 <td>{{ item.emailAddress }}</td>
                 <td>{{ new Date(item.created).toLocaleString() }}</td>
               </tr>
+              <tr v-if="participations.length === 0">
+                <td colspan="3">There are no participations</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
       <div v-if="page === 'options'">
 
-        <div v-if="challenge.runningStatus === 0">
+        <fieldset :disabled="challenge.runningStatus !== 0">
           <h4>
-            Challenge flags
-            <Badge type="warning" v-if="updatedFlags">NOT SAVED</Badge>
+            Challenge details
+            <Badge type="warning" v-if="updated">NOT SAVED</Badge>
           </h4>
+          <Alert type="danger" v-if="updateChallengeStatus === 'error'">
+            We encountered an error trying to edit challenge details
+          </Alert>
+          <Alert type="success" v-if="updateChallengeStatus === 'success'">
+            Challenge details saved successfully
+          </Alert>
+          <InputBlock @change="updated = true" v-model="updateChallengeForm.name" placeholder="name"
+            label="Challenge name" />
+          <DateTimeInput @change="updated = true"
+            :invalid="new Date(updateChallengeForm.startTime).getTime() < new Date().getTime()"
+            :min="new Date().getTime()" :max="updateChallengeForm.endTime" v-model="updateChallengeForm.startTime"
+            label="Starting Time"></DateTimeInput>
+          <DateTimeInput @change="updated = true"
+            :invalid="new Date(updateChallengeForm.endTime).getTime() < new Date(updateChallengeForm.startTime).getTime()"
+            :min="updateChallengeForm.startTime" v-model="updateChallengeForm.endTime" label="Ending Time">
+          </DateTimeInput>
 
-          <CheckBox v-model="editFlags[0]" @change="updatedFlags = true">Challenge will be visibile on active
+          <CheckBox :disabled="challenge.runningStatus !== 0" v-model="editFlags[0]" @change="updated = true">Challenge
+            will be visibile on active
             challenges
             page</CheckBox>
-          <CheckBox v-model="editFlags[1]" @change="updatedFlags = true">Allow anonymous joins</CheckBox>
-          <CheckBox v-model="editFlags[2]" @change="updatedFlags = true">Allow joiners to remove answers</CheckBox>
-          <CheckBox v-model="editFlags[3]" @change="updatedFlags = true">Start challenge automatically at <i>starting
+          <CheckBox :disabled="challenge.runningStatus !== 0" v-model="editFlags[1]" @change="updated = true">Allow
+            anonymous joins</CheckBox>
+          <CheckBox :disabled="challenge.runningStatus !== 0" v-model="editFlags[2]" @change="updated = true">Allow
+            joiners to remove answers</CheckBox>
+          <CheckBox :disabled="challenge.runningStatus !== 0" v-model="editFlags[3]" @change="updated = true">Start
+            challenge automatically at <i>starting
               time</i></CheckBox>
 
-          <InputBlock type="number" placeholder="number of teams" label="Maximum teams for participation" v-model="updateChallengeForm.maxTeamPerUser" />
+        </fieldset>
+        <fieldset :disabled="challenge.runningStatus >= 2">
+          <InputBlock @change="updated = true" type="number" placeholder="number of teams" required=""
+            label="Maximum teams for participation" v-model="updateChallengeForm.maxTeamPerUser" />
+          <InputBlock @change="updated = true" type="number" placeholder="base points" required=""
+            label="base points for every team" v-model="updateChallengeForm.basePoints" />
 
-          <button class="btn primary" @click="saveChallenge">Save flags</button>
+          <input v-if="challenge.runningStatus < 2" type="submit" value="Save" class="btn primary"
+            @click="saveChallenge">
 
           <hr />
 
@@ -237,11 +257,14 @@ export default {
                 label="Correct answers per question before stop increment points" />
               <InputBlock @change="updatedAlgorithmSettings = true" v-model="algorithmSettings.bn"
                 label="Bonus points for first answers (separated by comma)" pattern="^(,*[0-9]+)+$"></InputBlock>
-              <input type="submit" value="Save algorithm settings" class="btn primary">
+              <input v-if="challenge.runningStatus < 2" type="submit" value="Save algorithm settings"
+                class="btn primary">
             </form>
             <hr />
           </div>
+        </fieldset>
 
+        <div v-if="challenge.runningStatus === 1">
           <h4>Submit challenge</h4>
 
           <Alert type="warning">
@@ -280,23 +303,25 @@ export default {
 
         <form @submit="saveChallenge">
           <div v-for="(_, qid) in updateChallengeForm.questions" :key="qid" class="">
-            <InputBlock @change="updatedQuestions = true" @keyup="updatedQuestions = true"
-              v-model="updateChallengeForm.questions[qid]" :placeholder="'Type answer for #' + (qid + 1)"
-              :label="'Question #' + (qid + 1)">
-              <button @click="updateChallengeForm.questions.splice(qid, 1)" class="btn danger small">
+            <InputBlock :disabled="challenge.runningStatus >= 2" tabindex="0" @change="updatedQuestions = true"
+              @keyup="updatedQuestions = true" v-model="updateChallengeForm.questions[qid]"
+              :placeholder="'Type answer for #' + (qid + 1)" :label="'Question #' + (qid + 1)">
+              <button v-if="challenge.runningStatus < 2" tabindex="-1"
+                @click="updateChallengeForm.questions.splice(qid, 1)" class="btn danger small">
                 <SlTrash />
               </button>
             </InputBlock>
           </div>
 
-          <div class="text-center">
+          <div v-if="challenge.runningStatus < 2" class="text-center">
 
-            <button type="button" class="btn secondary small" @click="updateChallengeForm.questions.push('')">
+            <button tabindex="0" type="button" class="btn secondary small"
+              @click="updateChallengeForm.questions.push('')">
               <SlPlus />
             </button>
+            <input type="submit" class="btn primary" value="Save Questions" />
           </div>
 
-          <input type="submit" class="btn primary" value="Save Questions" />
         </form>
 
       </div>
@@ -332,25 +357,6 @@ export default {
 
       <button class="btn warning" @click="saveChallenge(null, 'submit')">Submit challenge</button>
 
-    </Modal>
-
-
-
-    <Modal title="Edit challenge settings" ref="editChallengeModal">
-      <Alert type="danger" v-if="updateChallengeStatus === 'error'">
-        We encountered an error trying to edit challenge details
-      </Alert>
-      <Alert type="success" v-if="updateChallengeStatus === 'success'">
-        Challenge details saved successfully
-      </Alert>
-      <form @submit="saveChallenge">
-        <InputBlock v-model="updateChallengeForm.name" placeholder="name" label="Challenge name" />
-        <DateTimeInput :min="new Date().getTime()" :max="updateChallengeForm.endTime"
-          v-model="updateChallengeForm.startTime" label="Starting Time"></DateTimeInput>
-        <DateTimeInput :min="updateChallengeForm.startTime" v-model="updateChallengeForm.endTime" label="Ending Time">
-        </DateTimeInput>
-        <input type="submit" class="btn primary" value="Save">
-      </form>
     </Modal>
   </div>
 

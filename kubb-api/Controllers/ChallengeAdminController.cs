@@ -72,23 +72,29 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         // Challenge should be set in "DRAFT" status to be modified
         var challenge = context.Challenges.Include(challenge => challenge.Administrator).FirstOrDefault(challenge =>
             challenge.ChallengeId == request.ChallengeId && challenge.Administrator == user &&
-            (challenge.RunningStatus == RunningChallengeStatus.Draft || challenge.RunningStatus == RunningChallengeStatus.Submitted) );
+            (challenge.RunningStatus == RunningChallengeStatus.Draft || challenge.RunningStatus == RunningChallengeStatus.Submitted));
 
         if (challenge == null) return Unauthorized();
 
         // allow only setting status to submitted
-        if (request.RunningStatus != RunningChallengeStatus.Submitted && request.RunningStatus != RunningChallengeStatus.Draft) {
+        if (request.RunningStatus != RunningChallengeStatus.Submitted && request.RunningStatus != RunningChallengeStatus.Draft)
+        {
             return Unauthorized();
         }
-        
-        challenge.Name = request.Name;
-        challenge.StartTime = request.StartTime;
-        challenge.EndTime = request.EndTime;
-        challenge.Status = request.Status;
-        challenge.RunningStatus = request.RunningStatus;
+
+        if (challenge.RunningStatus == RunningChallengeStatus.Draft)
+        {
+            challenge.Name = request.Name;
+            challenge.StartTime = request.StartTime;
+            challenge.EndTime = request.EndTime;
+            challenge.RunningStatus = request.RunningStatus;
+            challenge.Status = request.Status;
+        }
         challenge.Questions = request.Questions;
         challenge.MaxTeamPerUser = request.MaxTeamPerUser;
+        challenge.BasePoints = request.BasePoints;
         challenge.AlgorithmSettings = request.AlgorithmSettings;
+
 
         context.SaveChanges();
 
@@ -97,11 +103,12 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
 
 
     [HttpPost]
-    public ActionResult DeleteChallenge([FromBody] GenericChallengeRequest request) {
+    public ActionResult DeleteChallenge([FromBody] GenericChallengeRequest request)
+    {
 
         var currentUser = CurrentUser();
         var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId && challenge.Administrator == currentUser);
-        
+
         if (challenge == null) return Unauthorized();
 
         // Stuff to delete
@@ -119,12 +126,13 @@ public class ChallengeAdminController(DatabaseContext context) : BaseController
         return Ok();
 
     }
-    
+
     [HttpPost]
-    public ActionResult ManualStart([FromBody] GenericChallengeRequest request) {
+    public ActionResult ManualStart([FromBody] GenericChallengeRequest request)
+    {
         var currentUser = CurrentUser();
         var challenge = context.Challenges.FirstOrDefault(challenge => challenge.ChallengeId == request.ChallengeId && challenge.Administrator == currentUser);
-        
+
         if (challenge == null || (challenge.Status & ChallengeStatus.StartEnabled) != 0) return Unauthorized();
 
         var timeDifference = challenge.EndTime.Subtract(challenge.StartTime).TotalSeconds;

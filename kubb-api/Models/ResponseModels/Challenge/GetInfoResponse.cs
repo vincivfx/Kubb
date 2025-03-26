@@ -11,6 +11,7 @@ public class GetInfoResponse
         public Guid TeamId { get; set; } = team.TeamId;
         public string TeamName { get; set; } = team.TeamName;
         public TeamType TeamType { get; set; } = team.TeamType;
+        public string OptionString { get; set; } = team.OptionString;
     }
 
     public class Challenge(Models.Challenge challenge)

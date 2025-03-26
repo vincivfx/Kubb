@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using KubbAdminAPI.Models.ResponseModels.ChallengeAdmin;
 using KubbAdminAPI.Utils;
 
-namespace KubbAdminAPI.Models.ResponseModels.ChallengeAdmin;
+namespace KubbAdminAPI.Models.RequestModels.ChallengeAdmin;
 
 public class UpdateChallengeRequest
 {
@@ -31,6 +32,9 @@ public class UpdateChallengeRequest
     public required string AlgorithmSettings { get; set; } = "{}";
 
     [Required, Range(1, 50)]
-    public int MaxTeamPerUser {get;set;}
+    public int MaxTeamPerUser { get; set; }
+
+    [Required, Range(0, 500)]
+    public int BasePoints { get; set; }
 
 }

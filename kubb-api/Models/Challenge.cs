@@ -22,7 +22,7 @@ public class Challenge : BaseModel
     [Required]
     public required List<string> Questions { get; set; } = [];
 
-    public int MaxTeamPerUser { get; set; } = 0;
+    public int MaxTeamPerUser { get; set; } = 1;
 
     public string AlgorithmSettings { get; set; } = "{}";
 
@@ -30,7 +30,7 @@ public class Challenge : BaseModel
 
     public RunningChallengeStatus RunningStatus { get; set; } = RunningChallengeStatus.Draft;
 
-
+    public int BasePoints { get; set; } = 200;
 
 }
 

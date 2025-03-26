@@ -249,6 +249,8 @@ public class ChallengeController(DatabaseContext context) : BaseController
             Challenge = challenge
         };
 
+        if (user == challenge.Administrator) team.TeamType = TeamType.None;
+
         context.Teams.Add(team);
         context.SaveChanges();
 
