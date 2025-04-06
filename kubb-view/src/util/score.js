@@ -66,8 +66,8 @@ export default {
 
                 let points = parts[j].replace(/H|J|-$|\+$/g, '');
 
-                if (points !== '' && points < 0) arrow = 'down';
-                if (points !== '' && points > 0) arrow = 'up';
+                if (points !== '') arrow = 'down';
+                if (points !== '' && (points > 0)) arrow = 'up';
 
                 totalPoints += 1 * points;
 

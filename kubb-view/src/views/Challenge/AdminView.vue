@@ -114,7 +114,7 @@ export default {
       this.teams = response.data.teams;
       this.participations = response.data.participations;
 
-      const algorithmSettingsRaw = this.challenge.algorithmSettings;
+      const algorithmSettingsRaw = JSON.parse(this.challenge.algorithmSettings);
 
       const algorithmSettings = {
         dt: algorithmSettingsRaw.dt ?? 3,
@@ -264,7 +264,7 @@ export default {
           </div>
         </fieldset>
 
-        <div v-if="challenge.runningStatus === 1">
+        <div v-if="challenge.runningStatus === 0">
           <h4>Submit challenge</h4>
 
           <Alert type="warning">

@@ -2,6 +2,7 @@ using KubbAdminAPI.Filters;
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Models.RequestModels;
 using KubbAdminAPI.Models.RequestModels.Challenge;
+using KubbAdminAPI.Models.ResponseModels;
 using KubbAdminAPI.Models.ResponseModels.Challenge;
 using KubbAdminAPI.Models.ResponseModels.Home;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         if (pagination.Limit > 100) return BadRequest();
         var user = CurrentUser();
         var challenges = context.Challenges.Where(challenge => challenge.Administrator == user)
-            .OrderByDescending(challenge => challenge.EndTime).Select(challenge => new AllResponse.Challenge(challenge)).Skip(pagination.Offset * pagination.Limit)
+            .OrderByDescending(challenge => challenge.EndTime).Select(challenge => new ChallengeSingle(challenge)).Skip(pagination.Offset * pagination.Limit)
             .Take(pagination.Limit).ToList();
         var count = context.Challenges.Count(challenge => challenge.Administrator == user);
         return Ok(new AllResponse(count, challenges));
@@ -51,7 +52,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var currentUser = CurrentUser()!;
         var participations = context.Participations.Include(participation => participation.Challenge).Where(participation => participation.User == currentUser)
-            .OrderByDescending(participation => participation.Challenge.StartTime).Skip(pagination.Limit * pagination.Offset).Take(pagination.Limit).Select(participation => new GetCurrentParticipationsResponse.Challenge(participation.Challenge))
+            .OrderByDescending(participation => participation.Challenge.StartTime).Skip(pagination.Limit * pagination.Offset).Take(pagination.Limit).Select(participation => new ChallengeSingle(participation.Challenge))
             .ToList();
         var totalCount = context.Participations.Count(participation => participation.User == currentUser);
         return Ok(new GetCurrentParticipationsResponse(totalCount, participations));
@@ -65,7 +66,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
             context.Challenges.Where(challenge => (challenge.RunningStatus == RunningChallengeStatus.Submitted) && (challenge.Status & ChallengeStatus.AllowAnonymousJoin) != 0)
-                .OrderBy(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengesResponse.Challenge(challenge)).ToList();
+                .OrderBy(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengeSingle(challenge)).ToList();
         var totalCount = context.Challenges.Count(challenge => (challenge.RunningStatus == RunningChallengeStatus.Submitted) && (challenge.Status & ChallengeStatus.AllowAnonymousJoin) != 0);
         return Ok(new ChallengesResponse(challenges, totalCount));
     }

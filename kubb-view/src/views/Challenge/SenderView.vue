@@ -166,7 +166,7 @@ export default {
 
       <Alert type="warning"
         v-if="setJollyAlert !== 'success' && getCurrentTeamJolly() && getCurrentTeamJolly().optionString.j">
-        Jolly already set on <b>Question {{ getCurrentTeamJolly().optionString.j }}</b> for team <b>{{
+        Jolly already set on <b>Question {{ getCurrentTeamJolly().optionString.j + 1 }}</b> for team <b>{{
           getCurrentTeamJolly().teamName }}</b>
       </Alert>
 

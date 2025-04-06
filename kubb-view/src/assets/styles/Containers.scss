@@ -7,9 +7,10 @@
     background-color: #fff;
     border: 1px solid #333;
     
-    @media(max-width: 600px) {
-        margin: 24px 0;
+    @media(max-width: 800px) {
         width: 100%;
+        margin: 0;
+        box-shadow: none;
     }
 }
 

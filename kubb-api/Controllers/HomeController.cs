@@ -6,6 +6,7 @@ using KubbAdminAPI.Models.ResponseModels.Home;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using KubbAdminAPI.Filters;
+using KubbAdminAPI.Models.ResponseModels;
 
 namespace KubbAdminAPI.Controllers;
 
@@ -21,7 +22,7 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
             _context.Challenges.Where(challenge => (challenge.RunningStatus == RunningChallengeStatus.Submitted || challenge.RunningStatus == RunningChallengeStatus.Running) && (challenge.Status & ChallengeStatus.Visible) != 0)
-                .OrderBy(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengesResponse.Challenge(challenge)).ToList();
+                .OrderBy(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengeSingle(challenge)).ToList();
         var totalCount = _context.Challenges.Count(challenge => (challenge.RunningStatus == RunningChallengeStatus.Submitted || challenge.RunningStatus == RunningChallengeStatus.Running) && (challenge.Status & ChallengeStatus.Visible) != 0);
         return Ok(new ChallengesResponse(challenges, totalCount));
     }
@@ -32,7 +33,7 @@ public class HomeController(DatabaseContext _context, IMemoryCache _cache, IConf
         if (pagination.Limit > 100) return BadRequest("Limit can't be more than 100");
         var challenges =
             _context.Challenges.Where(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0)
-                .OrderByDescending(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengesResponse.Challenge(challenge)).ToList();
+                .OrderByDescending(challenge => challenge.StartTime).Skip(pagination.Offset * pagination.Limit).Take(pagination.Limit).Select(challenge => new ChallengeSingle(challenge)).ToList();
         var totalCount = _context.Challenges.Count(challenge => (challenge.RunningStatus == RunningChallengeStatus.Frozen || challenge.RunningStatus == RunningChallengeStatus.Terminated) && (challenge.Status & ChallengeStatus.Visible) != 0);
         return Ok(new ChallengesResponse(challenges, totalCount));
     }

@@ -6,6 +6,8 @@ using KubbAdminAPI.Models.RequestModels.Admin;
 using KubbAdminAPI.Models;
 using KubbAdminAPI.Utils;
 using KubbAdminAPI.Singletons;
+using KubbAdminAPI.Models.ResponseModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace KubbAdminAPI.Controllers;
 
@@ -35,15 +37,15 @@ public class AdminController(DatabaseContext context, EmailTask emailTask, IConf
     }
 
     [HttpGet]
-    public ActionResult<GetUserChallengesResponse> GetUserChallenges([FromQuery] Guid UserId)
+    public ActionResult<List<ChallengeSingle>> GetUserChallenges([FromQuery] Guid UserId)
     {
         var user = context.Users.FirstOrDefault(user => user.UserId == UserId);
 
         if (user == null) return NotFound();
 
-        var challenges = context.Challenges.Where(challenge => challenge.Administrator == user).Select(challenge => new GetUserChallengesResponse.Challenge(challenge)).ToList();
+        var challenges = context.Challenges.Include(challenge => challenge.Administrator).Where(challenge => challenge.Administrator == user).Select(challenge => new ChallengeSingle(challenge)).ToList();
 
-        return Ok(new GetUserChallengesResponse(challenges));
+        return Ok(challenges);
     }
 
     [HttpPost]
@@ -69,7 +71,7 @@ public class AdminController(DatabaseContext context, EmailTask emailTask, IConf
             {
                 var temporaryPassword = user.SetTemporaryPassword();
                 emailText += "<br><br>Use this password for the first login: <b>" + temporaryPassword + "</b>";
-                user.Status &= UserStatus.MustChangePassword;
+                user.Status |= UserStatus.MustChangePassword;
             }
             emailText += "<br><br>best regards,<br>Kubb Contest Platform";
             emailTask.EnqueueEmail(EmailFactory.CreateEmailMessage(request.EmailAddress, "Verify your Account", emailText));

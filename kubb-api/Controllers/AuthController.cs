@@ -34,7 +34,7 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
         var user = context.Users.FirstOrDefault(user => user.EmailAddress == request.EmailAddress);
 
         // if user not found or user not active return error 401 
-        if (user == null || (user.Status & UserStatus.Active) != UserStatus.Active)
+        if (user == null || (user.Status & UserStatus.Active) != UserStatus.Active || !user.CheckPassword(request.Password))
         {
             return new UnauthorizedResult();
         }
@@ -166,7 +166,6 @@ public class AuthController(DatabaseContext context, TurnstileService turnstileS
     [HttpPost, AuthenticationFilter(false)]
     public ActionResult UpdatePassword([FromBody] UpdatePasswordRequest request)
     {
-
         var login = CurrentUserLoginNullable();
 
         if (login == null) return Unauthorized();

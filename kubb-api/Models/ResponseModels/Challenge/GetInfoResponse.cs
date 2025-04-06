@@ -1,5 +1,3 @@
-using KubbAdminAPI.Models.ResponseModels.Home;
-
 namespace KubbAdminAPI.Models.ResponseModels.Challenge;
 
 public class GetInfoResponse
@@ -14,7 +12,7 @@ public class GetInfoResponse
         public string OptionString { get; set; } = team.OptionString;
     }
 
-    public class Challenge(Models.Challenge challenge)
+    public class GetInfoChallengeItem(Models.Challenge challenge)
     {
         public Guid ChallengeId { get; set; } = challenge.ChallengeId;
         public string Name { get; set; } = challenge.Name;
@@ -25,12 +23,12 @@ public class GetInfoResponse
         public RunningChallengeStatus RunningStatus { get; set; } = challenge.RunningStatus;
     }
 
-    public Challenge ChallengeSetup { get; set; }
+    public GetInfoChallengeItem ChallengeSetup { get; set; }
 
     public GetInfoResponse(List<Models.Team> teams, Models.Challenge challenge)
     {
         Teams = [];
         foreach (var team in teams) Teams.Add(new InfoResponseTeam(team));
-        ChallengeSetup = new Challenge(challenge);
+        ChallengeSetup = new GetInfoChallengeItem(challenge);
     }
 }

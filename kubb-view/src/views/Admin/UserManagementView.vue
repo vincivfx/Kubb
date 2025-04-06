@@ -35,34 +35,39 @@
   </div>
 
   <Pagination @move="(i) => loadPage(page + i)" :page="page" :perPage="25" :count="count" />
-  <Modal :title="'Edit user - ' + user.emailAddress" ref="userInfoModal">
-    <Alert type="danger" v-if="updateUserStatus === 'error'">
-      Cannot save this user
-    </Alert>
-    <form @submit="updateUser">
-      <InputBlock label="Name" v-model="user.name" />
-      <InputBlock label="Surname" v-model="user.surname" />
+  <Modal class="modal-tabs" :title="'Edit user - ' + user.emailAddress" ref="userInfoModal">
+    <Tabs v-model="editUserTab" :tabs="[{text: 'Edit User', id: ''}, {text: 'Challenges', id: 'challenges'}]">
+      <AdminUserChallenges v-if="editUserTab === 'challenges'" :userId="user.UserId" />
+      <div v-if="editUserTab === ''">
+        <Alert type="danger" v-if="updateUserStatus === 'error'">
+          Cannot save this user
+        </Alert>
+        <form @submit="updateUser">
+          <InputBlock label="Name" v-model="user.name" />
+          <InputBlock label="Surname" v-model="user.surname" />
 
-      <CheckBox v-model="flags[1]">Is user active</CheckBox>
-      <CheckBox v-model="flags[2]">Must change password after next login</CheckBox>
-      <CheckBox v-model="flags[3]">Allow challenge creation</CheckBox>
-      <CheckBox v-model="flags[4]">Allow join</CheckBox>
-      <CheckBox v-model="flags[5]">Administrator</CheckBox>
+          <CheckBox v-model="flags[1]">Is user active</CheckBox>
+          <CheckBox v-model="flags[2]">Must change password after next login</CheckBox>
+          <CheckBox v-model="flags[3]">Allow challenge creation</CheckBox>
+          <CheckBox v-model="flags[4]">Allow join</CheckBox>
+          <CheckBox v-model="flags[5]">Administrator</CheckBox>
 
 
-      <CheckBox v-model="user.resetPassword">Reset password?</CheckBox>
+          <CheckBox v-model="user.resetPassword">Reset password?</CheckBox>
 
-      <div v-if="user.resetPassword">
-        <InputBlock v-model="user.password" label="Type user password" placeholder="password..."
-          type="password" />
-        <PasswordSecurityCheck :passwd="user.password" />
+          <div v-if="user.resetPassword">
+            <InputBlock v-model="user.password" label="Type user password" placeholder="password..."
+                        type="password" />
+            <PasswordSecurityCheck :passwd="user.password" />
+          </div>
+
+          <div class="text-right btn-group-right">
+            <button type="button" class="btn danger" @click="previewDelete()">Delete this user</button>
+            <input type="submit" value="Save user" class="btn primary">
+          </div>
+        </form>
       </div>
-
-      <div class="text-right btn-group-right">
-        <button type="button" class="btn danger" @click="previewDelete()">Delete this user</button>
-        <input type="submit" value="Save user" class="btn primary">
-      </div>
-    </form>
+    </Tabs>
   </Modal>
 
   <Modal title="Delete user" ref="deleteUserModal">
@@ -113,10 +118,12 @@ import InputBlock from '@/components/InputBlock.vue';
 import Modal from '@/components/Modal.vue';
 import Pagination from '@/components/Pagination.vue';
 import PasswordSecurityCheck from '@/components/PasswordSecurityCheck.vue';
+import AdminUserChallenges from '@/partials/AdminUserChallenges.vue';
 import { SlPlus } from 'vue-icons-plus/sl';
+import Tabs from "@/components/Tabs.vue";
 
 export default {
-  components: { Alert, Pagination, Badge, Modal, InputBlock, CheckBox, SlPlus, PasswordSecurityCheck },
+  components: {Tabs, AdminUserChallenges, Alert, Pagination, Badge, Modal, InputBlock, CheckBox, SlPlus, PasswordSecurityCheck },
   data: () => ({
     users: [],
     page: 0,
@@ -125,7 +132,8 @@ export default {
     updateUserStatus: '',
     flags: [],
     createUserForm: {},
-    createUserStatus: ""
+    createUserStatus: "",
+    editUserTab: ''
   }),
   methods: {
     createUser(e) {
