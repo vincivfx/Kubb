@@ -24,7 +24,7 @@ public class ScoreboardWorker(IServiceProvider serviceProvider) : BackgroundServ
         {
             var roundInit = DateTime.UtcNow;
 
-            var challenges = context.Challenges.Where(challenge => challenge.RunningStatus == Models.RunningChallengeStatus.Running).ToList();
+            var challenges = context.Challenges.Where(challenge => challenge.RunningStatus == Models.RunningChallengeStatus.Running).AsNoTracking().ToList();
 
             foreach (var challenge in challenges)
             {

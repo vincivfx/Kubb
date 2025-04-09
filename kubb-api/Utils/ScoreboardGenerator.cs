@@ -194,7 +194,7 @@ public class SimpleTeam
     public TeamOptionString TeamOptions { get; set; }
 }
 
-[JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
+// [JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
 public class AlgorithmSettings
 {
     [JsonPropertyName("bp")]
@@ -211,11 +211,10 @@ public class AlgorithmSettings
     public int freezeScoreboard { get; set; } = 0;
 
     [JsonPropertyName("bn")]
-
     public List<int> Bonus { get; set; } = [20, 15, 10, 8, 6, 5, 4, 3, 2, 1];
 }
 
-[JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
+// [JsonObjectCreationHandling(JsonObjectCreationHandling.Populate)]
 public class TeamOptionString
 {
     [JsonPropertyName("j")]
