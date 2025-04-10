@@ -28,18 +28,30 @@ export default {
       questionId: '',
       teamId: ''
     },
-    deleteAnswerItem: {}
+    deleteAnswerItem: {},
   }),
   methods: {
-    deleteAnswerPrepareForm(team, answerKey) {
-      this.deleteAnswerItem = { team, answer: team.answers[answerKey], answerKey };
+    deleteAnswerPrepareForm(team, answerKey, qid) {
+      this.deleteAnswerItem = { team, qid, answer: team.answers[qid][answerKey], answerKey, answerText: team.answers[qid][answerKey].answerText + "" };
       this.$refs.deleteAnswerModal.show();
     },
-    deleteAnswer() { 
+    editAnswer() {
+      this.$http.put("Challenge/EditAnswer", {
+        answerId: this.deleteAnswerItem.answer.answerId,
+        answerText: this.deleteAnswerItem.answerText
+      }).then((res) => {
+        this.deleteAnswerItem.team.answers[this.deleteAnswerItem.qid][this.deleteAnswerItem.answerKey].correctness = res.data.correctness;
+        this.deleteAnswerItem.team.answers[this.deleteAnswerItem.qid][this.deleteAnswerItem.answerKey].answerText = this.deleteAnswerItem.answerText;
+        this.$refs.deleteAnswerModal.hide();
+      }).catch(() => {
+        alert("error");
+      })
+    },
+    deleteAnswer() {
       this.$http.post("Challenge/DeleteAnswer", {
-        answerId: this.deleteAnswerItem.answer.answerId
+        answerId: this.deleteAnswerItem.answer.answerId,
       }).then(() => {
-        this.deleteAnswerItem.team.answers.splice(this.deleteAnswerItem.answerKey, 1);
+        delete this.deleteAnswerItem.team.answers[this.deleteAnswerItem.qid][this.deleteAnswerItem.answerKey];
         this.$refs.deleteAnswerModal.hide();
       }).catch(() => {
         alert("error");
@@ -83,6 +95,15 @@ export default {
     },
     getAnswers() {
       this.$http.get("Challenge/GetAnswers?challengeId=" + encodeURIComponent(this.$route.query.id)).then(res => {
+        res.data.answers.forEach(t => {
+          let answers = {};
+          t.answers.forEach(a => {
+            if (!answers[a.question]) answers[a.question] = {};
+            answers[a.question][a.answerId] = a;
+          })
+          t.answers = answers;
+        })
+        alert(JSON.stringify(res.data.answers))
         this.answers = res.data.answers;
       })
     }
@@ -206,9 +227,8 @@ export default {
                 {{ team.teamName }}
               </td>
               <td v-for="(_, qid) in questions" :key="qid">
-
-                <Badge @click="deleteAnswerPrepareForm(team, answerKey)" :type="answer.correctness ? 'success' : 'danger'"
-                  v-for="(answer, answerKey) in team.answers.filter(answer => answer.question === qid)"
+                <Badge v-if="team.answers[qid]" @click="deleteAnswerPrepareForm(team, answerKey, qid)"
+                  :type="answer.correctness ? 'success' : 'danger'" v-for="(answer, answerKey) in team.answers[qid]"
                   :key="answerKey">{{ answer.answerText }}</Badge>
               </td>
 
@@ -221,13 +241,15 @@ export default {
 
   </Tabs>
 
-  <Modal ref="deleteAnswerModal" title="Delete answer">
+  <Modal ref="deleteAnswerModal" title="Delete or edit answer">
     <div class="text-center">
       <p>
         Do you want to delete answer: <Badge :type="deleteAnswerItem.answer.correctness ? 'success' : 'danger'">{{
           deleteAnswerItem.answer.answerText }}</Badge> for team <b>{{ deleteAnswerItem.team.teamName }}</b>?
       </p>
+      <InputBlock v-model="deleteAnswerItem.answerText" label="new answer"></InputBlock>
       <div class="btn-group-right">
+        <button class="btn primary" @click="editAnswer()">Edit answer</button>
         <button class="btn danger" @click="deleteAnswer()">Yes, delete</button>
         <button class="btn" @click="$refs.deleteAnswerModal.hide()">Cancel</button>
       </div>

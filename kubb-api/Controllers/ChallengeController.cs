@@ -99,7 +99,7 @@ public class ChallengeController(DatabaseContext context) : BaseController
         return new OkResult();
     }
 
-    
+
     [HttpGet]
     public ActionResult<GetAnswersResponse> GetAnswers([FromQuery] Guid ChallengeId)
     {
@@ -182,19 +182,20 @@ public class ChallengeController(DatabaseContext context) : BaseController
         // if user not administrator and time expired for jolly return bad request
         if (team.Challenge.Administrator != currentUser && team.Challenge.StartTime.AddMinutes(10) < DateTime.UtcNow) return BadRequest();
 
-        team.OptionString = "{\"j\":"+request.QuestionId.ToString()+"}";
+        team.OptionString = "{\"j\":" + request.QuestionId.ToString() + "}";
         context.SaveChanges();
 
         return Ok();
     }
 
     [HttpPut]
-    public ActionResult EditAnswer([FromBody] EditAnswerRequest request)
+    public ActionResult<SendAnswerResponse> EditAnswer([FromBody] EditAnswerRequest request)
     {
-        var answer = context.Answers.Include(answer => answer.Team).ThenInclude(team => team.Challenge)
+        var currentUser = CurrentUser();
+        var answer = context.Answers.Include(answer => answer.Team).ThenInclude(team => team.Challenge).ThenInclude(ch => ch.Administrator)
             .FirstOrDefault(answer => answer.AnswerId == request.AnswerId);
 
-        if (answer == null || (answer.Team.Challenge.Status & ChallengeStatus.JoinersCanEditAnswer) !=
+        if (answer == null || answer.Team.Challenge.Administrator != currentUser && (answer.Team.Challenge.Status & ChallengeStatus.JoinersCanEditAnswer) !=
             ChallengeStatus.JoinersCanEditAnswer)
         {
             return BadRequest();
@@ -203,7 +204,10 @@ public class ChallengeController(DatabaseContext context) : BaseController
         answer.AnswerText = request.AnswerText;
         context.SaveChanges();
 
-        return Ok();
+        return Ok(new SendAnswerResponse
+        {
+            Correctness = answer.Team.Challenge.Questions[answer.Question] == request.AnswerText,
+        });
     }
 
     [HttpPost]
